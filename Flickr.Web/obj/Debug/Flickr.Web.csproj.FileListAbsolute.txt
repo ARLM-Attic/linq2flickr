@@ -1,0 +1,7 @@
+C:\Personal\Flickr\Flickr\Flickr.Web\bin\Flickr.Web.dll
+C:\Personal\Flickr\Flickr\Flickr.Web\bin\Flickr.Web.pdb
+C:\Personal\Flickr\Flickr\Flickr.Web\bin\Flickr.Core.dll
+C:\Personal\Flickr\Flickr\Flickr.Web\bin\Flickr.Core.pdb
+C:\Personal\Flickr\Flickr\Flickr.Web\obj\Debug\ResolveAssemblyReference.cache
+C:\Personal\Flickr\Flickr\Flickr.Web\obj\Debug\Flickr.Web.dll
+C:\Personal\Flickr\Flickr\Flickr.Web\obj\Debug\Flickr.Web.pdb
