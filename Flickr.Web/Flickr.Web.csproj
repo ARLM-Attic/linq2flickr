@@ -50,6 +50,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Default.aspx" />
+    <Content Include="default.css" />
+    <Content Include="flickr_logo.gif" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

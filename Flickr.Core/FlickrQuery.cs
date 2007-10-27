@@ -87,6 +87,15 @@ namespace Flickr.Core
         private void ExtractDataFromExpression(Photo bucket, Expression left , Expression right)
         {
             Expression rightExpression = right;
+
+            MemberExpression memberExpression = (MemberExpression)left;
+            string originalMembername = memberExpression.Member.Name;
+            string callingMemberName = string.Empty;
+            if (right is MemberExpression)
+            {
+                callingMemberName = ((MemberExpression)right).Member.Name;
+            }
+
             // find leaf
             while (true)
             {
@@ -110,15 +119,13 @@ namespace Flickr.Core
                 }
             }
             
-            MemberExpression memberExpression = (MemberExpression)left;
-            string name = memberExpression.Member.Name;
             
             PropertyInfo[] infos = bucket.GetType().GetProperties();
 
             foreach (PropertyInfo info in infos)
             {
 
-                if (string.Compare(info.Name, name, false) == 0)
+                if (string.Compare(info.Name, originalMembername, false) == 0)
                 {
                     object[] attr = info.GetCustomAttributes(typeof(UseInExpressionAttribute), false);
 
@@ -144,12 +151,12 @@ namespace Flickr.Core
                             }
                             else
                             {
-                                ProcessMemberAccess(name, (ConstantExpression)rightExpression, bucket, info);
+                                ProcessMemberAccess(callingMemberName, (ConstantExpression)rightExpression, bucket, info);
                             }
                         }
                         else if (rightExpression.NodeType == ExpressionType.MemberAccess)
                         {
-                            ProcessMemberAccess(name, rightExpression, bucket, info);
+                            ProcessMemberAccess(callingMemberName, rightExpression, bucket, info);
                         }
                     }
                 }

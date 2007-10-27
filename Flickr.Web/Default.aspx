@@ -4,15 +4,30 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head runat="server">
-    <title>Untitled Page</title>
+    <title>Flickr Test App</title>
+    <link href="default.css" rel="stylesheet" type="text/css" />
 </head>
-<body>
+<body id="header">
     <form id="form1" runat="server">
+        <div class="header_wrapper">
+        <table style="width:100%;">
+        <tr>
+        <td>
+            <img alt="Flickr Logo" src="flickr_logo.gif" style="width: 98px;height: 26px" /></td>
+        <td align="right">
+            
+         <asp:TextBox ID="textboxSearch" runat="server"></asp:TextBox>
+        <asp:Button ID="buttonSearch" runat="server" Text="Search" 
+                onclick="buttonSearch_Click"  />
+        </td>
+        </tr>
+        </table>
+        </div>
         <table style="background-color:Black;border:0;color:White;" cellpadding="0" cellspacing="0">
-       
+        
         <tr>
         <td  align="center">
-        <asp:Panel ID="nomarlView" runat="server" style="width:240px;padding-left:5px;padding-top:2px;">
+        <asp:Panel ID="nomarlView" runat="server" style="width:240px;padding-left:5px;padding-top:2px;height:325px;">
         <asp:Repeater ID="lstPhotos" runat="server"  
                 onitemdatabound="lstPhotos_ItemDataBound" 
                 onitemcommand="lstPhotos_ItemCommand" >
@@ -36,7 +51,7 @@
                  <asp:HiddenField ID="hPhotoId" runat="server" />     
              </td>
              </tr>
-             <tr><td><asp:Image runat="server" ID="photoDetail" BorderColor="white" /></td></tr>
+             <tr ><td style="width:505px;height:377px;"><asp:Image runat="server" ID="photoDetail" BorderColor="white" /></td></tr>
                   <tr>
                       <td>
                           &nbsp;

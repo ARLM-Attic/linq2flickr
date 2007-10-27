@@ -26,8 +26,11 @@ namespace Flickr.Web
         private void BindData()
         {
             FlickrContext context = new FlickrContext();
+
+            string text = textboxSearch.Text;
+
             var query = (from ph in context.Photos
-                         where ph.ViewMode == ViewMode.Owner
+                         where ph.ViewMode == ViewMode.Owner && ph.SearchText == text
                          select ph).Take(12).Skip(0);
 
             lstPhotos.DataSource = query.ToList<Photo>();
@@ -108,5 +111,12 @@ namespace Flickr.Web
             nomarlView.Visible = true;
             BindData();
         }
+
+        protected void buttonSearch_Click(object sender, EventArgs e)
+        {
+            this.BindData();
+        }
+
+       
     }
 }
