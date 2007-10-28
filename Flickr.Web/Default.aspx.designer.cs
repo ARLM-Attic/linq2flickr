@@ -23,6 +23,24 @@ namespace Flickr.Web {
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
         
         /// <summary>
+        /// rbPublic control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RadioButton rbPublic;
+        
+        /// <summary>
+        /// rbMeOnly control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RadioButton rbMeOnly;
+        
+        /// <summary>
         /// textboxSearch control.
         /// </summary>
         /// <remarks>
@@ -102,6 +120,15 @@ namespace Flickr.Web {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Image photoDetail;
+        
+        /// <summary>
+        /// panelUpload control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel panelUpload;
         
         /// <summary>
         /// uploader control.

@@ -11,6 +11,8 @@ using System.Web;
 using System.Net;
 using System.Web.Security;
 using Flickr.Core.Interface;
+using Flickr.Core.Attribute;
+using System.Reflection;
 
 namespace Flickr.Core
 {

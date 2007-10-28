@@ -19,9 +19,22 @@ namespace Flickr.Web
         {
             if (!IsPostBack)
             {
+                if (ShowOnlyMyPhotos)
+                {
+                    rbMeOnly.Checked = true;
+                    rbPublic.Checked = false;
+                }
+                else
+                {
+                    rbPublic.Checked = true;
+                    rbMeOnly.Checked = false;
+                }
+
                 this.BindData();
             }
         }
+
+        private bool ShowOnlyMyPhotos =Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["showOnlyMyPhotots"]);
 
         private void BindData()
         {
@@ -29,8 +42,22 @@ namespace Flickr.Web
 
             string text = textboxSearch.Text;
 
+            ViewMode mode = ViewMode.Public;
+
+            if (rbMeOnly.Checked)
+            {
+                mode = ViewMode.Owner;
+                panelUpload.Visible = true;
+                lnkDelete.Visible = true;
+            }
+            else
+            {
+                lnkDelete.Visible = false;
+                panelUpload.Visible = false;
+            }
+
             var query = (from ph in context.Photos
-                         where ph.ViewMode == ViewMode.Owner && ph.SearchText == text
+                         where ph.ViewMode == mode && ph.SearchText == text
                          select ph).Take(12).Skip(0);
 
             lstPhotos.DataSource = query.ToList<Photo>();
@@ -113,6 +140,16 @@ namespace Flickr.Web
         }
 
         protected void buttonSearch_Click(object sender, EventArgs e)
+        {
+            this.BindData();
+        }
+
+        protected void rbPublic_CheckedChanged(object sender, EventArgs e)
+        {
+            this.BindData();
+        }
+
+        protected void rbMeOnly_CheckedChanged(object sender, EventArgs e)
         {
             this.BindData();
         }

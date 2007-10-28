@@ -15,7 +15,13 @@
         <td>
             <img alt="Flickr Logo" src="flickr_logo.gif" style="width: 98px;height: 26px" /></td>
         <td align="right">
-            
+            <div  style="font-size:small;display:inline;color:Gray;padding-right:5px;">
+            <span style="text-transform:uppercase">Visibility:</span>
+            <asp:RadioButton ID="rbPublic" runat="server" GroupName="vsb" Text="Public"  
+                    AutoPostBack="true" oncheckedchanged="rbPublic_CheckedChanged"  />
+            <asp:RadioButton ID="rbMeOnly" runat="server" Text="Only Me"  GroupName="vsb" 
+                    Checked="true" AutoPostBack="true" oncheckedchanged="rbMeOnly_CheckedChanged" />
+            </div>
          <asp:TextBox ID="textboxSearch" runat="server"></asp:TextBox>
         <asp:Button ID="buttonSearch" runat="server" Text="Search" 
                 onclick="buttonSearch_Click"  />
@@ -64,6 +70,8 @@
         </table>
        
        <br />
+    <asp:Panel ID="panelUpload" runat="server" Visible="false">
+    
        <h4 style="border-bottom:solid 1px #ccc;text-transform:uppercase;">Upload photo</h4>
             
            
@@ -71,6 +79,7 @@
             <asp:Button ID="btnUpload" runat="server" onclick="btnUpload_Click" 
                 Text="Upload" />
            
+     </asp:Panel>      
     </form>
 </body>
 </html>

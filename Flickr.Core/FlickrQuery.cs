@@ -95,6 +95,11 @@ namespace Flickr.Core
             {
                 callingMemberName = ((MemberExpression)right).Member.Name;
             }
+            else if (right is UnaryExpression)
+            {
+                UnaryExpression uRight = (UnaryExpression)right;
+                callingMemberName = ((MemberExpression)uRight.Operand).Member.Name;
+            }
 
             // find leaf
             while (true)
@@ -328,6 +333,13 @@ namespace Flickr.Core
                     {
                         token = flickr.Authenticate(authenticate);
                     }
+
+                    // addition to parameterless search, if there is no token and searchtext , get recent photos.
+                    if (string.IsNullOrEmpty(token) && string.IsNullOrEmpty(bucket.SearchText))
+                    {
+                        _getRecent = true;
+                    }
+
                     // if authenticated call, without params , then get my photos.
                     if (!string.IsNullOrEmpty(token) && _getRecent)
                     {
