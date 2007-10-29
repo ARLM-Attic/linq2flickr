@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Flickr.Core;
+using Linq.Flickr;
 
 namespace Flickr.Test
 {
@@ -22,8 +22,8 @@ namespace Flickr.Test
             User = "chschulz";
             // do query.
             var query = (from ph in context.Photos
-                         where ph.User == User && ph.SearchText == "New York" && ph.PhotoSize == PhotoSize.Thumbnail
-                         select ph).Take(10).Skip(0);
+                         where ph.User == User && ph.PhotoSize == PhotoSize.Thumbnail && ph.Tags =="usa,sign"
+                         select ph).Take(5).Skip(0);
 
             try
             {

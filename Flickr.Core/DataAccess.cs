@@ -10,11 +10,11 @@ using System.IO;
 using System.Web;
 using System.Net;
 using System.Web.Security;
-using Flickr.Core.Interface;
-using Flickr.Core.Attribute;
+using Linq.Flickr.Interface;
+using Linq.Flickr.Attribute;
 using System.Reflection;
 
-namespace Flickr.Core
+namespace Linq.Flickr
 {
 
     public class Permission

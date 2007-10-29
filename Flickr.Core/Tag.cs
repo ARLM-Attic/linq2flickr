@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Flickr.Core
+namespace Linq.Flickr
 {
     public class Tag
     {

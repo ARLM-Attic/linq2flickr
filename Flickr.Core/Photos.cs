@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
-using Flickr.Core.Interface;
+using Linq.Flickr.Interface;
 
-namespace Flickr.Core
+namespace Linq.Flickr
 {
     [Serializable]
     public abstract class Photos : IPhotoList<Photo>

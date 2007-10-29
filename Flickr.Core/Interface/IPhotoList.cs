@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Flickr.Core.Interface
+namespace Linq.Flickr.Interface
 {
     public interface IPhotoList<T>
     {

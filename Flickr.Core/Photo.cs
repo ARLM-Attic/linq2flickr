@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using Flickr.Core.Attribute;
+using Linq.Flickr.Attribute;
 using System.IO;
 using System.Drawing;
 
-namespace Flickr.Core
+namespace Linq.Flickr
 {
     /// <summary>
     ///  AND means the result will ANED with tags, And OR means it will be ORED.

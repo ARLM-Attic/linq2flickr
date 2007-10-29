@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
 using System.Reflection;
-using Flickr.Core.Attribute;
+using Linq.Flickr.Attribute;
 using System.Collections;
 using System.Collections.ObjectModel;
-using Flickr.Core.Interface;
+using Linq.Flickr.Interface;
 
-namespace Flickr.Core
+namespace Linq.Flickr
 {
     [Serializable]
     public class FlickrQuery : Photos, IQueryable<Photo>, IQueryProvider

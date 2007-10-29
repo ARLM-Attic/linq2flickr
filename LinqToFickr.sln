@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flickr.Core", "Flickr.Core\Flickr.Core.csproj", "{716F1EDD-B85E-45FB-B757-BFFC8CB2A011}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq.Flickr", "Flickr.Core\Linq.Flickr.csproj", "{716F1EDD-B85E-45FB-B757-BFFC8CB2A011}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flickr.Test", "Flickr.Test\Flickr.Test.csproj", "{9C547C17-EB98-467F-BC7C-225434DC7675}"
 EndProject

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Linq.Flickr.Attribute;
 
-namespace Flickr.Core.Interface
+namespace Linq.Flickr.Interface
 {
     public interface IFlickr : IDisposable
     {

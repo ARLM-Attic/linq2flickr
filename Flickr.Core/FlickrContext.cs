@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Flickr.Core.Interface;
+using Linq.Flickr.Interface;
 
-namespace Flickr.Core
+namespace Linq.Flickr
 {
     [Serializable]
     public class FlickrContext 

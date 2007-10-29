@@ -8,7 +8,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
-using Flickr.Core;
+using Linq.Flickr;
 using System.IO;
 
 namespace Flickr.Web
@@ -42,6 +42,9 @@ namespace Flickr.Web
 
             string text = textboxSearch.Text;
 
+            detailView.Visible = false;
+            nomarlView.Visible = true;
+        
             ViewMode mode = ViewMode.Public;
 
             if (rbMeOnly.Checked)
