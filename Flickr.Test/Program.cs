@@ -22,7 +22,7 @@ namespace Flickr.Test
             User = "chschulz";
             // do query.
             var query = (from ph in context.Photos
-                         where ph.User == User && ph.PhotoSize == PhotoSize.Thumbnail && ph.Tags =="usa,sign"
+                         where ph.User == User && ph.PhotoSize == PhotoSize.Thumbnail && ph.SearchText == "New york"
                          select ph).Take(5).Skip(0);
 
             try
