@@ -33,7 +33,7 @@
   <ItemGroup>
     <Reference Include="Linq.Flickr, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Flickr.Core\bin\Debug\Linq.Flickr.dll</HintPath>
+      <HintPath>..\Linq.Flickr\bin\Debug\Linq.Flickr.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
