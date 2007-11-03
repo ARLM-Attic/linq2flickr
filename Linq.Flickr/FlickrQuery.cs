@@ -426,13 +426,10 @@ namespace Linq.Flickr
             }
             else
             {
-                foreach (var param in methodcall.Arguments)
-                {
-                    ProcessExpression(param, _dummyPhotoObject);
-                }
+                ProcessExpression(methodcall.Arguments[1], _dummyPhotoObject);
             }
             
-            return (IQueryable<S>)this;
+            return (IQueryable<S>)((ConstantExpression) methodcall.Arguments[0]).Value;
         }
 
         public IQueryable CreateQuery(System.Linq.Expressions.Expression expression)
