@@ -33,20 +33,20 @@ namespace Linq.Flickr
             {
                 this.ProcessBinaryResult((BinaryExpression)expression, ExpressionType.Equal, photo);
             }
-            if (expression.NodeType == ExpressionType.AndAlso)
+            else if (expression.NodeType == ExpressionType.AndAlso)
             {
                 this.ProcessExpression(((BinaryExpression)expression).Left, photo);
                 this.ProcessExpression(((BinaryExpression)expression).Right, photo);
             }
-            if (expression.NodeType == ExpressionType.OrElse)
+            else if (expression.NodeType == ExpressionType.OrElse)
             {
                 throw new ApplicationException("OR expresstion not supported yet");
             }
-            if (expression.NodeType == ExpressionType.LessThan)
+            else if (expression.NodeType == ExpressionType.LessThan)
             {
                 this.ProcessBinaryResult((BinaryExpression)expression, ExpressionType.LessThan, photo);
             }
-            if (expression is UnaryExpression)
+            else if (expression is UnaryExpression)
             {
                 UnaryExpression uExp = expression as UnaryExpression;
                 ProcessExpression(uExp.Operand, photo);
@@ -55,8 +55,6 @@ namespace Linq.Flickr
             {
                 ProcessExpression(((LambdaExpression)expression).Body, photo);
             }
-
-            
             else if (expression is ParameterExpression)
             {
                 if (((ParameterExpression)expression).Type == typeof(Photo))
@@ -335,7 +333,7 @@ namespace Linq.Flickr
                     }
 
                     // addition to parameterless search, if there is no token and searchtext , get recent photos.
-                    if (string.IsNullOrEmpty(token) && string.IsNullOrEmpty(bucket.SearchText))
+                    if (string.IsNullOrEmpty(token) && string.IsNullOrEmpty(bucket.SearchText) && string.IsNullOrEmpty(bucket.Tags))
                     {
                         _getRecent = true;
                     }
@@ -348,7 +346,7 @@ namespace Linq.Flickr
 
                     if (!string.IsNullOrEmpty(token) || (!_getRecent))
                     {
-                        this.AddRange(flickr.Search(bucket.User, bucket.SearchText, bucket.PhotoSize, bucket.ViewMode, bucket.SortOrder, index, _itemsToTake, SearchMode.OR));
+                        this.AddRange(flickr.Search(bucket.User, bucket.SearchText, bucket.Tags,TagMode.OR, bucket.PhotoSize, bucket.ViewMode, bucket.SortOrder, index, _itemsToTake));
                     }
                     else
                     {

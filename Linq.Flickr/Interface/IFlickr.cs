@@ -18,7 +18,8 @@ namespace Linq.Flickr.Interface
         IEnumerable<Photo> Search(string filter, int index, int pageLen);
         IEnumerable<Photo> Search(string filter, int index, int pageLen, PhotoSize size, ViewMode visisblity);
         //IEnumerable<Photo> Search(Photo dummyObject, int index, int pageLen, SearchMode mode);
-        IEnumerable<Photo> Search(string user, string filter, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen, SearchMode mode);
+        IEnumerable<Photo> Search(string user, string filter, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen);
+        IEnumerable<Photo> Search(string user, string filter, string tags, TagMode tagMode, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen);
         IEnumerable<Photo> Search(string user, string filter, int index, int pageLen);
         
         string GetFrob();

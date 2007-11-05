@@ -375,7 +375,7 @@ namespace Linq.Flickr
 
         IEnumerable<Photo> IFlickr.Search(string user, string filter, int index, int pageLen)
         {
-            return Search(filter, user, PhotoSize.Default, ViewMode.Public, SortOrder.Date_Posted_Desc, index, pageLen, SearchMode.OR);
+            return Search(filter, user, PhotoSize.Default, ViewMode.Public, SortOrder.Date_Posted_Desc, index, pageLen, TagMode.OR);
         }
 
         private string GetNSID(string user)
@@ -430,19 +430,24 @@ namespace Linq.Flickr
             return null;
         }
 
-        IEnumerable<Photo> IFlickr.Search(string user, string filter, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen, SearchMode mode)
+        IEnumerable<Photo> IFlickr.Search(string user, string filter, string tags, TagMode tagMode, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen)
         {
-            return Search(filter, user, size, visibility, sortOrder, index, pageLen, SearchMode.OR);
+            return Search(filter, tags, user, size, visibility, sortOrder, index, pageLen, tagMode);
+        }
+
+        IEnumerable<Photo> IFlickr.Search(string user, string filter, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen)
+        {
+            return Search(filter, user, size, visibility, sortOrder, index, pageLen, TagMode.OR);
         }
 
         IEnumerable<Photo> IFlickr.Search(string filter, int index, int pageLen)
         {
-            return Search(filter, string.Empty, PhotoSize.Default, ViewMode.Public, SortOrder.Date_Posted_Desc, index, pageLen, SearchMode.OR);
+            return Search(filter, string.Empty, PhotoSize.Default, ViewMode.Public, SortOrder.Date_Posted_Desc, index, pageLen, TagMode.OR);
         }
 
         IEnumerable<Photo> IFlickr.Search(string filter, int index, int pageLen, PhotoSize size, ViewMode visisblity)
         {
-            return Search(filter, string.Empty, size, visisblity,SortOrder.Date_Posted_Desc, index, pageLen, SearchMode.OR);
+            return Search(filter, string.Empty, size, visisblity,SortOrder.Date_Posted_Desc, index, pageLen, TagMode.OR);
         }
 
 
@@ -450,18 +455,24 @@ namespace Linq.Flickr
         {
            return order.ToString().ToLower().Replace('_', '-');
         }
+
+        private IEnumerable<Photo> Search(string filter,  string user, PhotoSize size, ViewMode visibility, SortOrder order, int index, int pageLen, TagMode mode)
+        {
+            return Search(filter, user, string.Empty, size, visibility, order, index, pageLen, mode);
+        }
+
         /// <summary>
         /// calls flickr.photos.search to list of photos.
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        private IEnumerable<Photo> Search(string filter, string user, PhotoSize size, ViewMode visibility, SortOrder order,  int index, int pageLen, SearchMode mode)
+        private IEnumerable<Photo> Search(string filter, string tags, string user, PhotoSize size, ViewMode visibility, SortOrder order,  int index, int pageLen, TagMode mode)
         {
             // defualt the search mode is any , so no need to pass it.
             string sMode = string.Empty;
             string nsId = string.Empty;
 
-            if (mode == SearchMode.AND)
+            if (mode == TagMode.AND)
             {
                 sMode = "all";
             }
@@ -503,10 +514,10 @@ namespace Linq.Flickr
                     nsId = "me";
                 }
 
-                sig = GetSignature(Helper.FlickrMethod.PHOTO_SEARCH, true, "text", filter, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", GetSortOrder(order), "auth_token", token);
+                sig = GetSignature(Helper.FlickrMethod.PHOTO_SEARCH, true, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", GetSortOrder(order), "auth_token", token);
             }
 
-            string requestUrl = BuildUrl(Helper.FlickrMethod.PHOTO_SEARCH, "api_sig", sig, "text", filter, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(),"sort", GetSortOrder(order), "auth_token", token);
+            string requestUrl = BuildUrl(Helper.FlickrMethod.PHOTO_SEARCH, "api_sig", sig, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(),"sort", GetSortOrder(order), "auth_token", token);
             
             if (index < 1 || index > 500)
             {

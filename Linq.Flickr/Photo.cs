@@ -12,7 +12,7 @@ namespace Linq.Flickr
     /// <summary>
     ///  AND means the result will ANED with tags, And OR means it will be ORED.
     /// </summary>
-    public enum SearchMode
+    public enum TagMode
     {
         AND = 0,
         OR
@@ -192,7 +192,7 @@ namespace Linq.Flickr
 
         internal Tag[] PTags { get; set; }
 
-        public string Tags = string.Empty;
+        public string Tags { get; set; }
         public string SearchText { get; set; }
         public string User { get; set; }
 
