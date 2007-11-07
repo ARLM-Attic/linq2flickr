@@ -15,22 +15,48 @@
         <td>
             <img alt="Flickr Logo" src="flickr_logo.gif" style="width: 98px;height: 26px" /></td>
         <td align="right">
-            <div  style="font-size:small;display:inline;color:Gray;padding-right:5px;">
-            <span style="text-transform:uppercase">Visibility:</span>
-            <asp:RadioButton ID="rbPublic" runat="server" GroupName="vsb" Text="Public"  
-                    AutoPostBack="true" oncheckedchanged="rbPublic_CheckedChanged"  />
-            <asp:RadioButton ID="rbMeOnly" runat="server" Text="Only Me"  GroupName="vsb" 
-                    Checked="true" AutoPostBack="true" oncheckedchanged="rbMeOnly_CheckedChanged" />
-            </div>
-         <asp:TextBox ID="textboxSearch" runat="server"></asp:TextBox>
-        <asp:Button ID="buttonSearch" runat="server" Text="Search" 
+            
+           <table>
+           
+            <tr>
+                <td>
+                </td>
+                <td>
+                    <asp:TextBox ID="textboxSearch" runat="server"></asp:TextBox>
+                </td>
+                <td style="font-size:small;">
+                    <asp:RadioButton ID="checkSearchText" Text="free text" runat="server" GroupName="Mode" Checked="true" />
+                    <asp:RadioButton ID="checkSearchTags" Text="tags only" runat="server" GroupName="Mode" />
+                </td>
+                <td>
+                    <asp:Button ID="buttonSearch" runat="server" Text="Search" 
                 onclick="buttonSearch_Click"  />
+        
+                </td>
+            </tr>
+            
+         </table> 
         </td>
         </tr>
         </table>
         </div>
-        <table style="background-color:Black;border:0;color:White;" cellpadding="0" cellspacing="0">
         
+        <div  style="font-size:small;display:block;color:Blue;padding-right:5px;text-transform:lowercase;font-family:Sans-Serif;padding-bottom:10px;">
+            <span >&nbsp;View Mode&nbsp;</span>
+            <asp:RadioButton ID="rbPublic" runat="server" GroupName="vsb" Text="Public"  
+                    AutoPostBack="true" oncheckedchanged="rbPublic_CheckedChanged"  />
+            <asp:RadioButton ID="rbMeOnly" runat="server" Text="Only Me"  GroupName="vsb" 
+                    Checked="true" AutoPostBack="true" oncheckedchanged="rbMeOnly_CheckedChanged" />
+        
+        
+        </div>
+        
+        <table style="background-color:Black;border:0;color:White;" cellpadding="0" cellspacing="0">
+        <tr>
+            <TD>
+            
+            </TD>
+        </tr>
         <tr>
         <td  align="center">
         <asp:Panel ID="nomarlView" runat="server" style="width:240px;padding-left:5px;padding-top:2px;height:325px;">
@@ -49,19 +75,19 @@
          <asp:panel ID="detailView" runat="server" Visible="false">
               <table style="width:100%;">
               <tr>
-              <td align="left" style="background-color:White;">
+              <td align="left" style="background-color:Black;color:White;">
              <asp:LinkButton ID="lnkBack" runat="server" CommandName="back" 
-                      onclick="lnkBack_Click"> Back</asp:LinkButton>
-                  &nbsp;<asp:LinkButton ID="lnkDelete" runat="server" CommandName="delete" onclick="lnkDelete_Click" 
-                      >Delete</asp:LinkButton>
+                      onclick="lnkBack_Click" ForeColor="White"> &lt;&lt;Back</asp:LinkButton>
+                  &nbsp;<asp:LinkButton ID="lnkDelete" runat="server" CommandName="delete" ForeColor="White" onclick="lnkDelete_Click" 
+                      >[x] Delete</asp:LinkButton>
                  <asp:HiddenField ID="hPhotoId" runat="server" />     
              </td>
              </tr>
              <tr ><td style="width:505px;height:377px;"><asp:Image runat="server" ID="photoDetail" BorderColor="white" /></td></tr>
                   <tr>
-                      <td>
-                          &nbsp;
-                      </td>
+                      <td align="left">
+                           <i>Tags</i>: <asp:Label ID="lblTags" Text="(n/a)" runat="server" ForeColor="White"></asp:Label>
+                          </td>
                   </tr>
             </table>
          </asp:panel>

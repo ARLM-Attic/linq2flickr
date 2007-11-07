@@ -344,9 +344,20 @@ namespace Linq.Flickr
                         bucket.ViewMode = ViewMode.Owner;
                     }
 
+                    
+
                     if (!string.IsNullOrEmpty(token) || (!_getRecent))
                     {
-                        this.AddRange(flickr.Search(bucket.User, bucket.SearchText, bucket.Tags,TagMode.OR, bucket.PhotoSize, bucket.ViewMode, bucket.SortOrder, index, _itemsToTake));
+                        if (bucket.SearchMode == SearchMode.TagsOnly)
+                        {
+                            // process tags
+                            bucket.Tags = bucket.SearchText;
+                            this.AddRange(flickr.Search(bucket.User, string.Empty, bucket.Tags, TagMode.OR, bucket.PhotoSize, bucket.ViewMode, bucket.SortOrder, index, _itemsToTake));
+                        }
+                        else
+                        {
+                            this.AddRange(flickr.Search(bucket.User, bucket.SearchText, bucket.PhotoSize, bucket.ViewMode, bucket.SortOrder, index, _itemsToTake));
+                        }
                     }
                     else
                     {

@@ -46,6 +46,12 @@ namespace Flickr.Web
             nomarlView.Visible = true;
         
             ViewMode mode = ViewMode.Public;
+            SearchMode sMode = SearchMode.FreeText;
+
+            if (checkSearchTags.Checked)
+            {
+                sMode = SearchMode.TagsOnly;
+            }
 
             if (rbMeOnly.Checked)
             {
@@ -60,7 +66,7 @@ namespace Flickr.Web
             }
 
             var query = (from ph in context.Photos
-                         where ph.ViewMode == mode && ph.SearchText == text
+                         where ph.ViewMode == mode && ph.SearchText == text && ph.SearchMode == sMode
                          select ph).Take(12).Skip(0);
 
             lstPhotos.DataSource = query.ToList<Photo>();
@@ -110,6 +116,13 @@ namespace Flickr.Web
                             select ph;
 
                 Photo photo = query.Single<Photo>();
+
+                string[] tags = (from tag in photo.PhotoTags
+                                select tag.Title).ToArray<string>();
+
+                string tagText = string.Join(",", tags);
+
+                lblTags.Text = string.IsNullOrEmpty(tagText) ? "(n/a)" : tagText;
 
                 photoDetail.ImageUrl = photo.Url;
                 detailView.Visible = true;

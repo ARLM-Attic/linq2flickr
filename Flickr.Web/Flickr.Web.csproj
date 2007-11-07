@@ -49,6 +49,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="back.gif" />
     <Content Include="Default.aspx" />
     <Content Include="default.css" />
     <Content Include="flickr_logo.gif" />

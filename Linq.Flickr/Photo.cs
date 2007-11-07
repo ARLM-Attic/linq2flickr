@@ -37,6 +37,12 @@ namespace Linq.Flickr
         Private
     }
 
+    public enum SearchMode
+    {
+        FreeText,
+        TagsOnly
+    }
+
     public enum SortOrder
     {
         Date_Posted_Desc,
@@ -138,6 +144,7 @@ namespace Linq.Flickr
             this.PhotoSize = PhotoSize.Square;
             this.ViewMode = ViewMode.Public;
             this.SortOrder = SortOrder.Date_Posted_Desc;
+            this.SearchMode = SearchMode.FreeText;
         }
 
         private int _size = 0;
@@ -151,6 +158,21 @@ namespace Linq.Flickr
             set
             {
                 _size = (int)value;
+            }
+        }
+
+
+        private int _searchMode = 0;
+
+        public SearchMode SearchMode
+        {
+            get
+            {
+                return (SearchMode)_searchMode;
+            }
+            set
+            {
+                _searchMode = (int)value;
             }
         }
 
@@ -191,8 +213,22 @@ namespace Linq.Flickr
         }
 
         internal Tag[] PTags { get; set; }
+        public Tag[] PhotoTags { get { return PTags; } }
 
-        public string Tags { get; set; }
+        private string[] _tags = new string[0];
+
+        internal string Tags 
+        {
+            get
+            {
+                return string.Join(",", _tags).Replace(" ", string.Empty);
+            }
+            set
+            {
+                _tags = value.Split(new char[] { ',', ';'}, StringSplitOptions.RemoveEmptyEntries);
+            }
+        }
+
         public string SearchText { get; set; }
         public string User { get; set; }
 
