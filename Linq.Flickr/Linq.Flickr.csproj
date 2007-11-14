@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attribute\FlickrMethodAttribute.cs" />
     <Compile Include="Attribute\UseInExpressionAttribute.cs" />
     <Compile Include="AuthToken.cs" />
     <Compile Include="DataAccess.cs" />

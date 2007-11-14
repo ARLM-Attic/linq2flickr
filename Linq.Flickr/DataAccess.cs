@@ -46,6 +46,7 @@ namespace Linq.Flickr
                     // path where token will be stored.
                     TOKEN_PATH = STORE_PATH + "\\token_{0}.xml";
                 }
+                Helper.RefreshExternalMethodList(typeof(IFlickr));
             }
             catch (Exception ex)
             {
@@ -99,23 +100,16 @@ namespace Linq.Flickr
 
             signature = SHARED_SECRET + signature;
 
-            return GetHash(signature);
-        }
-
-        private string GetHash(string inputString)
-        {
-            MD5 md5 = MD5CryptoServiceProvider.Create();
-
-            byte[] input = Encoding.UTF8.GetBytes(inputString);
-            byte[] output = MD5.Create().ComputeHash(input);
-
-            return BitConverter.ToString(output).Replace("-", "").ToLower();
+            return Helper.GetHash(signature);
         }
 
         string IFlickr.GetFrob()
         {
-            string signature = GetSignature(Helper.FlickrMethod.GET_FROB, true);
-            string requestUrl = BuildUrl(Helper.FlickrMethod.GET_FROB, "api_sig", signature);
+            string method = Helper.GetExternalMethodName();
+
+            string signature = GetSignature(method, true);
+            string requestUrl = BuildUrl(method, "api_sig", signature);
+
             string frob = string.Empty;
 
             try
@@ -132,8 +126,10 @@ namespace Linq.Flickr
 
         AuthToken IFlickr.CheckToken(string token)
         {
-            string sig = GetSignature(Helper.FlickrMethod.CHECK_AUTH, true, "auth_token", token);
-            string requestUrl = BuildUrl(Helper.FlickrMethod.CHECK_AUTH, "auth_token", token, "api_sig", sig);
+            string method = Helper.GetExternalMethodName();
+
+            string sig = GetSignature(method, true, "auth_token", token);
+            string requestUrl = BuildUrl(method, "auth_token", token, "api_sig", sig);
 
             try
             {
@@ -284,7 +280,8 @@ namespace Linq.Flickr
 
         IList<Photo> IFlickr.GetRecent(int index, int itemsPerPage, PhotoSize size)
         {
-            string requestUrl = BuildUrl(Helper.FlickrMethod.GET_RECENT_PHOTO, "page", index.ToString(), "per_page", itemsPerPage.ToString());
+            string method = Helper.GetExternalMethodName();
+            string requestUrl = BuildUrl(method, "page", index.ToString(), "per_page", itemsPerPage.ToString());
 
             IList<Photo> photos = new List<Photo>();
 
@@ -299,11 +296,12 @@ namespace Linq.Flickr
             return photos;
         }
 
-        string GetNSIDByUsername(string username)
+        string IFlickr.GetNSIDByUsername(string username)
         {
             string nsId = string.Empty;
+            string method = Helper.GetExternalMethodName();
 
-            string requestUrl = BuildUrl(Helper.FlickrMethod.FIND_PEOPLE_BY_USERNAME, "username", username);
+            string requestUrl = BuildUrl(method, "username", username);
 
             try
             {
@@ -319,11 +317,12 @@ namespace Linq.Flickr
         }
 
 
-        string GetNSIDByEmail(string email)
+        string IFlickr.GetNSIDByEmail(string email)
         {
             string nsId = string.Empty;
+            string method = Helper.GetExternalMethodName();
 
-            string requestUrl = BuildUrl(Helper.FlickrMethod.FIND_PEOPLE_BY_EMAIL, "find_email", email);
+            string requestUrl = BuildUrl(email, "find_email", email);
 
             try
             {
@@ -367,28 +366,19 @@ namespace Linq.Flickr
             public string Message { get; set; }
         }
 
-        private bool IsValidEmail(string inputString)
-        {
-            Regex emailregex = new Regex(@"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            return emailregex.IsMatch(inputString);
-        }
 
-        IEnumerable<Photo> IFlickr.Search(string user, string filter, int index, int pageLen)
-        {
-            return Search(filter, user, PhotoSize.Default, ViewMode.Public, SortOrder.Date_Posted_Desc, index, pageLen, TagMode.OR);
-        }
 
         private string GetNSID(string user)
         {
             string nsId = string.Empty;
 
-            if (IsValidEmail(user))
+            if (Helper.IsValidEmail(user))
             {
-                nsId = GetNSIDByEmail(user);
+                nsId = (this as IFlickr).GetNSIDByEmail(user);
             }
             else
             {
-                nsId = GetNSIDByUsername(user);
+                nsId = (this as IFlickr).GetNSIDByUsername(user);
             }
             return nsId;
         }
@@ -402,12 +392,13 @@ namespace Linq.Flickr
         internal PhotoSize _PhotoSize { get; set; }
         internal ViewMode _Visibility { get; set; }
 
-        string GetSize(string id, PhotoSize size)
+        string IFlickr.GetSizedPhotoUrl(string id, PhotoSize size)
         {
             if (_PhotoSize == PhotoSize.Original)
             {
+                string method = Helper.GetExternalMethodName();
+                string requestUrl = BuildUrl(method, "photo_id", id);
 
-                string requestUrl = BuildUrl(Helper.FlickrMethod.GET_PHOTOS_SIZES, "photo_id", id);
                 XElement doc = GetElement(requestUrl);
 
                 var query = from sizes in doc.Descendants("size")
@@ -432,33 +423,22 @@ namespace Linq.Flickr
 
         IEnumerable<Photo> IFlickr.Search(string user, string filter, string tags, TagMode tagMode, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen)
         {
-            return Search(filter, tags, user, size, visibility, sortOrder, index, pageLen, tagMode);
+            return Search(filter, tags, user, size, visibility, sortOrder, index, pageLen, tagMode, Helper.GetExternalMethodName());
         }
 
         IEnumerable<Photo> IFlickr.Search(string user, string filter, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen)
         {
-            return Search(filter, user, size, visibility, sortOrder, index, pageLen, TagMode.OR);
+            return Search(filter, user, size, visibility, sortOrder, index, pageLen, TagMode.OR, Helper.GetExternalMethodName());
         }
-
-        IEnumerable<Photo> IFlickr.Search(string filter, int index, int pageLen)
-        {
-            return Search(filter, string.Empty, PhotoSize.Default, ViewMode.Public, SortOrder.Date_Posted_Desc, index, pageLen, TagMode.OR);
-        }
-
-        IEnumerable<Photo> IFlickr.Search(string filter, int index, int pageLen, PhotoSize size, ViewMode visisblity)
-        {
-            return Search(filter, string.Empty, size, visisblity,SortOrder.Date_Posted_Desc, index, pageLen, TagMode.OR);
-        }
-
 
         private string GetSortOrder(SortOrder order)
         {
            return order.ToString().ToLower().Replace('_', '-');
         }
 
-        private IEnumerable<Photo> Search(string filter,  string user, PhotoSize size, ViewMode visibility, SortOrder order, int index, int pageLen, TagMode mode)
+        private IEnumerable<Photo> Search(string filter,  string user, PhotoSize size, ViewMode visibility, SortOrder order, int index, int pageLen, TagMode mode, string method)
         {
-            return Search(filter, user, string.Empty, size, visibility, order, index, pageLen, mode);
+            return Search(filter, user, string.Empty, size, visibility, order, index, pageLen, mode, method);
         }
 
         /// <summary>
@@ -466,7 +446,7 @@ namespace Linq.Flickr
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        private IEnumerable<Photo> Search(string filter, string tags, string user, PhotoSize size, ViewMode visibility, SortOrder order,  int index, int pageLen, TagMode mode)
+        private IEnumerable<Photo> Search(string filter, string tags, string user, PhotoSize size, ViewMode visibility, SortOrder order,  int index, int pageLen, TagMode mode, string method)
         {
             // defualt the search mode is any , so no need to pass it.
             string sMode = string.Empty;
@@ -479,13 +459,13 @@ namespace Linq.Flickr
 
             if (!string.IsNullOrEmpty(user))
             {
-                if (IsValidEmail(user))
+                if (Helper.IsValidEmail(user))
                 {
-                    nsId = GetNSIDByEmail(user);
+                    nsId = (this as IFlickr).GetNSIDByEmail(user);
                 }
                 else
                 {
-                    nsId = GetNSIDByUsername(user);
+                    nsId = (this as IFlickr).GetNSIDByUsername(user);
                 }
             }
 
@@ -514,10 +494,10 @@ namespace Linq.Flickr
                     nsId = "me";
                 }
 
-                sig = GetSignature(Helper.FlickrMethod.PHOTO_SEARCH, true, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", GetSortOrder(order), "auth_token", token);
+                sig = GetSignature(method, true, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", GetSortOrder(order), "auth_token", token);
             }
 
-            string requestUrl = BuildUrl(Helper.FlickrMethod.PHOTO_SEARCH, "api_sig", sig, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(),"sort", GetSortOrder(order), "auth_token", token);
+            string requestUrl = BuildUrl(method, "api_sig", sig, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", GetSortOrder(order), "auth_token", token);
             
             if (index < 1 || index > 500)
             {
@@ -584,7 +564,7 @@ namespace Linq.Flickr
                             IsPublic = photos.Attribute("ispublic").Value == "0" ? false : true,
                             IsFamily = photos.Attribute("isfamily").Value == "0" ? false : true,
                             IsFriend = photos.Attribute("isfriend").Value == "0" ? false : true,
-                            Url = GetSize(photos.Attribute("id").Value, size) ?? string.Empty,
+                            Url = (this as IFlickr).GetSizedPhotoUrl(photos.Attribute("id").Value, size) ?? string.Empty,
                             PhotoSize = size
                         };
             return query;
@@ -599,11 +579,11 @@ namespace Linq.Flickr
             this._PhotoSize = size;
             Photo pObject = null;
 
+            string method = Helper.GetExternalMethodName();
+
             string token = (this as IFlickr).Authenticate(false);
-
-
-            string sig = GetSignature(Helper.FlickrMethod.PHOTO_GET_INFO, true, "photo_id", id, "auth_token", token);
-            string requestUrl = BuildUrl(Helper.FlickrMethod.PHOTO_GET_INFO, "photo_id", id, "auth_token", token, "api_sig", sig);
+            string sig = GetSignature(method, true, "photo_id", id, "auth_token", token);
+            string requestUrl = BuildUrl(method, "photo_id", id, "auth_token", token, "api_sig", sig);
 
             XElement doc = GetElement(requestUrl);
 
@@ -624,7 +604,7 @@ namespace Linq.Flickr
                                         Title = tag.Value
                                     }).ToArray<Tag>(),
                             PhotoSize = size,
-                            Url = GetSize(photos.Attribute("id").Value, size)
+                            Url = (this as IFlickr).GetSizedPhotoUrl(photos.Attribute("id").Value, size)
                         };
 
             pObject = query.Single<Photo>();
@@ -691,8 +671,10 @@ namespace Linq.Flickr
         bool IFlickr.Delete(string photoId)
         {
             string token = Authenticate();
-            string sig = GetSignature(Helper.FlickrMethod.DELETE_PHOTO, true, "photo_id", photoId, "auth_token", token);
-            string requestUrl = BuildUrl(Helper.FlickrMethod.DELETE_PHOTO, "photo_id", photoId, "auth_token", token, "api_sig", sig);
+            string method = Helper.GetExternalMethodName();
+
+            string sig = GetSignature(method, true, "photo_id", photoId, "auth_token", token);
+            string requestUrl = BuildUrl(method, "photo_id", photoId, "auth_token", token, "api_sig", sig);
 
             try
             {
