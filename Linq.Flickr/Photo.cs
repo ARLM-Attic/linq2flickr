@@ -6,6 +6,8 @@ using System.Xml.Linq;
 using Linq.Flickr.Attribute;
 using System.IO;
 using System.Drawing;
+using LinqExtender;
+using LinqExtender.Attribute;
 
 namespace Linq.Flickr
 {
@@ -55,7 +57,7 @@ namespace Linq.Flickr
     }
 
     [Serializable]
-    public class Photo
+    public class Photo : QueryObjectBase
     {
         private string _Url = string.Empty;
         [UseInExpression(false)]
@@ -70,17 +72,15 @@ namespace Linq.Flickr
         internal bool IsPublic { get; set; }
         internal bool IsFriend { get; set; }
         internal bool IsFamily { get; set; }
-        
-        internal bool IsDeleted { get; set; }
 
-        internal bool IsNew 
+        public override bool IsNew
         {
             get
             {
                 return string.IsNullOrEmpty(this.Id) ? true : false;
-            } 
+            }
         }
-
+        
         private string _uploadFilename = string.Empty;
 
         public string FileName

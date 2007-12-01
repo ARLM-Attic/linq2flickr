@@ -9,15 +9,15 @@ namespace Linq.Flickr
     [Serializable]
     public class FlickrContext 
     {
-        private  FlickrQuery _Context = null;
-        
-        public FlickrQuery Photos
+        private  FlickrPhotoQuery _Context = null;
+
+        public FlickrPhotoQuery Photos
         {
             get
             {
                 if (_Context == null)
                 {
-                    _Context = new FlickrQuery();
+                    _Context = new FlickrPhotoQuery();
                 }
 
                 return _Context;
