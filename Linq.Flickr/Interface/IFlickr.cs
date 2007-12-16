@@ -12,9 +12,9 @@ namespace Linq.Flickr.Interface
         [FlickrMethod("flickr.photos.getInfo")]
         Photo GetPhotoDetail(string id, PhotoSize size);
         [FlickrMethod("flickr.photos.search")]
-        IEnumerable<Photo> Search(string user, string filter, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen);
+        IEnumerable<Photo> Search(string user, string filter, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen);
         [FlickrMethod("flickr.photos.search")]
-        IEnumerable<Photo> Search(string user, string filter, string tags, TagMode tagMode, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen);
+        IEnumerable<Photo> Search(string user, string filter, string tags, TagMode tagMode, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen);
         [FlickrMethod("flickr.photos.getRecent")]
         IList<Photo> GetRecent(int index, int itemsPerPage, PhotoSize photoSize);
         [FlickrMethod("flickr.photos.delete")]

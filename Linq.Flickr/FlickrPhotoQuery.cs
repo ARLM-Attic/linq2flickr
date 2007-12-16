@@ -27,7 +27,7 @@ namespace Linq.Flickr
             }
         }
 
-        protected override void Process(IQuery<Photo> items, Photo bucket, int itemsToTake, int itemsToSkip, bool isParamCall)
+        protected override void Process(IModify<Photo> items, Photo bucket, int itemsToTake, int itemsToSkip)
         {
             using (IFlickr flickr = new DataAccess())
             {
@@ -59,7 +59,7 @@ namespace Linq.Flickr
                         token = flickr.Authenticate(authenticate);
                     }
 
-                    bool getRecent = isParamCall ? true : false;
+                    bool getRecent = bucket.IsSet ? false : true;
 
                     // addition to parameterless search, if there is no token and searchtext , get recent photos.
                     if (string.IsNullOrEmpty(token) && string.IsNullOrEmpty(bucket.SearchText) && string.IsNullOrEmpty(bucket.Tags))
@@ -79,11 +79,11 @@ namespace Linq.Flickr
                         {
                             // process tags
                             bucket.Tags = bucket.SearchText;
-                            items.AddRange(flickr.Search(bucket.User, string.Empty, bucket.Tags, TagMode.OR, bucket.PhotoSize, bucket.ViewMode, bucket.SortOrder, index, itemsToTake));
+                            items.AddRange(flickr.Search(bucket.User, string.Empty, bucket.Tags, TagMode.OR, bucket.PhotoSize, bucket.ViewMode, GetSortOrder(bucket.OrderByClause.FieldName, bucket.OrderByClause.IsAscending), index, itemsToTake));
                         }
                         else
                         {
-                            items.AddRange(flickr.Search(bucket.User, bucket.SearchText, bucket.PhotoSize, bucket.ViewMode, bucket.SortOrder, index, itemsToTake));
+                            items.AddRange(flickr.Search(bucket.User, bucket.SearchText, bucket.PhotoSize, bucket.ViewMode, GetSortOrder(bucket.OrderByClause.FieldName, bucket.OrderByClause.IsAscending), index, itemsToTake));
                         }
                     }
                     else
@@ -92,7 +92,27 @@ namespace Linq.Flickr
                         items.AddRange(flickr.GetRecent(index, itemsToTake, bucket.PhotoSize));
                     }
                 }
+
+
             }
+        }
+
+        private string GetSortOrder(string orderBy , bool asc)
+        {
+            string order = orderBy.ToLower().Replace('_', '-');
+
+            //if (!order.Contains(PhotoOrder.Relevance.ToString().ToLower()) && !order.Contains(PhotoOrder.Interestingness.ToString().ToLower()))
+            //{
+                if (!asc)
+                {
+                    order += "-desc";
+                }
+                else
+                {
+                    order += "-asc";
+                }
+            //}
+            return order;
         }
     }
 }

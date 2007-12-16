@@ -22,7 +22,7 @@ namespace Linq.Flickr
         internal const string AUTH_URL = "http://flickr.com/services/auth/";
         internal const string UPLOAD_URL = "http://api.flickr.com/services/upload/";
 
-        private static IDictionary<string, string> _methodList = new Dictionary<string, string>();
+        private readonly static IDictionary<string, string> _methodList = new Dictionary<string, string>();
         private static Regex _emailRegex = new Regex(@"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static object _lockHandler = new object();
 
@@ -73,12 +73,9 @@ namespace Linq.Flickr
 
         internal static string GetExternalMethodName()
         {
-            lock (_lockHandler)
-            {
-                StackTrace trace = new StackTrace(1, true);
-                MethodBase methodBase = trace.GetFrames()[0].GetMethod();
-                return _methodList[methodBase.Name];
-            }
+            StackTrace trace = new StackTrace(1, true);
+            MethodBase methodBase = trace.GetFrames()[0].GetMethod();
+            return _methodList[methodBase.Name];
         }
  
     }

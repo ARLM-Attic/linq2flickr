@@ -23,7 +23,7 @@ namespace Linq.Flickr
         public const string WRITE = "write";
         public const string DELETE = "delete";
     }
-
+    [DebuggerStepThrough]
     public class DataAccess : IFlickr
     {
         private string FLICKR_API_KEY = string.Empty;
@@ -421,24 +421,19 @@ namespace Linq.Flickr
             return null;
         }
 
-        IEnumerable<Photo> IFlickr.Search(string user, string filter, string tags, TagMode tagMode, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen)
+        IEnumerable<Photo> IFlickr.Search(string user, string filter, string tags, TagMode tagMode, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen)
         {
-            return Search(filter, tags, user, size, visibility, sortOrder, index, pageLen, tagMode, Helper.GetExternalMethodName());
+            return Search(filter, tags, user, size, visibility, orderBy, index, pageLen, tagMode, Helper.GetExternalMethodName());
         }
 
-        IEnumerable<Photo> IFlickr.Search(string user, string filter, PhotoSize size, ViewMode visibility, SortOrder sortOrder, int index, int pageLen)
+        IEnumerable<Photo> IFlickr.Search(string user, string filter, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen)
         {
-            return Search(filter, user, size, visibility, sortOrder, index, pageLen, TagMode.OR, Helper.GetExternalMethodName());
+            return Search(filter, user, size, visibility, orderBy, index, pageLen, TagMode.OR, Helper.GetExternalMethodName());
         }
 
-        private string GetSortOrder(SortOrder order)
+        private IEnumerable<Photo> Search(string filter,  string user, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen, TagMode mode, string method)
         {
-           return order.ToString().ToLower().Replace('_', '-');
-        }
-
-        private IEnumerable<Photo> Search(string filter,  string user, PhotoSize size, ViewMode visibility, SortOrder order, int index, int pageLen, TagMode mode, string method)
-        {
-            return Search(filter, user, string.Empty, size, visibility, order, index, pageLen, mode, method);
+            return Search(filter, user, string.Empty, size, visibility, orderBy, index, pageLen, mode, method);
         }
 
         /// <summary>
@@ -446,7 +441,7 @@ namespace Linq.Flickr
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        private IEnumerable<Photo> Search(string filter, string tags, string user, PhotoSize size, ViewMode visibility, SortOrder order,  int index, int pageLen, TagMode mode, string method)
+        private IEnumerable<Photo> Search(string filter, string tags, string user, PhotoSize size, ViewMode visibility, string orderBy,  int index, int pageLen, TagMode mode, string method)
         {
             // defualt the search mode is any , so no need to pass it.
             string sMode = string.Empty;
@@ -494,10 +489,10 @@ namespace Linq.Flickr
                     nsId = "me";
                 }
 
-                sig = GetSignature(method, true, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", GetSortOrder(order), "auth_token", token);
+                sig = GetSignature(method, true, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", orderBy, "auth_token", token);
             }
 
-            string requestUrl = BuildUrl(method, "api_sig", sig, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", GetSortOrder(order), "auth_token", token);
+            string requestUrl = BuildUrl(method, "api_sig", sig, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", orderBy, "auth_token", token);
             
             if (index < 1 || index > 500)
             {

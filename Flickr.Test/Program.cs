@@ -22,13 +22,14 @@ namespace Flickr.Test
             User = "jcl";
             // do query.
             var query = (from ph in context.Photos
-                         where ph.User == User && ph.PhotoSize == PhotoSize.Medium && ph.SearchText == "pocketpc, windows mobile" && ph.SearchMode == SearchMode.TagsOnly
-                         select ph).Take(10).Skip(0);
+                         where ph.PhotoSize == PhotoSize.Medium && ph.SearchText == "iphone" && ph.SearchMode == SearchMode.TagsOnly
+                         orderby PhotoOrder.Date_Posted descending
+                         select new { ph.Title, ph.Url }).Take(10).Skip(0);
 
             try
             {
   
-                foreach (Photo p in query)
+                foreach (var p in query)
                 {
                     Console.WriteLine(p.Title + "\r\n" + p.Url);
                 }

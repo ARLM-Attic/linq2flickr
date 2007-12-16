@@ -45,25 +45,19 @@ namespace Linq.Flickr
         TagsOnly
     }
 
-    public enum SortOrder
+    public enum PhotoOrder
     {
-        Date_Posted_Desc,
-        Date_Posted_Asc,
-        Date_Taken_Asc,
-        Date_Taken_Dsc,
-        Interestingness_Desc,
-        Interestingness_Asc,
-        Relevance
+        Date_Posted,
+        Date_Taken
     }
 
     [Serializable]
     public class Photo : QueryObjectBase
     {
         private string _Url = string.Empty;
-        [UseInExpression(false)]
         public string Title { get; set; }
-        [UseInExpression(false)]
         public string Description { get; set; }
+        [OriginalFieldName("id"),UseInQuery()]
         public string Id { get; set; }
         internal string SecretId { get; set; }
         internal string ServerId { get; set; }
@@ -143,12 +137,13 @@ namespace Linq.Flickr
         {
             this.PhotoSize = PhotoSize.Square;
             this.ViewMode = ViewMode.Public;
-            this.SortOrder = SortOrder.Date_Posted_Desc;
+            this.SortOrder = PhotoOrder.Date_Posted;
             this.SearchMode = SearchMode.FreeText;
         }
 
         private int _size = 0;
 
+        [UseInQuery()]
         public PhotoSize PhotoSize
         {
             get
@@ -164,6 +159,7 @@ namespace Linq.Flickr
 
         private int _searchMode = 0;
 
+        [UseInQuery()]
         public SearchMode SearchMode
         {
             get
@@ -177,7 +173,8 @@ namespace Linq.Flickr
         }
 
         int _visibility = 0;
-
+        
+        [UseInQuery()]
         public ViewMode ViewMode
         {
             get
@@ -192,11 +189,11 @@ namespace Linq.Flickr
 
         private int _sortOrder = 0;
 
-        public SortOrder SortOrder
+        public PhotoOrder SortOrder
         {
             get
             {
-                return (SortOrder)_sortOrder;
+                return (PhotoOrder)_sortOrder;
             }
             set
             {
@@ -229,7 +226,9 @@ namespace Linq.Flickr
             }
         }
 
+        [UseInQuery()]
         public string SearchText { get; set; }
+        [UseInQuery()]
         public string User { get; set; }
 
 

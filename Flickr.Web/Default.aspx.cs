@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Configuration;
 using System.Collections;
-using System.Linq;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,6 +9,7 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using Linq.Flickr;
 using System.IO;
+using System.Linq;
 
 namespace Flickr.Web
 {
@@ -66,7 +66,7 @@ namespace Flickr.Web
             }
 
             var query = (from ph in context.Photos
-                         where ph.ViewMode == mode && ph.SearchText == text && ph.SearchMode == sMode
+                         where ph.ViewMode == mode && ph.SearchText == text && ph.SearchMode == sMode orderby PhotoOrder.Date_Posted descending
                          select ph).Take(12).Skip(0);
 
             lstPhotos.DataSource = query.ToList<Photo>();
@@ -111,11 +111,7 @@ namespace Flickr.Web
 
                 FlickrContext context = new FlickrContext();
 
-                var query = from ph in context.Photos
-                            where ph.Id == PhotoId && ph.PhotoSize == PhotoSize.Medium
-                            select ph;
-
-                Photo photo = query.Single<Photo>();
+                Photo photo = context.Photos.Where<Photo>(ph => ph.Id == PhotoId && ph.PhotoSize == PhotoSize.Medium).Single<Photo>(); ;
 
                 string[] tags = (from tag in photo.PhotoTags
                                 select tag.Title).ToArray<string>();
