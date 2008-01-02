@@ -1,0 +1,12 @@
+﻿.header_wrapper
+{
+	border-bottom : solid 1px #ccc;
+	height : 55px;
+	margin-bottom: 10px;
+	
+}
+
+.error_msg
+{
+	height:25px;color:Red; background:#ffffa3 5px 5px no-repeat;font-weight:bold;padding: 5px 5px 5px 5px; margin-bottom: 10px; border: solid 1px green; clear:both;
+}

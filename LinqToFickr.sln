@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq.Flickr", "Linq.Flickr\Linq.Flickr.csproj", "{716F1EDD-B85E-45FB-B757-BFFC8CB2A011}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinqFlickr_Demo", "Flickr.Web\LinqFlickr_Demo.csproj", "{85D38174-3E99-4B9A-9BA6-5C748F0D6234}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinqFlickr_Demo", "LinqFlickr_Demo\LinqFlickr_Demo.csproj", "{85D38174-3E99-4B9A-9BA6-5C748F0D6234}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlickrConsole", "Flickr.Test\FlickrConsole.csproj", "{9C547C17-EB98-467F-BC7C-225434DC7675}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlickrConsole", "FlickrConsole\FlickrConsole.csproj", "{9C547C17-EB98-467F-BC7C-225434DC7675}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
