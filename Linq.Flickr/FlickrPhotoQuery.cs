@@ -160,7 +160,7 @@ namespace Linq.Flickr
             {
                 BucketItem item = bucket.Items[key];
 
-                if (item.Value != null && ((!item.QueryVisible) || includeNonVisibleItems))
+                if (item.Value != null && ((item.QueryVisible) || includeNonVisibleItems))
                 {
                     string value = Convert.ToString(item.Value);
 

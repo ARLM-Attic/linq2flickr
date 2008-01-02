@@ -11,7 +11,7 @@ using Linq.Flickr;
 using System.IO;
 using System.Linq;
 
-namespace Flickr.Web
+namespace LinqFlickr_Demo
 {
     public partial class _Default : System.Web.UI.Page
     {

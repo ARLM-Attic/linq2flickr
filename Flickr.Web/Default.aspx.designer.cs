@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Flickr.Web {
+namespace LinqFlickr_Demo {
     
     
     public partial class _Default {
