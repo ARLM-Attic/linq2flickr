@@ -32,45 +32,61 @@ namespace Flickr.Web
 
                 this.BindData();
             }
+            //errorPanel.Visible = false;
+        }
+
+        protected override void OnError(EventArgs e)
+        {
+            errorPanel.Visible = true;
+            lblStatus.Text = "Opps , there has been some error proccesing request";
         }
 
         private bool ShowOnlyMyPhotos =Convert.ToBoolean(System.Configuration.ConfigurationManager.AppSettings["showOnlyMyPhotots"]);
 
         private void BindData()
         {
-            FlickrContext context = new FlickrContext();
-
-            string text = textboxSearch.Text;
-
-            detailView.Visible = false;
-            nomarlView.Visible = true;
-        
-            ViewMode mode = ViewMode.Public;
-            SearchMode sMode = SearchMode.FreeText;
-
-            if (checkSearchTags.Checked)
+            try
             {
-                sMode = SearchMode.TagsOnly;
-            }
+                FlickrContext context = new FlickrContext();
 
-            if (rbMeOnly.Checked)
+                string text = textboxSearch.Text;
+
+                detailView.Visible = false;
+                nomarlView.Visible = true;
+
+                ViewMode mode = ViewMode.Public;
+                SearchMode sMode = SearchMode.FreeText;
+
+                if (checkSearchTags.Checked)
+                {
+                    sMode = SearchMode.TagsOnly;
+                }
+
+                if (rbMeOnly.Checked)
+                {
+                    mode = ViewMode.Owner;
+                    panelUpload.Visible = true;
+                    lnkDelete.Visible = true;
+                }
+                else
+                {
+                    lnkDelete.Visible = false;
+                    panelUpload.Visible = false;
+                }
+
+                var query = (from ph in context.Photos
+                             where ph.ViewMode == mode && ph.SearchText == text && ph.SearchMode == sMode
+                             orderby PhotoOrder.Date_Posted descending
+                             select ph).Take(12).Skip(0);
+
+                lstPhotos.DataSource = query.ToList<Photo>();
+                lstPhotos.DataBind();
+            }
+            catch (Exception ex)
             {
-                mode = ViewMode.Owner;
-                panelUpload.Visible = true;
-                lnkDelete.Visible = true;
+                errorPanel.Visible = true;
+                lblStatus.Text = ex.Message;
             }
-            else
-            {
-                lnkDelete.Visible = false;
-                panelUpload.Visible = false;
-            }
-
-            var query = (from ph in context.Photos
-                         where ph.ViewMode == mode && ph.SearchText == text && ph.SearchMode == sMode orderby PhotoOrder.Date_Posted descending
-                         select ph).Take(12).Skip(0);
-
-            lstPhotos.DataSource = query.ToList<Photo>();
-            lstPhotos.DataBind();
         }
 
         protected void lstPhotos_ItemDataBound(object sender, RepeaterItemEventArgs e)
@@ -85,36 +101,42 @@ namespace Flickr.Web
 
                 Image image = (Image)e.Item.FindControl("photo");
                 image.ImageUrl = photo.Url;
+                image.ToolTip = photo.Title;
 
             }
         }
 
         protected void btnUpload_Click(object sender, EventArgs e)
         {
-            FlickrContext context = new FlickrContext();
-            context.Photos.Add(new Photo{ FileName = Path.GetFileName(uploader.Value), File = uploader.PostedFile.InputStream, ViewMode = ViewMode.Private});
-            context.SubmitChanges();
+            try
+            {
+                FlickrContext context = new FlickrContext();
+                context.Photos.Add(new Photo { FileName = Path.GetFileName(uploader.Value), File = uploader.PostedFile.InputStream, ViewMode = chkPublic.Checked ? ViewMode.Public : ViewMode.Private, Title = txtTitle.Text.Trim() });
+                context.SubmitChanges();
 
-            BindData();
+                BindData();
+            }
+            catch (Exception ex)
+            {
+                errorPanel.Visible = true;
+                lblStatus.Text = ex.Message;
+            }
         }
-
-        public string PhotoId { get; set; }
 
         protected void lstPhotos_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
             if (e.CommandName == "showDetail")
             {
-               LinkButton lnk = (LinkButton)  e.Item.FindControl("lnkImage");
+                LinkButton lnk = (LinkButton)e.Item.FindControl("lnkImage");
 
-                PhotoId = (string)e.CommandArgument;
-                hPhotoId.Value = PhotoId;
+                hPhotoId.Value = (string)e.CommandArgument;
 
                 FlickrContext context = new FlickrContext();
 
-                Photo photo = context.Photos.Where<Photo>(ph => ph.Id == PhotoId && ph.PhotoSize == PhotoSize.Medium).Single<Photo>(); ;
+                Photo photo = context.Photos.Where<Photo>(ph => ph.Id == (string)e.CommandArgument && ph.PhotoSize == PhotoSize.Medium).Single<Photo>(); ;
 
                 string[] tags = (from tag in photo.PhotoTags
-                                select tag.Title).ToArray<string>();
+                                 select tag.Title).ToArray<string>();
 
                 string tagText = string.Join(",", tags);
 
@@ -134,21 +156,28 @@ namespace Flickr.Web
 
         protected void lnkDelete_Click(object sender, EventArgs e)
         {
-            PhotoId = hPhotoId.Value;
-            //FlickrContext
-            FlickrContext context = new FlickrContext();
-            var query = from ph in context.Photos
-                         where ph.Id == PhotoId
-                         select ph;
+            try
+            {
+                //FlickrContext
+                FlickrContext context = new FlickrContext();
+                var query = from ph in context.Photos
+                            where ph.Id == hPhotoId.Value
+                            select ph;
 
-            Photo photo = query.Single<Photo>();
+                Photo photo = query.Single<Photo>();
 
-            context.Photos.Remove(photo);
-            context.SubmitChanges();
+                context.Photos.Remove(photo);
+                context.SubmitChanges();
 
-            detailView.Visible = false;
-            nomarlView.Visible = true;
-            BindData();
+                detailView.Visible = false;
+                nomarlView.Visible = true;
+                BindData();
+            }
+            catch (Exception ex)
+            {
+                errorPanel.Visible = true;
+                lblStatus.Text = ex.Message;
+            }
         }
 
         protected void buttonSearch_Click(object sender, EventArgs e)

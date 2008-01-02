@@ -50,7 +50,7 @@
         
         
         </div>
-        
+        <asp:Panel ID="errorPanel" runat="server" Visible="false" CssClass="error_msg"  EnableViewState="false"><asp:Label ID="lblStatus" runat="server">Error is here</asp:Label> </asp:Panel>
         <table style="background-color:Black;border:0;color:White;" cellpadding="0" cellspacing="0">
         <tr>
             <TD>
@@ -99,12 +99,15 @@
     <asp:Panel ID="panelUpload" runat="server" Visible="false">
     
        <h4 style="border-bottom:solid 1px #ccc;text-transform:uppercase;">Upload photo</h4>
-            
-           
-           <input id="uploader" type="file" runat="server" />
+          <table>
+          <tr>
+          <Td>Title :</Td> <td><asp:TextBox ID="txtTitle" runat="server"></asp:TextBox>  </td>
+          </tr>
+           <tr><td>Path:</td><td><input id="uploader" type="file" runat="server" />
             <asp:Button ID="btnUpload" runat="server" onclick="btnUpload_Click" 
-                Text="Upload" />
-           
+                Text="Upload" /></td></tr>  
+             <tr><td>Public:</td><td><asp:CheckBox ID="chkPublic" runat="server" /></td></tr> 
+           </table>
      </asp:Panel>      
     </form>
 </body>

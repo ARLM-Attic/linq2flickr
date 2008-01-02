@@ -55,9 +55,11 @@ namespace Linq.Flickr
     public class Photo : QueryObjectBase
     {
         private string _Url = string.Empty;
+        [LinqVisible(false), OriginalFieldName("title")]
         public string Title { get; set; }
+        [LinqVisible(false), OriginalFieldName("description")]
         public string Description { get; set; }
-        [OriginalFieldName("id"),UseInQuery()]
+        [OriginalFieldName("photo_id"), LinqVisible]
         public string Id { get; set; }
         internal string SecretId { get; set; }
         internal string ServerId { get; set; }
@@ -77,6 +79,7 @@ namespace Linq.Flickr
         
         private string _uploadFilename = string.Empty;
 
+        [LinqVisible(false), OriginalFieldName("photo")]
         public string FileName
         {
             set
@@ -95,6 +98,23 @@ namespace Linq.Flickr
 
         public string FilePath { get; set; }
         public Stream File { get; set; }
+
+        private byte[] _postContent = null;
+
+        [LinqVisible(false)]
+        public byte[] PostContent
+        {
+            get
+            {
+                if (_postContent == null)
+                {
+                    _postContent = GetBytesFromPhysicalFile();
+                }
+                return _postContent;
+            }
+      
+        }
+
 
         internal byte[] GetBytesFromPhysicalFile()
         {
@@ -121,8 +141,6 @@ namespace Linq.Flickr
                 stream.Seek(0, SeekOrigin.Begin);
                 stream.Read(image, 0, image.Length);
 
-
-
                 return image;
             }
             catch
@@ -135,7 +153,6 @@ namespace Linq.Flickr
 
         public Photo()
         {
-            this.PhotoSize = PhotoSize.Square;
             this.ViewMode = ViewMode.Public;
             this.SortOrder = PhotoOrder.Date_Posted;
             this.SearchMode = SearchMode.FreeText;
@@ -143,7 +160,7 @@ namespace Linq.Flickr
 
         private int _size = 0;
 
-        [UseInQuery()]
+        [LinqVisible]
         public PhotoSize PhotoSize
         {
             get
@@ -159,7 +176,7 @@ namespace Linq.Flickr
 
         private int _searchMode = 0;
 
-        [UseInQuery()]
+        [LinqVisible, OriginalFieldName("tag_mode")]
         public SearchMode SearchMode
         {
             get
@@ -173,8 +190,8 @@ namespace Linq.Flickr
         }
 
         int _visibility = 0;
-        
-        [UseInQuery()]
+
+        [LinqVisible(), OriginalFieldName("privacy_filter")]
         public ViewMode ViewMode
         {
             get
@@ -226,11 +243,10 @@ namespace Linq.Flickr
             }
         }
 
-        [UseInQuery()]
+        [LinqVisible(), OriginalFieldName("text")]
         public string SearchText { get; set; }
-        [UseInQuery()]
+        [LinqVisible()]
         public string User { get; set; }
-
 
         string GetSizePostFix(PhotoSize size)
         {

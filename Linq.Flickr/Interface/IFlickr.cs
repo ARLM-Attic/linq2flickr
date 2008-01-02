@@ -12,9 +12,7 @@ namespace Linq.Flickr.Interface
         [FlickrMethod("flickr.photos.getInfo")]
         Photo GetPhotoDetail(string id, PhotoSize size);
         [FlickrMethod("flickr.photos.search")]
-        IEnumerable<Photo> Search(string user, string filter, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen);
-        [FlickrMethod("flickr.photos.search")]
-        IEnumerable<Photo> Search(string user, string filter, string tags, TagMode tagMode, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen);
+        IEnumerable<Photo> Search(int index, int pageLen, PhotoSize photoSize, params string[] args);
         [FlickrMethod("flickr.photos.getRecent")]
         IList<Photo> GetRecent(int index, int itemsPerPage, PhotoSize photoSize);
         [FlickrMethod("flickr.photos.delete")]
@@ -36,6 +34,6 @@ namespace Linq.Flickr.Interface
 
         //Method that POST_Call / Get calls to validate and upload photos.
         string Authenticate(bool validate);
-        string Upload(Photo photo);
+        string Upload(object[] args, string fileName, byte[] photoData);
     }
 }

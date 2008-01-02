@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 
 namespace Linq.Flickr
 {
-    internal class Helper
+    internal static class Helper
     {
         public static class FlickrMethod
         {
@@ -26,12 +26,12 @@ namespace Linq.Flickr
         private static Regex _emailRegex = new Regex(@"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static object _lockHandler = new object();
 
-        internal static bool IsValidEmail(string inputString)
+        internal static bool IsValidEmail(this string inputString)
         {
             return _emailRegex.IsMatch(inputString);
         }
 
-        internal static string GetHash(string inputString)
+        internal static string GetHash(this string inputString)
         {
             MD5 md5 = MD5CryptoServiceProvider.Create();
 

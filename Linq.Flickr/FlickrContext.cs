@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Linq.Flickr.Interface;
+using Linq.Flickr.Repository;
 
 namespace Linq.Flickr
 {
@@ -32,7 +33,7 @@ namespace Linq.Flickr
 
         public void Authenticate()
         {
-            using (IFlickr flickr = new DataAccess())
+            using (IFlickr flickr = new PhotoRepository())
             {
                 flickr.Authenticate(true);
             }

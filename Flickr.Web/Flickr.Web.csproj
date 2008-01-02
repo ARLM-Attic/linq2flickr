@@ -34,7 +34,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Linq.Flickr\bin\Debug\Linq.Flickr.dll</HintPath>
     </Reference>
-    <Reference Include="LinqExtender, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="LinqExtender, Version=1.2.2923.36042, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Linq.Flickr\External\LinqExtender.dll</HintPath>
     </Reference>

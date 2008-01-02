@@ -14,96 +14,18 @@ using Linq.Flickr.Interface;
 using Linq.Flickr.Attribute;
 using System.Reflection;
 
-namespace Linq.Flickr
+namespace Linq.Flickr.Repository
 {
-
     public class Permission
     {
         public const string READ = "read";
         public const string WRITE = "write";
         public const string DELETE = "delete";
     }
-    [DebuggerStepThrough]
-    public class DataAccess : IFlickr
+    //[DebuggerStepThrough]
+    public class PhotoRepository : Base, IFlickr
     {
-        private string FLICKR_API_KEY = string.Empty;
-        private string SHARED_SECRET = string.Empty;
-        private string STORE_PATH = string.Empty;
-        private string TOKEN_PATH = string.Empty;
-
-        public DataAccess()
-        {
-            try
-            {
-                // load the keys.
-                FLICKR_API_KEY = System.Configuration.ConfigurationManager.AppSettings["api_key"];
-                SHARED_SECRET = System.Configuration.ConfigurationManager.AppSettings["secret_key"];
-
-                // if Offline application , then create a cache directory.
-                if (HttpContext.Current == null)
-                {
-                    STORE_PATH = System.Configuration.ConfigurationManager.AppSettings["cache_dir"];
-                    // path where token will be stored.
-                    TOKEN_PATH = STORE_PATH + "\\token_{0}.xml";
-                }
-                Helper.RefreshExternalMethodList(typeof(IFlickr));
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException(ex.Message);      
-            }
-        }
-
-        private string BuildUrl(string functionName, params string [] args)
-        {
-            string requestUrl =  Helper.BASE_URL + "?method=" + functionName  + "&api_key=" + FLICKR_API_KEY;
-
-            for (int index = 0; index < args.Length; index += 2)
-            {
-                // appned if the search keyword is not empty.
-                if (!string.IsNullOrEmpty(args[index + 1]))
-                {
-                    requestUrl += '&' + args[index] + '=' + args[index + 1];
-                }
-            }
-            return requestUrl;
-        }
-
-       
-        private string GetSignature(string methodName, bool includeMethod, params object[] args)
-        {
-            string signature = string.Empty;
-
-            SortedDictionary<string, string> sorted = new SortedDictionary<string, string>();
-
-            if (includeMethod)
-            {
-                // add the mehold name param first.
-                sorted.Add("method", methodName);
-            }
-            // add the api key
-            sorted.Add("api_key", FLICKR_API_KEY);
-       
-            // do the argument processing, if there is any    
-            for (int index = 0; index < args.Length; index += 2)
-            {
-                if (!string.IsNullOrEmpty(Convert.ToString(args[index + 1])))
-                {
-                    sorted.Add((string)args[index], Convert.ToString(args[index + 1]));
-                }
-            }
-
-            foreach (string key in sorted.Keys)
-            {
-                signature += key + sorted[key];
-            }
-
-            signature = SHARED_SECRET + signature;
-
-            return Helper.GetHash(signature);
-        }
-
-        string IFlickr.GetFrob()
+         string IFlickr.GetFrob()
         {
             string method = Helper.GetExternalMethodName();
 
@@ -287,7 +209,7 @@ namespace Linq.Flickr
 
             try
             {
-                photos = GetPhotos(requestUrl, size, ViewMode.Public).ToList<Photo>();
+                photos = GetPhotos(requestUrl, size).ToList<Photo>();
             }
             catch (Exception ex)
             {
@@ -341,20 +263,25 @@ namespace Linq.Flickr
         {
             XElement element = XElement.Load(requestUrl);
 
+            return ParseElement(element);
+        }
+
+        private XElement ParseElement(XElement element)
+        {
             if (element.Attribute("stat").Value == "ok")
             {
                 return element;
             }
             else
             {
-                 _error = (from erros in element.Descendants("err")
-                            select new Error
-                            {
-                                Code = erros.Attribute("code").Value,
-                                Message = erros.Attribute("msg").Value
-                            }).Single<Error>();
+                _error = (from erros in element.Descendants("err")
+                          select new Error
+                          {
+                              Code = erros.Attribute("code").Value,
+                              Message = erros.Attribute("msg").Value
+                          }).Single<Error>();
 
-                throw new ApplicationException("Error code: " +  _error.Code + " Message: " + _error.Message);
+                throw new ApplicationException("Error code: " + _error.Code + " Message: " + _error.Message);
             }
         }
 
@@ -372,7 +299,7 @@ namespace Linq.Flickr
         {
             string nsId = string.Empty;
 
-            if (Helper.IsValidEmail(user))
+            if (user.IsValidEmail())
             {
                 nsId = (this as IFlickr).GetNSIDByEmail(user);
             }
@@ -421,85 +348,48 @@ namespace Linq.Flickr
             return null;
         }
 
-        IEnumerable<Photo> IFlickr.Search(string user, string filter, string tags, TagMode tagMode, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen)
-        {
-            return Search(filter, tags, user, size, visibility, orderBy, index, pageLen, tagMode, Helper.GetExternalMethodName());
-        }
-
-        IEnumerable<Photo> IFlickr.Search(string user, string filter, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen)
-        {
-            return Search(filter, user, size, visibility, orderBy, index, pageLen, TagMode.OR, Helper.GetExternalMethodName());
-        }
-
-        private IEnumerable<Photo> Search(string filter,  string user, PhotoSize size, ViewMode visibility, string orderBy, int index, int pageLen, TagMode mode, string method)
-        {
-            return Search(filter, user, string.Empty, size, visibility, orderBy, index, pageLen, mode, method);
-        }
-
         /// <summary>
         /// calls flickr.photos.search to list of photos.
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        private IEnumerable<Photo> Search(string filter, string tags, string user, PhotoSize size, ViewMode visibility, string orderBy,  int index, int pageLen, TagMode mode, string method)
+        IEnumerable<Photo> IFlickr.Search(int index, int pageLen, PhotoSize photoSize, params string[] args)
         {
-            // defualt the search mode is any , so no need to pass it.
-            string sMode = string.Empty;
-            string nsId = string.Empty;
-
-            if (mode == TagMode.AND)
-            {
-                sMode = "all";
-            }
-
-            if (!string.IsNullOrEmpty(user))
-            {
-                if (Helper.IsValidEmail(user))
-                {
-                    nsId = (this as IFlickr).GetNSIDByEmail(user);
-                }
-                else
-                {
-                    nsId = (this as IFlickr).GetNSIDByUsername(user);
-                }
-            }
+            string method = Helper.GetExternalMethodName();
 
             string token = string.Empty;
             string sig = string.Empty;
 
-            string pFilter = string.Empty;
-
-            if (visibility != ViewMode.Owner)
-            {
-                pFilter = Convert.ToString((int)visibility);
-            }
-
-            
             token = (this as IFlickr).Authenticate(false);
-
-            if (visibility != ViewMode.Public && string.IsNullOrEmpty(token))
-            {
-                throw new ApplicationException("You must be authenticate to view semi-private / private photos");
-            }
 
             if (!string.IsNullOrEmpty(token))
             {
-                if (string.IsNullOrEmpty(user) && visibility == ViewMode.Owner)
-                {
-                    nsId = "me";
-                }
-
-                sig = GetSignature(method, true, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", orderBy, "auth_token", token);
+                //if (string.IsNullOrEmpty(user) && visibility == ViewMode.Owner)
+                //{
+                //    nsId = "me";
+                //}
+                IDictionary<string, string> sorted = new SortedDictionary<string, string>();
+                ProcessArguments(args, sorted);
+                ProcessArguments(new object[] { "page", index.ToString(), "per_page", pageLen.ToString(), "auth_token", token }, sorted);
+                sig = GetSignature(method, true, sorted);
             }
 
-            string requestUrl = BuildUrl(method, "api_sig", sig, "text", filter, "tags", tags, "user_id", nsId, "privacy_filter", pFilter, "tag_mode", sMode, "page", index.ToString(), "per_page", pageLen.ToString(), "sort", orderBy, "auth_token", token);
-            
+            IDictionary<string, string> dicionary = new Dictionary<string, string>();
+
+            dicionary.Add(Helper.BASE_URL + "?method", method);
+            dicionary.Add("api_key", FLICKR_API_KEY);
+
+            ProcessArguments(args, dicionary);
+            ProcessArguments( new object [] {"api_sig", sig, "page", index.ToString(), "per_page", pageLen.ToString(), "auth_token", token }, dicionary);
+
+            string requestUrl = GetUrl(dicionary);
+
             if (index < 1 || index > 500)
             {
                 throw new ApplicationException("Index must be between 1 and 500");
             }
 
-            return GetPhotos(requestUrl, size, visibility);
+            return GetPhotos(requestUrl, photoSize);
         }
 
         private string GetAuthenticationUrl(string permission, string frob)
@@ -544,7 +434,7 @@ namespace Linq.Flickr
             }
         }
         
-        private IEnumerable<Photo> GetPhotos(string requestUrl, PhotoSize size, ViewMode visibility)
+        private IEnumerable<Photo> GetPhotos(string requestUrl, PhotoSize size)
         {
             XElement doc = GetElement(requestUrl);
 
@@ -677,12 +567,17 @@ namespace Linq.Flickr
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
                 // Set the Method property of the request to POST.
                 request.Method = "POST";
+
                 request.KeepAlive = true;
-                // Set the ContentType property of the WebRequest.
+                //// Set the ContentType property of the WebRequest.
                 request.ContentType = "charset=UTF-8";
+                request.ContentLength = 0;
+                // Get the request stream.
+                Stream dataStream = request.GetRequestStream();
+                // Get the response.
                 WebResponse response = request.GetResponse();
 
-                Stream dataStream = response.GetResponseStream();
+                dataStream = response.GetResponseStream();
                 // Open the stream using a StreamReader for easy access.
                 StreamReader reader = new StreamReader(dataStream);
                 // Read the content.
@@ -690,7 +585,10 @@ namespace Linq.Flickr
                 // Clean up the streams.
                 reader.Close();
                 // validate the response.
-                GetElement(responseFromServer);
+                // clean up garbage charecters.
+                responseFromServer = responseFromServer.Replace("\r", string.Empty).Replace("\n", string.Empty);
+                XElement element = XElement.Parse(responseFromServer, LoadOptions.None);
+                ParseElement(element);
 
                 return true;
             }
@@ -700,24 +598,26 @@ namespace Linq.Flickr
             }
         }
 
-        string IFlickr.Upload(Photo photo)
+        string IFlickr.Upload(object[] args, string fileName, byte[] photoData)
         {
             string token = Authenticate();
 
             string boundary = "FLICKR_BOUNDARY";
 
-            int is_public = photo.ViewMode == ViewMode.Public ? 1 : 0;
-            int is_friend = photo.ViewMode == ViewMode.Friends || photo.ViewMode == ViewMode.FriendsFamily ? 1 : 0;
-            int is_family = photo.ViewMode == ViewMode.Family || photo.ViewMode == ViewMode.FriendsFamily ? 1 : 0; 
+            IDictionary<string, string> sorted = new SortedDictionary<string, string>();
 
-            string sig = GetSignature(Helper.UPLOAD_URL, false, "title", photo.Title, "description", photo.Description, "tags", photo.Tags, "is_public" , is_public, "is_family", is_family, "is_friend", is_friend, "auth_token", token);
+            ProcessArguments(new object[]{ "auth_token", token }, sorted);
 
+            string sig = GetSignature(Helper.UPLOAD_URL, false,sorted, args);
+           
             StringBuilder builder = new StringBuilder();
 
-            byte[] photoData =  photo.GetBytesFromPhysicalFile();
+            EncodeAndAddItem(boundary, ref builder, new object[] { "api_key", FLICKR_API_KEY, "auth_token", token, "api_sig", sig});
+            EncodeAndAddItem(boundary, ref builder, args);
+            EncodeAndAddItem(boundary, ref builder, new object[] { "photo", fileName});
 
-            EncodeAndAddItem(boundary, ref builder, "title", photo.Title, "description", photo.Description, "tags", photo.Tags, "api_key", FLICKR_API_KEY, "is_public", is_public, "is_family", is_family, "is_friend", is_friend, "auth_token", token, "api_sig", sig, "photo", photo.FileName);
-
+            //builder = builder.Remove(builder.Length - 4, 4);
+           
             // Create a request using a URL that can receive a post. 
             HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(Helper.UPLOAD_URL);
             // Set the Method property of the request to POST.
@@ -757,10 +657,7 @@ namespace Linq.Flickr
             response.Close();
             // get the photo id.
             XElement elemnent = XElement.Parse(responseFromServer);
-            photo.Id =  elemnent.Element("photoid").Value ?? string.Empty;
-
-            return photo.Id;
-
+            return elemnent.Element("photoid").Value ?? string.Empty;
         }
 
         private string Authenticate()

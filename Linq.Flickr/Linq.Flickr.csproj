@@ -31,12 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LinqExtender, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="LinqExtender, Version=1.2.2923.36042, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -50,7 +51,8 @@
   <ItemGroup>
     <Compile Include="Attribute\FlickrMethodAttribute.cs" />
     <Compile Include="AuthToken.cs" />
-    <Compile Include="DataAccess.cs" />
+    <Compile Include="Repository\Base.cs" />
+    <Compile Include="Repository\PhotoRepository.cs" />
     <Compile Include="FlickrContext.cs" />
     <Compile Include="FlickrPhotoQuery.cs" />
     <Compile Include="Helper.cs" />
