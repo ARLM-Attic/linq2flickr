@@ -129,6 +129,9 @@ namespace Linq.Flickr.Repository
                     TextWriter writer = new StreamWriter(stream);
 
                     tokenElement.Save(writer);
+
+                    writer.Close();
+                    stream.Close();
                 }
                 else
                 {

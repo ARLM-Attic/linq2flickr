@@ -3,46 +3,55 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Linq.Flickr;
-
+using System.IO;
+using LinqExtender;
+using OpenLinqToSql;
+using System.Data.SqlServerCe;
+using System.Data;
+using System.Configuration;
+using System.Collections.Specialized;
+using System.Collections;
 namespace FlickrConsole
 {
     /// <summary>
     /// The purpose of this test program is to show how query photos in flickr using LINQFlickr api.
     /// </summary>
+    /// 
     class Program
     {
+       
+        private static PhotoManager _context = new PhotoManager();
+
         static void Main(string[] args)
         {
-            // create the context
-            FlickrContext context = new FlickrContext();
-
-            if (args.Length == 0)
+            if (args.Length == 1)
             {
-                throw new Exception("Command line argument is not provided, FlickrConsole.exe searchText user");
-            }
-            // search only text.
-            try
-            {
-            // do query.
-                var query = (from ph in context.Photos
-                             where ph.PhotoSize == PhotoSize.Medium && ph.SearchText == args[0] && ph.SearchMode == SearchMode.FreeText
-                             && ph.User == (args.Length > 1 ? args[1] : string.Empty)
-                             orderby PhotoOrder.Date_Posted descending
-                             select new { ph.Title, ph.Url }).Take(10).Skip(0);
-              
-
-                foreach (var p in query)
-                {
-                    Console.WriteLine(p.Title + "\r\n" + p.Url);
-                }
-                
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                throw new Exception("Too few command line argument provided, FlickrConsole.exe searchText user");
             }
 
-            Console.ReadLine();
+            switch (args[0].ToLower())
+            {
+                case "search":
+                    Search(args);
+                    break;
+                case "upload":
+                    _context.PerformAction(Action.Upload, args);
+                    break;
+                case "add":
+                    _context.PerformAction(Action.Add, args);
+                    break;
+            }
         }
+
+        private static void Search(string [] args)
+        {
+          IList<Photo> list =  _context.SearchPhoto(args);
+
+          foreach (Photo ph in list)
+          {
+              Console.WriteLine(ph.Title + "->" + ph.Url);
+          }
+        }
+
     }
 }

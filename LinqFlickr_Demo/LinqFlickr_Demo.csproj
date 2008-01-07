@@ -34,9 +34,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Linq.Flickr\bin\Debug\Linq.Flickr.dll</HintPath>
     </Reference>
-    <Reference Include="LinqExtender, Version=1.2.2923.36042, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="LinqExtender, Version=1.2.2927.1233, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Linq.Flickr\External\LinqExtender.dll</HintPath>
+      <HintPath>..\External\LinqExtender.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -84,7 +84,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>50881</DevelopmentServerPort>
+          <DevelopmentServerPort>50882</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>

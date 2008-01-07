@@ -45,48 +45,41 @@ namespace LinqFlickr_Demo
 
         private void BindData()
         {
-            try
+            FlickrContext context = new FlickrContext();
+            context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHanler(Photos_OnError);
+
+            string text = textboxSearch.Text;
+
+            detailView.Visible = false;
+            nomarlView.Visible = true;
+
+            ViewMode mode = ViewMode.Public;
+            SearchMode sMode = SearchMode.FreeText;
+
+            if (checkSearchTags.Checked)
             {
-                FlickrContext context = new FlickrContext();
-
-                string text = textboxSearch.Text;
-
-                detailView.Visible = false;
-                nomarlView.Visible = true;
-
-                ViewMode mode = ViewMode.Public;
-                SearchMode sMode = SearchMode.FreeText;
-
-                if (checkSearchTags.Checked)
-                {
-                    sMode = SearchMode.TagsOnly;
-                }
-
-                if (rbMeOnly.Checked)
-                {
-                    mode = ViewMode.Owner;
-                    panelUpload.Visible = true;
-                    lnkDelete.Visible = true;
-                }
-                else
-                {
-                    lnkDelete.Visible = false;
-                    panelUpload.Visible = false;
-                }
-
-                var query = (from ph in context.Photos
-                             where ph.ViewMode == mode && ph.SearchText == text && ph.SearchMode == sMode
-                             orderby PhotoOrder.Date_Posted descending
-                             select ph).Take(12).Skip(0);
-
-                lstPhotos.DataSource = query.ToList<Photo>();
-                lstPhotos.DataBind();
+                sMode = SearchMode.TagsOnly;
             }
-            catch (Exception ex)
+
+            if (rbMeOnly.Checked)
             {
-                errorPanel.Visible = true;
-                lblStatus.Text = ex.Message;
+                mode = ViewMode.Owner;
+                panelUpload.Visible = true;
+                lnkDelete.Visible = true;
             }
+            else
+            {
+                lnkDelete.Visible = false;
+                panelUpload.Visible = false;
+            }
+
+            var query = (from ph in context.Photos
+                         where ph.ViewMode == mode && ph.SearchText == text && ph.SearchMode == sMode
+                         orderby PhotoOrder.Date_Posted descending
+                         select ph).Take(12).Skip(0);
+
+            lstPhotos.DataSource = query.ToList<Photo>();
+            lstPhotos.DataBind();
         }
 
         protected void lstPhotos_ItemDataBound(object sender, RepeaterItemEventArgs e)
@@ -111,6 +104,9 @@ namespace LinqFlickr_Demo
             try
             {
                 FlickrContext context = new FlickrContext();
+
+                context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHanler(Photos_OnError);
+
                 context.Photos.Add(new Photo { FileName = Path.GetFileName(uploader.Value), File = uploader.PostedFile.InputStream, ViewMode = chkPublic.Checked ? ViewMode.Public : ViewMode.Private, Title = txtTitle.Text.Trim() });
                 context.SubmitChanges();
 
@@ -121,6 +117,12 @@ namespace LinqFlickr_Demo
                 errorPanel.Visible = true;
                 lblStatus.Text = ex.Message;
             }
+        }
+
+        void Photos_OnError(string error)
+        {
+            errorPanel.Visible = true;
+            lblStatus.Text = error;
         }
 
         protected void lstPhotos_ItemCommand(object source, RepeaterCommandEventArgs e)
@@ -160,6 +162,8 @@ namespace LinqFlickr_Demo
             {
                 //FlickrContext
                 FlickrContext context = new FlickrContext();
+                context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHanler(Photos_OnError);
+
                 var query = from ph in context.Photos
                             where ph.Id == hPhotoId.Value
                             select ph;
