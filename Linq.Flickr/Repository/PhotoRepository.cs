@@ -16,11 +16,11 @@ using System.Reflection;
 
 namespace Linq.Flickr.Repository
 {
-    public class Permission
+    public enum Permission
     {
-        public const string READ = "read";
-        public const string WRITE = "write";
-        public const string DELETE = "delete";
+        Read = 0,
+        Write,
+        Delete
     }
     //[DebuggerStepThrough]
     public class PhotoRepository : Base, IFlickr
@@ -65,6 +65,40 @@ namespace Linq.Flickr.Repository
             }
         }
 
+        People IFlickr.GetUploadStatus()
+        {
+            string token = Authenticate();
+            
+            string method = Helper.GetExternalMethodName();
+            string sig = GetSignature(method, true, "auth_token", token);
+            string requestUrl = BuildUrl(method, "api_sig", sig, "auth_token", token);
+
+            try
+            {
+                XElement element = GetElement(requestUrl);
+
+                People people = (from p in element.Descendants("user")
+                                 select new People
+                                 {
+                                     Id = p.Attribute("id").Value ?? string.Empty,
+                                     IsPro = Convert.ToInt32(p.Attribute("ispro").Value) == 0 ? false : true,
+                                     BandWidth = (from b in element.Descendants("bandwidth")
+                                                  select new BandWidth
+                                                  {
+                                                      RemainingKB =  Convert.ToInt32(b.Attribute("remainingkb").Value),
+                                                      UsedKB = Convert.ToInt32(b.Attribute("usedkb").Value)
+                                                  }).Single<BandWidth>()
+                                 }).Single<People>();
+
+                return people;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(ex.Message);
+            }
+        }
+
+
         private static AuthToken GetAToken(XElement tokenElement)
         {
             AuthToken token = (from tokens in tokenElement.Descendants("auth")
@@ -77,7 +111,12 @@ namespace Linq.Flickr.Repository
             return token;
         }
 
-        string IFlickr.Authenticate(bool validate)
+        string IFlickr.Authenticate(bool validate, Permission permission)
+        {
+            return this.Authenticate(validate, permission.ToString().ToLower());
+        }
+
+        private string Authenticate(bool validate, string permission)
         {
             string frob = string.Empty;
 
@@ -91,23 +130,23 @@ namespace Linq.Flickr.Repository
                 {
                     frob = (this as IFlickr).GetFrob();
                 }
-                return CreateWebToken(frob, validate);
+                return CreateWebToken(frob, validate, permission);
             }
             else
             {
                 frob = (this as IFlickr).GetFrob();
-                return CreateDesktopToken(frob, validate);
+                return CreateDesktopToken(frob, validate, permission);
             }
         }
 
-        private string CreateDesktopToken(string frob, bool validate)
+        private string CreateDesktopToken(string frob, bool validate, string permission)
         {
             string sig = GetSignature(Helper.FlickrMethod.GET_AUTH_TOKEN, true, "frob", frob);
             string requestUrl = BuildUrl(Helper.FlickrMethod.GET_AUTH_TOKEN, "frob", frob, "api_sig", sig);
             string token = string.Empty;
 
             XElement tokenElement = null;
-            string path = string.Format(TOKEN_PATH, Permission.DELETE);
+            string path = string.Format(TOKEN_PATH, permission);
 
             try
             {
@@ -118,7 +157,7 @@ namespace Linq.Flickr.Repository
             {
                 if (validate)
                 {
-                    IntializeToken(Permission.DELETE, frob);
+                    IntializeToken(permission, frob);
 
                     tokenElement = GetElement(requestUrl);
 
@@ -147,7 +186,7 @@ namespace Linq.Flickr.Repository
             return token;
         }
 
-        private string CreateWebToken(string frob, bool validate)
+        private string CreateWebToken(string frob, bool validate, string permission)
         {
             string token = string.Empty;
             try
@@ -173,7 +212,7 @@ namespace Linq.Flickr.Repository
             {
                 if (validate)
                 {
-                    IntializeToken(Permission.DELETE, frob);
+                    IntializeToken(permission, frob);
                 }
             }
             return token;
@@ -363,7 +402,7 @@ namespace Linq.Flickr.Repository
             string token = string.Empty;
             string sig = string.Empty;
 
-            token = (this as IFlickr).Authenticate(false);
+            token = (this as IFlickr).Authenticate(false, Permission.Delete);
 
             if (!string.IsNullOrEmpty(token))
             {
@@ -469,7 +508,7 @@ namespace Linq.Flickr.Repository
 
             string method = Helper.GetExternalMethodName();
 
-            string token = (this as IFlickr).Authenticate(false);
+            string token = (this as IFlickr).Authenticate(false, Permission.Delete);
             string sig = GetSignature(method, true, "photo_id", id, "auth_token", token);
             string requestUrl = BuildUrl(method, "photo_id", id, "auth_token", token, "api_sig", sig);
 
@@ -667,7 +706,7 @@ namespace Linq.Flickr.Repository
         {
             string token = string.Empty;
 
-            token = (this as IFlickr).Authenticate(true);
+            token = (this as IFlickr).Authenticate(true, Permission.Delete);
 
             if (string.IsNullOrEmpty(token))
             {

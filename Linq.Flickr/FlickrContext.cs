@@ -35,7 +35,7 @@ namespace Linq.Flickr
         {
             using (IFlickr flickr = new PhotoRepository())
             {
-                flickr.Authenticate(true);
+                flickr.Authenticate(true, Permission.Delete);
             }
         }
 

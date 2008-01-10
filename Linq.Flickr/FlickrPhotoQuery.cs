@@ -11,11 +11,15 @@ namespace Linq.Flickr
 {
     public class FlickrPhotoQuery : Query<Photo>
     {
+        private People _people = null;
   
         protected override void AddItem(Bucket bucket)
         {
             using (IFlickr flickr = new PhotoRepository())
             {
+                if (_people == null)
+                    _people = flickr.GetUploadStatus();
+
                 object[] args = new object[bucket.Items.Count + 4];
 
                 ViewMode viewMode = bucket.Items[PhotoColumns.VIEWMODE].Value == null ? ViewMode.Public : (ViewMode)bucket.Items[PhotoColumns.VIEWMODE].Value;
@@ -41,9 +45,23 @@ namespace Linq.Flickr
                 if (postContnet == null || postContnet.Length == 0)
                     throw new ApplicationException("Zero photo length detected, please key in a valid photo file");
 
+                // check if the user has any storage.
+                int kbTobUploaded = (int)Math.Ceiling((float)(postContnet.Length / 1024f));
+                if (_people.BandWidth != null)
+                {
+                    int currentByte = _people.BandWidth.UsedKB + kbTobUploaded ;
+                    if (currentByte >= _people.BandWidth.RemainingKB)
+                    {
+                        throw new ApplicationException("Storage limit excceded, try pro account!!");
+                    }
+                }
+
                 try
                 {
                      flickr.Upload(args, fileName, postContnet);
+                     // do the math
+                     _people.BandWidth.UsedKB += kbTobUploaded;
+                     _people.BandWidth.RemainingKB -= kbTobUploaded;
                 }
                 catch
                 {
@@ -125,7 +143,7 @@ namespace Linq.Flickr
                     if (viewMode != ViewMode.Public)
                         authenticate = true;
                     if (authenticate)
-                        token = flickr.Authenticate(authenticate);
+                        token = flickr.Authenticate(authenticate, Permission.Delete);
 
                     if (bucket.Items[PhotoColumns.ID].Value != null)
                     {

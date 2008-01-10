@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Linq.Flickr.Attribute;
+using Linq.Flickr.Repository;
 
 namespace Linq.Flickr.Interface
 {
@@ -31,9 +32,10 @@ namespace Linq.Flickr.Interface
         AuthToken GetTokenFromFrob(string frob);
         [FlickrMethod("flickr.auth.checkToken")]
         AuthToken CheckToken(string token);
-
         //Method that POST_Call / Get calls to validate and upload photos.
-        string Authenticate(bool validate);
+        string Authenticate(bool validate, Permission permission);
         string Upload(object[] args, string fileName, byte[] photoData);
+        [FlickrMethod("flickr.people.getUploadStatus")]
+        People GetUploadStatus();
     }
 }

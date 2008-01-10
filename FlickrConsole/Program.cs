@@ -24,9 +24,10 @@ namespace FlickrConsole
 
         static void Main(string[] args)
         {
+            _context.OnStatus += new PhotoManager.StatusHandler(_context_OnStatus);
             if (args.Length == 1)
             {
-                throw new Exception("Too few command line argument provided, FlickrConsole.exe searchText user");
+                throw new Exception("Too few command line argument provided, fc.exe searchText user");
             }
 
             switch (args[0].ToLower())
@@ -41,6 +42,11 @@ namespace FlickrConsole
                     _context.PerformAction(Action.Add, args);
                     break;
             }
+        }
+
+        static void _context_OnStatus(string message)
+        {
+            Console.WriteLine(message);
         }
 
         private static void Search(string [] args)
