@@ -483,11 +483,11 @@ namespace Linq.Flickr.Repository
             var query = from photos in doc.Descendants("photo")
                         select new Photo
                         {
-                            Id = photos.Attribute("id").Value,
-                            FarmId = photos.Attribute("farm").Value,
-                            ServerId = photos.Attribute("server").Value,
-                            SecretId = photos.Attribute("secret").Value,
-                            Title = photos.Attribute("title").Value,
+                            Id = photos.Attribute("id").Value ?? string.Empty,
+                            FarmId = photos.Attribute("farm").Value ?? string.Empty,
+                            ServerId = photos.Attribute("server").Value ?? string.Empty,
+                            SecretId = photos.Attribute("secret").Value ?? string.Empty,
+                            Title = photos.Attribute("title").Value ?? string.Empty,
                             IsPublic = photos.Attribute("ispublic").Value == "0" ? false : true,
                             IsFamily = photos.Attribute("isfamily").Value == "0" ? false : true,
                             IsFriend = photos.Attribute("isfriend").Value == "0" ? false : true,

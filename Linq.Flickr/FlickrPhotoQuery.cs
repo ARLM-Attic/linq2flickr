@@ -58,8 +58,11 @@ namespace Linq.Flickr
 
                 try
                 {
-                     flickr.Upload(args, fileName, postContnet);
-                     // do the math
+                     string photoId = flickr.Upload(args, fileName, postContnet);
+                     // set the id.
+                     bucket.Items[PhotoColumns.ID].Value = photoId;
+                    
+                    // do the math
                      _people.BandWidth.UsedKB += kbTobUploaded;
                      _people.BandWidth.RemainingKB -= kbTobUploaded;
                 }
@@ -125,7 +128,8 @@ namespace Linq.Flickr
                 // if there is not tag text, tag or id methioned in search , also want to get my list of images,
                 if (string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.ID].Value)
                     && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.SEARCHTEXT].Value)
-                    && viewMode != ViewMode.Owner)
+                    && viewMode != ViewMode.Owner 
+                    && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.USER].Value))
                 {
                     fetchRecent = true;
                 }
@@ -184,21 +188,30 @@ namespace Linq.Flickr
 
                     if (!string.IsNullOrEmpty(value))
                     {
-                        if ((item.Name == PhotoColumns.USER) && (!string.IsNullOrEmpty(nsId)))
+
+                        using (IFlickr flickr = new PhotoRepository())
                         {
-                            if (value.IsValidEmail())
+                            if ((item.Name == PhotoColumns.USER))
                             {
-                                nsId = (this as IFlickr).GetNSIDByEmail(value);
+                                if (value.IsValidEmail())
+                                {
+                                    nsId = flickr.GetNSIDByEmail(value);
+                                }
+                                else
+                                {
+                                    nsId = flickr.GetNSIDByUsername(value);
+                                }
+                                args[itemIndex] = "user_id";
+                                // set the new nslid
+                                if (!string.IsNullOrEmpty(nsId))
+                                {
+                                    value = nsId;
+                                }
                             }
                             else
                             {
-                                nsId = (this as IFlickr).GetNSIDByUsername(value);
+                                args[itemIndex] = item.Name;
                             }
-                            args[itemIndex] = "user_id";
-                        }
-                        else
-                        {
-                            args[itemIndex] = item.Name;
                         }
                         args[itemIndex + 1] = value;
                     }
