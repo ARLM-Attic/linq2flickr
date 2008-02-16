@@ -13,6 +13,7 @@ using System.Web.Security;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Attribute;
 using System.Reflection;
+using System.Xml;
 
 namespace Linq.Flickr.Repository
 {
@@ -406,10 +407,6 @@ namespace Linq.Flickr.Repository
 
             if (!string.IsNullOrEmpty(token))
             {
-                //if (string.IsNullOrEmpty(user) && visibility == ViewMode.Owner)
-                //{
-                //    nsId = "me";
-                //}
                 IDictionary<string, string> sorted = new SortedDictionary<string, string>();
                 ProcessArguments(args, sorted);
                 ProcessArguments(new object[] { "page", index.ToString(), "per_page", pageLen.ToString(), "auth_token", token }, sorted);
@@ -665,6 +662,8 @@ namespace Linq.Flickr.Repository
             // Set the Method property of the request to POST.
             request.Method = "POST";
             request.KeepAlive = true;
+            // never timeout.
+            request.Timeout = 300000;
             // Set the ContentType property of the WebRequest.
             request.ContentType = "multipart/form-data;charset=UTF-8;boundary=" + boundary + "";
           

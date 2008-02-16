@@ -6,6 +6,7 @@ using LinqExtender.Interface;
 using LinqExtender;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
+using System.Drawing;
 
 namespace Linq.Flickr
 {
@@ -182,41 +183,43 @@ namespace Linq.Flickr
             {
                 BucketItem item = bucket.Items[key];
 
-                if (item.Value != null && ((item.QueryVisible) || includeNonVisibleItems))
+                if (item.Name != PhotoColumns.PHOTOSIZE) // PhotoSize is for internal use.
                 {
-                    string value = Convert.ToString(item.Value);
-
-                    if (!string.IsNullOrEmpty(value))
+                    if (item.Value != null && ((item.QueryVisible) || includeNonVisibleItems))
                     {
+                        string value = Convert.ToString(item.Value);
 
-                        using (IFlickr flickr = new PhotoRepository())
+                        if (!string.IsNullOrEmpty(value))
                         {
-                            if ((item.Name == PhotoColumns.USER))
+                            using (IFlickr flickr = new PhotoRepository())
                             {
-                                if (value.IsValidEmail())
+                                if ((item.Name == PhotoColumns.USER))
                                 {
-                                    nsId = flickr.GetNSIDByEmail(value);
+                                    args[itemIndex] = "user_id";
+                                    if (value.IsValidEmail())
+                                    {
+                                        nsId = flickr.GetNSIDByEmail(value);
+                                    }
+                                    else
+                                    {
+                                        nsId = flickr.GetNSIDByUsername(value);
+                                    }
+                                    // set the new nslid
+                                    if (!string.IsNullOrEmpty(nsId))
+                                    {
+                                        value = nsId;
+                                    }
                                 }
                                 else
                                 {
-                                    nsId = flickr.GetNSIDByUsername(value);
-                                }
-                                args[itemIndex] = "user_id";
-                                // set the new nslid
-                                if (!string.IsNullOrEmpty(nsId))
-                                {
-                                    value = nsId;
+                                    args[itemIndex] = item.Name;
                                 }
                             }
-                            else
-                            {
-                                args[itemIndex] = item.Name;
-                            }
+                            args[itemIndex + 1] = value;
                         }
-                        args[itemIndex + 1] = value;
-                    }
-                    itemIndex += 2;
-                }
+                        itemIndex += 2;
+                    } // end if (item.Value != null && ((item.QueryVisible) || includeNonVisibleItems))
+                }// end if (item.Name != PhotoColumns.PHOTOSIZE)
             }
 
             if (bucket.OrderByClause != null)

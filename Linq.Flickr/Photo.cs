@@ -8,6 +8,7 @@ using System.IO;
 using System.Drawing;
 using LinqExtender;
 using LinqExtender.Attribute;
+using System.Drawing.Imaging;
 
 namespace Linq.Flickr
 {
@@ -133,7 +134,7 @@ namespace Linq.Flickr
 
                 using (Bitmap bitmap = new Bitmap(stream))
                 {
-                    // valid image
+                    //bitmap.v(stream, ImageFormat.Jpeg);
                 }
 
                 byte[] image = new byte[stream.Length];
