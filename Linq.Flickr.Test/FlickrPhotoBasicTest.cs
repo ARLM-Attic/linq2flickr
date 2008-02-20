@@ -57,7 +57,7 @@ namespace Linq.Flickr.Test
         private void DeleteAllPhotos()
         {
             var query =  from ph in _context.Photos
-                         where ph.ViewMode == ViewMode.Public && ph.User == USER_NAME && ph.PhotoSize == PhotoSize.Square
+                         where ph.User == USER_NAME && ph.PhotoSize == PhotoSize.Square
                          orderby PhotoOrder.Date_Taken ascending
                          select ph;
 
