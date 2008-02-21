@@ -32,7 +32,7 @@ namespace Linq.Flickr.Test
         [Test]
         public void AAddNewPhoto()
         {
-            using (Stream resourceStream = Assembly.GetAssembly(this.GetType()).GetManifestResourceStream("Linq.Flickr.Test.FlickrLogo.GIF"))
+            using (Stream resourceStream = Assembly.GetAssembly(this.GetType()).GetManifestResourceStream("Linq.Flickr.Test.blank.gif"))
             {
                 //byte[] imageByte = new byte[resourceStream.Length];
                 //resourceStream.Read(imageByte, 0, (int)resourceStream.Length);

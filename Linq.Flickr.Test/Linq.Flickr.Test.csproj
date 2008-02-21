@@ -69,9 +69,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="FlickrLogo.GIF" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="blank.gif" />
     <Content Include="Readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
