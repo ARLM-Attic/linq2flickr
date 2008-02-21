@@ -46,7 +46,7 @@ namespace LinqFlickr_Demo
         private void BindData()
         {
             FlickrContext context = new FlickrContext();
-            context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHanler(Photos_OnError);
+            context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHandler(Photos_OnError);
 
             string text = textboxSearch.Text;
 
@@ -118,7 +118,7 @@ namespace LinqFlickr_Demo
             {
                 FlickrContext context = new FlickrContext();
 
-                context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHanler(Photos_OnError);
+                context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHandler(Photos_OnError);
 
                 context.Photos.Add(new Photo { FileName = Path.GetFileName(uploader.Value), File = uploader.PostedFile.InputStream, ViewMode = chkPublic.Checked ? ViewMode.Public : ViewMode.Private, Title = txtTitle.Text.Trim() });
                 context.SubmitChanges();
@@ -182,7 +182,7 @@ namespace LinqFlickr_Demo
             {
                 //FlickrContext
                 FlickrContext context = new FlickrContext();
-                context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHanler(Photos_OnError);
+                context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHandler(Photos_OnError);
 
                 var query = from ph in context.Photos
                             where ph.Id == hPhotoId.Value

@@ -21,7 +21,7 @@ namespace Linq.Flickr.Test
         public void Init()
         {
             _context = new FlickrContext();
-            _context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHanler(Photos_OnError);
+            _context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHandler(Photos_OnError);
 
             if (!deleteOnce)
             {
