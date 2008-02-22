@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Attribute\FlickrMethodAttribute.cs" />
     <Compile Include="AuthToken.cs" />
+    <Compile Include="Configuration\FlickrSettings.cs" />
     <Compile Include="Repository\Base.cs" />
     <Compile Include="Repository\PhotoRepository.cs" />
     <Compile Include="FlickrContext.cs" />

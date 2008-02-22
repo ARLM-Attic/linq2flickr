@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Linq.Flickr.Interface;
 using System.Web;
+using Linq.Flickr.Configuration;
 
 namespace Linq.Flickr.Repository
 {
@@ -19,13 +20,13 @@ namespace Linq.Flickr.Repository
             try
             {
                 // load the keys.
-                FLICKR_API_KEY = System.Configuration.ConfigurationManager.AppSettings["api_key"];
-                SHARED_SECRET = System.Configuration.ConfigurationManager.AppSettings["secret_key"];
+                FLICKR_API_KEY = FlickrSettings.Current.ApiKey;
+                SHARED_SECRET = FlickrSettings.Current.SecretKey;
 
                 // if Offline application , then create a cache directory.
                 if (HttpContext.Current == null)
                 {
-                    STORE_PATH = System.Configuration.ConfigurationManager.AppSettings["cache_dir"];
+                    STORE_PATH = FlickrSettings.Current.CacheDirectory;
                     // path where token will be stored.
                     TOKEN_PATH = STORE_PATH + "\\token_{0}.xml";
                 }
