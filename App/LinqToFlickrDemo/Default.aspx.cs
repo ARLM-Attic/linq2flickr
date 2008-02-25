@@ -90,6 +90,8 @@ namespace LinqFlickr_Demo
             this.ShowDetail();
         }
 
+        bool set = false;
+
         protected void lstPhotos_ItemDataBound(object sender, DataListItemEventArgs e)
         {
             if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
@@ -100,9 +102,10 @@ namespace LinqFlickr_Demo
 
                 lnkDetail.CommandArgument = photo.Id;
 
-                if (string.IsNullOrEmpty(hPhotoId.Value))
+                if (string.IsNullOrEmpty(hPhotoId.Value) || (!set))
                 {
                     hPhotoId.Value = lnkDetail.CommandArgument;
+                    set = true;
                 }
 
                 Image image = (Image)e.Item.FindControl("photo");
@@ -226,7 +229,8 @@ namespace LinqFlickr_Demo
 
         protected void btnNext_Click(object sender, EventArgs e)
         {
-                    }
+
+        }
 
         protected void lstTags_ItemDataBound(object sender, RepeaterItemEventArgs e)
         {
