@@ -165,6 +165,8 @@ namespace LinqFlickr_Demo
 
             if (tags.Length == 0)
                 tagsDiv.Visible = false;
+            else
+                tagsDiv.Visible = true;
 
             lstTags.DataSource = tags;
             lstTags.DataBind();
