@@ -23,6 +23,7 @@ namespace Linq.Flickr
         internal const string UPLOAD_URL = "http://api.flickr.com/services/upload/";
 
         private readonly static IDictionary<string, string> _methodList = new Dictionary<string, string>();
+        private readonly static IDictionary<string, string> _interfaceList = new Dictionary<string, string>();
         private static Regex _emailRegex = new Regex(@"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static object _lockHandler = new object();
 
@@ -43,9 +44,9 @@ namespace Linq.Flickr
 
         internal static void RefreshExternalMethodList(Type interfaceType)
         {
-            // not yet initialized.
-            //if (_methodList.Count == 0)
-            //{
+            // not yet initialized for a particular interface type.
+            if (!_interfaceList.ContainsKey(interfaceType.FullName))
+            {
                 MethodInfo[] mInfos = interfaceType.GetMethods();
 
                 foreach (MethodInfo mInfo in mInfos)
@@ -67,8 +68,8 @@ namespace Linq.Flickr
                         }
                     }
                 }
-
-            //}
+                _interfaceList.Add(interfaceType.FullName, interfaceType.FullName);
+            }//if (!_interfaceList.ContainsKey(interfaceType.FullName))
         }
 
         internal static string GetExternalMethodName()
