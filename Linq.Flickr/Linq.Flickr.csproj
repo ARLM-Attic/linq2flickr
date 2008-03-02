@@ -53,14 +53,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attribute\FlickrMethodAttribute.cs" />
+    <Compile Include="Author.cs" />
     <Compile Include="AuthToken.cs" />
+    <Compile Include="Comment.cs" />
+    <Compile Include="CommentQuery.cs" />
     <Compile Include="Configuration\FlickrSettings.cs" />
+    <Compile Include="Interface\IComment.cs" />
     <Compile Include="Repository\Base.cs" />
+    <Compile Include="Repository\CommentRepository.cs" />
     <Compile Include="Repository\PhotoRepository.cs" />
     <Compile Include="FlickrContext.cs" />
-    <Compile Include="FlickrPhotoQuery.cs" />
+    <Compile Include="PhotoQuery.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="Interface\IFlickr.cs" />
+    <Compile Include="Interface\IPhoto.cs" />
     <Compile Include="Photo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tag.cs" />

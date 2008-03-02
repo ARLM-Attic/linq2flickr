@@ -24,30 +24,19 @@ namespace Linq.Flickr.Repository
         Delete
     }
     //[DebuggerStepThrough]
-    public class PhotoRepository : Base, IFlickr
+    public class PhotoRepository : Base, IPhoto
     {
-         string IFlickr.GetFrob()
+
+        public PhotoRepository() : base(typeof(IPhoto)) { }
+
+         string IPhoto.GetFrob()
         {
             string method = Helper.GetExternalMethodName();
 
-            string signature = GetSignature(method, true);
-            string requestUrl = BuildUrl(method, "api_sig", signature);
-
-            string frob = string.Empty;
-
-            try
-            {
-                XElement element = GetElement(requestUrl);
-                frob = element.Element("frob").Value ?? string.Empty;
-                return frob;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException(ex.Message);
-            }
+            return GetFrob(method);
         }
 
-        AuthToken IFlickr.CheckToken(string token)
+        AuthToken IPhoto.CheckToken(string token)
         {
             string method = Helper.GetExternalMethodName();
 
@@ -66,7 +55,7 @@ namespace Linq.Flickr.Repository
             }
         }
 
-        People IFlickr.GetUploadStatus()
+        People IPhoto.GetUploadStatus()
         {
             string token = Authenticate();
             
@@ -98,128 +87,14 @@ namespace Linq.Flickr.Repository
                 throw new ApplicationException(ex.Message);
             }
         }
+        
 
-
-        private static AuthToken GetAToken(XElement tokenElement)
-        {
-            AuthToken token = (from tokens in tokenElement.Descendants("auth")
-                               select new AuthToken
-                               {
-                                   ID = tokens.Element("token").Value ?? string.Empty,
-                                   Perm = tokens.Element("perms").Value
-                               }).Single<AuthToken>();
-
-            return token;
-        }
-
-        string IFlickr.Authenticate(bool validate, Permission permission)
+        string IPhoto.Authenticate(bool validate, Permission permission)
         {
             return this.Authenticate(validate, permission.ToString().ToLower());
         }
 
-        private string Authenticate(bool validate, string permission)
-        {
-            string frob = string.Empty;
-
-            if (HttpContext.Current != null)
-            {
-                if (!string.IsNullOrEmpty(HttpContext.Current.Request["frob"]))
-                {
-                    frob = HttpContext.Current.Request["frob"];
-                }
-                else
-                {
-                    frob = (this as IFlickr).GetFrob();
-                }
-                return CreateWebToken(frob, validate, permission);
-            }
-            else
-            {
-                frob = (this as IFlickr).GetFrob();
-                return CreateDesktopToken(frob, validate, permission);
-            }
-        }
-
-        private string CreateDesktopToken(string frob, bool validate, string permission)
-        {
-            string sig = GetSignature(Helper.FlickrMethod.GET_AUTH_TOKEN, true, "frob", frob);
-            string requestUrl = BuildUrl(Helper.FlickrMethod.GET_AUTH_TOKEN, "frob", frob, "api_sig", sig);
-            string token = string.Empty;
-
-            XElement tokenElement = null;
-            string path = string.Format(TOKEN_PATH, permission);
-
-            try
-            {
-                tokenElement = XElement.Load(path);
-                
-            }
-            catch
-            {
-                if (validate)
-                {
-                    IntializeToken(permission, frob);
-
-                    tokenElement = GetElement(requestUrl);
-
-                    CreateDirectoryIfNecessary();
-
-                    FileStream stream = File.Open(path, FileMode.OpenOrCreate);
-
-                    TextWriter writer = new StreamWriter(stream);
-
-                    tokenElement.Save(writer);
-
-                    writer.Close();
-                    stream.Close();
-                }
-                else
-                {
-                    return token;
-                }
-            }
-
-            AuthToken tokenObject = GetAToken(tokenElement);
-
-            if (tokenObject != null)
-                token = tokenObject.ID;
-
-            return token;
-        }
-
-        private string CreateWebToken(string frob, bool validate, string permission)
-        {
-            string token = string.Empty;
-            try
-            {
-                if (HttpContext.Current.Request.Cookies["token"] == null)
-                {
-                    AuthToken tokenObject = (this as IFlickr).GetTokenFromFrob(frob);
-                  
-                    HttpCookie authCookie = new HttpCookie(
-                       "token", // Name of auth cookie
-                        tokenObject.ID); // Hashed ticket
-                    authCookie.Expires = DateTime.Now.AddDays(30);
-                    HttpContext.Current.Response.Cookies.Set(authCookie);
-
-                    token = tokenObject.ID;
-                }
-                else
-                {
-                    token = HttpContext.Current.Request.Cookies["token"].Value;
-                }
-            }
-            catch
-            {
-                if (validate)
-                {
-                    IntializeToken(permission, frob);
-                }
-            }
-            return token;
-        }
-
-        AuthToken IFlickr.GetTokenFromFrob(string frob)
+        AuthToken IPhoto.GetTokenFromFrob(string frob)
         {
             string sig = GetSignature(Helper.FlickrMethod.GET_AUTH_TOKEN, true, "frob", frob);
             string requestUrl = BuildUrl(Helper.FlickrMethod.GET_AUTH_TOKEN, "frob", frob, "api_sig", sig);
@@ -235,15 +110,7 @@ namespace Linq.Flickr.Repository
             }
         }
 
-        private void CreateDirectoryIfNecessary()
-        {
-            if (!Directory.Exists(STORE_PATH))
-            {
-                Directory.CreateDirectory(STORE_PATH);
-            }
-        }
-
-        IList<Photo> IFlickr.GetRecent(int index, int itemsPerPage, PhotoSize size)
+        IList<Photo> IPhoto.GetRecent(int index, int itemsPerPage, PhotoSize size)
         {
             string method = Helper.GetExternalMethodName();
             string requestUrl = BuildUrl(method, "page", index.ToString(), "per_page", itemsPerPage.ToString());
@@ -261,7 +128,7 @@ namespace Linq.Flickr.Repository
             return photos;
         }
 
-        string IFlickr.GetNSIDByUsername(string username)
+        string IPhoto.GetNSIDByUsername(string username)
         {
             string nsId = string.Empty;
             string method = Helper.GetExternalMethodName();
@@ -282,7 +149,7 @@ namespace Linq.Flickr.Repository
         }
 
 
-        string IFlickr.GetNSIDByEmail(string email)
+        string IPhoto.GetNSIDByEmail(string email)
         {
             string nsId = string.Empty;
             string method = Helper.GetExternalMethodName();
@@ -302,53 +169,17 @@ namespace Linq.Flickr.Repository
             return nsId;
         }
 
-        private XElement GetElement(string requestUrl)
-        {
-            XElement element = XElement.Load(requestUrl);
-
-            return ParseElement(element);
-        }
-
-        private XElement ParseElement(XElement element)
-        {
-            if (element.Attribute("stat").Value == "ok")
-            {
-                return element;
-            }
-            else
-            {
-                _error = (from erros in element.Descendants("err")
-                          select new Error
-                          {
-                              Code = erros.Attribute("code").Value,
-                              Message = erros.Attribute("msg").Value
-                          }).Single<Error>();
-
-                throw new ApplicationException("Error code: " + _error.Code + " Message: " + _error.Message);
-            }
-        }
-
-        private Error _error;
-    
-        internal class Error
-        {
-            public string Code { get; set; }
-            public string Message { get; set; }
-        }
-
-
-
         private string GetNSID(string user)
         {
             string nsId = string.Empty;
 
             if (user.IsValidEmail())
             {
-                nsId = (this as IFlickr).GetNSIDByEmail(user);
+                nsId = (this as IPhoto).GetNSIDByEmail(user);
             }
             else
             {
-                nsId = (this as IFlickr).GetNSIDByUsername(user);
+                nsId = (this as IPhoto).GetNSIDByUsername(user);
             }
             return nsId;
         }
@@ -362,7 +193,7 @@ namespace Linq.Flickr.Repository
         internal PhotoSize _PhotoSize { get; set; }
         internal ViewMode _Visibility { get; set; }
 
-        string IFlickr.GetSizedPhotoUrl(string id, PhotoSize size)
+        string IPhoto.GetSizedPhotoUrl(string id, PhotoSize size)
         {
             if (_PhotoSize == PhotoSize.Original)
             {
@@ -396,14 +227,14 @@ namespace Linq.Flickr.Repository
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        IEnumerable<Photo> IFlickr.Search(int index, int pageLen, PhotoSize photoSize, params string[] args)
+        IEnumerable<Photo> IPhoto.Search(int index, int pageLen, PhotoSize photoSize, params string[] args)
         {
             string method = Helper.GetExternalMethodName();
 
             string token = string.Empty;
             string sig = string.Empty;
 
-            token = (this as IFlickr).Authenticate(false, Permission.Delete);
+            token = (this as IPhoto).Authenticate(false, Permission.Delete);
 
             if (!string.IsNullOrEmpty(token))
             {
@@ -430,49 +261,8 @@ namespace Linq.Flickr.Repository
 
             return GetPhotos(requestUrl, photoSize);
         }
-
-        private string GetAuthenticationUrl(string permission, string frob)
-        {
-            string sig = GetSignature(string.Empty, false, "perms", permission, "frob", frob);
-            string authenticateUrl = Helper.AUTH_URL + "?api_key=" + FLICKR_API_KEY + "&perms=" + permission + "&frob=" + frob + "&api_sig=" + sig;
-
-            return authenticateUrl;
-        }
-
-        private string IntializeToken(string permission, string frob)
-        {
-            try
-            {
-                string authenticateUrl = GetAuthenticationUrl(permission, frob);
-
-                // check if the requester is a web application
-                if (HttpContext.Current != null)
-                {
-                    HttpContext.Current.Response.Redirect(authenticateUrl);
-                }
-                else
-                {
-                    // do process request and wait till the browser closes.
-                    Process p = new Process();
-                    p.StartInfo.FileName = "IExplore.exe";
-                    p.StartInfo.Arguments = authenticateUrl;
-                    p.Start();
-
-                    p.WaitForExit(int.MaxValue);
-
-                    if (p.HasExited)
-                    {
-
-                    }
-                }
-                return frob;
-            }
-            catch (ApplicationException ex)
-            {
-                throw new ApplicationException(ex.Message);
-            }
-        }
-        
+ 
+        #region PhotoGetBlock
         private IEnumerable<Photo> GetPhotos(string requestUrl, PhotoSize size)
         {
             XElement doc = GetElement(requestUrl);
@@ -488,24 +278,26 @@ namespace Linq.Flickr.Repository
                             IsPublic = photos.Attribute("ispublic").Value == "0" ? false : true,
                             IsFamily = photos.Attribute("isfamily").Value == "0" ? false : true,
                             IsFriend = photos.Attribute("isfriend").Value == "0" ? false : true,
-                            Url = (this as IFlickr).GetSizedPhotoUrl(photos.Attribute("id").Value, size) ?? string.Empty,
+                            Url = (this as IPhoto).GetSizedPhotoUrl(photos.Attribute("id").Value, size) ?? string.Empty,
                             PhotoSize = size
                         };
             return query;
-        }
+        } 
+
+        #endregion
         /// <summary>
         /// calls flickr.photos.getInfo to get the photo object.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Photo IFlickr.GetPhotoDetail(string id, PhotoSize size)
+        Photo IPhoto.GetPhotoDetail(string id, PhotoSize size)
         {
             this._PhotoSize = size;
             Photo pObject = null;
 
             string method = Helper.GetExternalMethodName();
 
-            string token = (this as IFlickr).Authenticate(false, Permission.Delete);
+            string token = (this as IPhoto).Authenticate(false, Permission.Delete);
             string sig = GetSignature(method, true, "photo_id", id, "auth_token", token);
             string requestUrl = BuildUrl(method, "photo_id", id, "auth_token", token, "api_sig", sig);
 
@@ -528,7 +320,7 @@ namespace Linq.Flickr.Repository
                                         Title = tag.Value
                                     }).ToArray<Tag>(),
                             PhotoSize = size,
-                            Url = (this as IFlickr).GetSizedPhotoUrl(photos.Attribute("id").Value, size)
+                            Url = (this as IPhoto).GetSizedPhotoUrl(photos.Attribute("id").Value, size)
                         };
 
             pObject = query.Single<Photo>();
@@ -592,7 +384,7 @@ namespace Linq.Flickr.Repository
         
         }
 
-        bool IFlickr.Delete(string photoId)
+        bool IPhoto.Delete(string photoId)
         {
             string token = Authenticate();
             string method = Helper.GetExternalMethodName();
@@ -602,30 +394,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                // Create a request using a URL that can receive a post. 
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
-                // Set the Method property of the request to POST.
-                request.Method = "POST";
-
-                request.KeepAlive = true;
-                //// Set the ContentType property of the WebRequest.
-                request.ContentType = "charset=UTF-8";
-                request.ContentLength = 0;
-                // Get the request stream.
-                Stream dataStream = request.GetRequestStream();
-                // Get the response.
-                WebResponse response = request.GetResponse();
-
-                dataStream = response.GetResponseStream();
-                // Open the stream using a StreamReader for easy access.
-                StreamReader reader = new StreamReader(dataStream);
-                // Read the content.
-                string responseFromServer = reader.ReadToEnd();
-                // Clean up the streams.
-                reader.Close();
-                // validate the response.
-                // clean up garbage charecters.
-                responseFromServer = responseFromServer.Replace("\r", string.Empty).Replace("\n", string.Empty);
+                string responseFromServer = DoHTTPPost(requestUrl);
                 XElement element = XElement.Parse(responseFromServer, LoadOptions.None);
                 ParseElement(element);
 
@@ -637,7 +406,7 @@ namespace Linq.Flickr.Repository
             }
         }
 
-        string IFlickr.Upload(object[] args, string fileName, byte[] photoData)
+        string IPhoto.Upload(object[] args, string fileName, byte[] photoData)
         {
             string token = Authenticate();
 
@@ -705,7 +474,7 @@ namespace Linq.Flickr.Repository
         {
             string token = string.Empty;
 
-            token = (this as IFlickr).Authenticate(true, Permission.Delete);
+            token = (this as IPhoto).Authenticate(true, Permission.Delete);
 
             if (string.IsNullOrEmpty(token))
             {

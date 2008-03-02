@@ -44,8 +44,8 @@ namespace Linq.Flickr
         internal static void RefreshExternalMethodList(Type interfaceType)
         {
             // not yet initialized.
-            if (_methodList.Count == 0)
-            {
+            //if (_methodList.Count == 0)
+            //{
                 MethodInfo[] mInfos = interfaceType.GetMethods();
 
                 foreach (MethodInfo mInfo in mInfos)
@@ -68,7 +68,7 @@ namespace Linq.Flickr
                     }
                 }
 
-            }
+            //}
         }
 
         internal static string GetExternalMethodName()

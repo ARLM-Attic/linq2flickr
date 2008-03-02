@@ -10,33 +10,40 @@ namespace Linq.Flickr
     [Serializable]
     public class FlickrContext 
     {
-        private  FlickrPhotoQuery _Context = null;
-
-        public FlickrPhotoQuery Photos
+        private  PhotoQuery _Photos = null;
+        private CommentQuery _Comments = null;
+       
+        public PhotoQuery Photos
         {
             get
             {
-                if (_Context == null)
+                if (_Photos == null)
                 {
-                    _Context = new FlickrPhotoQuery();
+                    _Photos = new PhotoQuery();
                 }
 
-                return _Context;
+                return _Photos;
             }
         }
 
+        public CommentQuery Comments
+        {
+            get
+            {
+                if (_Comments == null)
+                {
+                    _Comments = new CommentQuery();
+                }
+
+                return _Comments;
+            }
+        }
 
         public void SubmitChanges()
         {
-            _Context.SubmitChanges();
-        }
-
-        public void Authenticate()
-        {
-            using (IFlickr flickr = new PhotoRepository())
-            {
-                flickr.Authenticate(true, Permission.Delete);
-            }
+            _Photos.SubmitChanges();
+            // do if any.
+            _Comments.SubmitChanges();
         }
 
     }

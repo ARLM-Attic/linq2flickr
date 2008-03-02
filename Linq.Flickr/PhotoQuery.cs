@@ -10,13 +10,14 @@ using System.Drawing;
 
 namespace Linq.Flickr
 {
-    public class FlickrPhotoQuery : Query<Photo>
+    public class PhotoQuery : Query<Photo>
     {
         private People _people = null;
+        public CommentQuery Comments = new CommentQuery();
   
         protected override void AddItem(Bucket bucket)
         {
-            using (IFlickr flickr = new PhotoRepository())
+            using (IPhoto flickr = new PhotoRepository())
             {
                 if (_people == null)
                     _people = flickr.GetUploadStatus();
@@ -76,7 +77,7 @@ namespace Linq.Flickr
 
         protected override void RemoveItem(Bucket bucket)
         {
-            using (IFlickr flickr = new PhotoRepository())
+            using (IPhoto flickr = new PhotoRepository())
             {
                 if (!string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.ID].Value))
                 {
@@ -108,7 +109,7 @@ namespace Linq.Flickr
 
         protected override void Process(IModify<Photo> items, Bucket bucket)
         {
-            using (IFlickr flickr = new PhotoRepository())
+            using (IPhoto flickr = new PhotoRepository())
             {
                 // default values
                 PhotoSize size = bucket.Items[PhotoColumns.PHOTOSIZE].Value == null ? PhotoSize.Square : (PhotoSize)bucket.Items[PhotoColumns.PHOTOSIZE].Value;
@@ -191,7 +192,7 @@ namespace Linq.Flickr
 
                         if (!string.IsNullOrEmpty(value))
                         {
-                            using (IFlickr flickr = new PhotoRepository())
+                            using (IPhoto flickr = new PhotoRepository())
                             {
                                 if ((item.Name == PhotoColumns.USER))
                                 {

@@ -7,7 +7,7 @@ using Linq.Flickr.Repository;
 
 namespace Linq.Flickr.Interface
 {
-    public interface IFlickr : IDisposable
+    public interface IPhoto : IDisposable
     {
         // photo releated method.
         [FlickrMethod("flickr.photos.getInfo")]
