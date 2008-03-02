@@ -54,7 +54,7 @@ namespace Linq.Flickr.Test
 
                 _list.Add(phtoto.Id);
             }
-            
+
         }
 
         void Photos_OnError(string error)
@@ -64,10 +64,10 @@ namespace Linq.Flickr.Test
 
         private void DeleteAllPhotos()
         {
-            var query =  from ph in _context.Photos
-                         where ph.User == USER_NAME && ph.PhotoSize == PhotoSize.Square
-                         orderby PhotoOrder.Date_Taken ascending
-                         select ph;
+            var query = from ph in _context.Photos
+                        where ph.User == USER_NAME && ph.PhotoSize == PhotoSize.Square
+                        orderby PhotoOrder.Date_Taken ascending
+                        select ph;
 
             foreach (Photo p in query)
             {
@@ -116,7 +116,7 @@ namespace Linq.Flickr.Test
                             select new { ph.Id };
 
                 var item = query.Single();
-               
+
                 Assert.IsTrue(item.Id == _list[0]);
             }
             catch (Exception ex)
@@ -144,7 +144,7 @@ namespace Linq.Flickr.Test
             {
                 Assert.Fail(ex.Message);
             }
-            
+
         }
         public void DeleteAdded()
         {
@@ -162,8 +162,8 @@ namespace Linq.Flickr.Test
             _context.SubmitChanges();
 
             query = from ph in _context.Photos
-                        where ph.Id == _list[0]
-                        select ph;
+                    where ph.Id == _list[0]
+                    select ph;
 
             Assert.IsTrue(query.Count() == 0);
         }
@@ -175,7 +175,7 @@ namespace Linq.Flickr.Test
             //DeleteAllPhotos();
             _context = null;
         }
-      
-        
+
+
     }
 }
