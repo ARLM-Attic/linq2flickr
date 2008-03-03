@@ -13,8 +13,23 @@ namespace Linq.Flickr
     public class PhotoQuery : Query<Photo>
     {
         private People _people = null;
-        public CommentQuery Comments = new CommentQuery();
-  
+
+        private CommentQuery _commetQuery = null;
+
+        // Comments can not stay alone, it is a part of photo.
+        public CommentQuery Comments
+        {
+            get
+            {
+                if (_commetQuery == null)
+                {
+                    _commetQuery = new CommentQuery();
+                }
+
+                return _commetQuery;
+            }
+        }
+
         protected override void AddItem(Bucket bucket)
         {
             using (IPhoto flickr = new PhotoRepository())

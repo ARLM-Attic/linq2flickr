@@ -11,7 +11,6 @@ namespace Linq.Flickr
     public class FlickrContext 
     {
         private  PhotoQuery _Photos = null;
-        private CommentQuery _Comments = null;
        
         public PhotoQuery Photos
         {
@@ -26,24 +25,11 @@ namespace Linq.Flickr
             }
         }
 
-        public CommentQuery Comments
-        {
-            get
-            {
-                if (_Comments == null)
-                {
-                    _Comments = new CommentQuery();
-                }
-
-                return _Comments;
-            }
-        }
-
         public void SubmitChanges()
         {
             _Photos.SubmitChanges();
-            // do if any.
-            _Comments.SubmitChanges();
+            // sync changed comments, if any.
+            _Photos.Comments.SubmitChanges();
         }
 
     }
