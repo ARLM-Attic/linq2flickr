@@ -23,7 +23,7 @@ namespace Linq.Flickr.Test
             _list.Clear();
             _context = new FlickrContext();
             _context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHandler(Photos_OnError);
-            _context.Comments.OnError += new LinqExtender.Query<Comment>.ErrorHandler(Comments_OnError);
+            _context.Photos.Comments.OnError += new LinqExtender.Query<Comment>.ErrorHandler(Comments_OnError);
 
             if (!deleteOnce)
             {
@@ -84,7 +84,7 @@ namespace Linq.Flickr.Test
             comment.PhotoId = _list[0];
             comment.Text = "Testing comment add [LINQ.Flickr]";
 
-            _context.Comments.Add(comment);
+            _context.Photos.Comments.Add(comment);
             _context.SubmitChanges();
 
             Assert.IsTrue(!string.IsNullOrEmpty(comment.Id));
@@ -97,7 +97,7 @@ namespace Linq.Flickr.Test
 
             Assert.IsTrue(query.Count() == 1);
 
-            _context.Comments.Remove(query.Single<Comment>());
+            _context.Photos.Comments.Remove(query.Single<Comment>());
 
             Console.Out.WriteLine("Delete comment " + comment.Id);
 
