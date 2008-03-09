@@ -106,6 +106,8 @@ namespace Linq.Flickr.Test
             Console.Out.WriteLine("Done");
         }
 
+        
+
         [Test, Sequence(2)]
         public void GetPhotoById()
         {
