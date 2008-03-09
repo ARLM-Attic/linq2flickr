@@ -57,6 +57,12 @@ namespace Linq.Flickr.Repository
             return GetUrl(dic);
         }
 
+        protected void AddHeader(string method, IDictionary<string, string> dictionary)
+        {
+            dictionary.Add(Helper.BASE_URL + "?method", method);
+            dictionary.Add("api_key", FLICKR_API_KEY);
+        }
+
         protected string GetUrl(IDictionary<string, string> urlDic)
         {
             string url = string.Empty;

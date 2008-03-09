@@ -11,6 +11,7 @@ namespace Linq.Flickr
     public class FlickrContext 
     {
         private  PhotoQuery _Photos = null;
+        private HotTagQuery _hotTags = null;
        
         public PhotoQuery Photos
         {
@@ -24,6 +25,20 @@ namespace Linq.Flickr
                 return _Photos;
             }
         }
+
+        public HotTagQuery HotTags
+        {
+            get
+            {
+                if (_hotTags == null)
+                {
+                    _hotTags = new HotTagQuery();
+                }
+
+                return _hotTags;
+            }
+        }
+
 
         public void SubmitChanges()
         {

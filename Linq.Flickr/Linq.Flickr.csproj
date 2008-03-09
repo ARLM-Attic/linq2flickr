@@ -58,7 +58,9 @@
     <Compile Include="Comment.cs" />
     <Compile Include="CommentQuery.cs" />
     <Compile Include="Configuration\FlickrSettings.cs" />
+    <Compile Include="HotTag.cs" />
     <Compile Include="Interface\IComment.cs" />
+    <Compile Include="Interface\ITag.cs" />
     <Compile Include="Repository\Base.cs" />
     <Compile Include="Repository\CommentRepository.cs" />
     <Compile Include="Repository\PhotoRepository.cs" />
@@ -68,8 +70,10 @@
     <Compile Include="Interface\IPhoto.cs" />
     <Compile Include="Photo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\TagRepository.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="People.cs" />
+    <Compile Include="HotTagQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
