@@ -5,6 +5,7 @@ using System.Text;
 using LinqExtender;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
+using System.Collections;
 
 namespace Linq.Flickr
 {
@@ -37,16 +38,14 @@ namespace Linq.Flickr
             using (ITag tagRepo = new TagRepository())
             {
                IEnumerable<HotTag> tags = tagRepo.GetPopularTags(period, count);
-
                // do the filter on score.
+             
                if (score > 0)
                {
-                   var query = from tag in tags
-                               where tag.Score == score
-                               select tag;
-                   tags = query;
+                   tags = tags.Where(tag => tag.Score == score).Select(tag => tag);
                }
-               items.AddRange(tags);
+
+               items.AddRange(tags, true);
             }
         }
 
