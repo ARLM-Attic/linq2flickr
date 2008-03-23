@@ -146,14 +146,15 @@ namespace Linq.Flickr
                 if (string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.ID].Value)
                     && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.SEARCHTEXT].Value)
                     && viewMode != ViewMode.Owner 
-                    && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.USER].Value))
+                    && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.USER].Value) 
+                    && bucket.OrderByClause == null)
                 {
                     fetchRecent = true;
                 }
 
                 if (fetchRecent)
                 {
-                    items.AddRange(flickr.GetRecent(index, itemsToTake, size));
+                    items.AddRange(flickr.GetMostInteresting(index, itemsToTake, size));
                     //items.AddRange();
                 }
                 else
@@ -258,8 +259,9 @@ namespace Linq.Flickr
         {
             string order = orderBy.ToLower().Replace('_', '-');
             // if order by is defined in system , then do the following, or less just return the item.
-            if (string.Compare(orderBy, PhotoOrder.Date_Taken.ToString(), true) ==0 
-                || string.Compare(orderBy, PhotoOrder.Date_Posted.ToString(), true) ==0)
+            if (string.Compare(orderBy, PhotoOrder.Date_Taken.ToString(), true) ==0 ||
+                    string.Compare(orderBy, PhotoOrder.Date_Posted.ToString(), true) ==0 || 
+                    string.Compare(orderBy, PhotoOrder.Interestingness.ToString(), true) == 0)
             {
                 if (!asc)
                 {

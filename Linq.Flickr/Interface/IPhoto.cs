@@ -14,8 +14,8 @@ namespace Linq.Flickr.Interface
         Photo GetPhotoDetail(string id, PhotoSize size);
         [FlickrMethod("flickr.photos.search")]
         IEnumerable<Photo> Search(int index, int pageLen, PhotoSize photoSize, params string[] args);
-        [FlickrMethod("flickr.photos.getRecent")]
-        IList<Photo> GetRecent(int index, int itemsPerPage, PhotoSize photoSize);
+        [FlickrMethod("flickr.interestingness.getList")]
+        IList<Photo> GetMostInteresting(int index, int itemsPerPage, PhotoSize photoSize);
         [FlickrMethod("flickr.photos.delete")]
         bool Delete(string photoId);
         [FlickrMethod("flickr.photos.getSizes")]

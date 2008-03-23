@@ -11,7 +11,8 @@ namespace Linq.Flickr
     public class FlickrContext 
     {
         private  PhotoQuery _Photos = null;
-        private HotTagQuery _hotTags = null;
+        private PopularTagQuery _hotTags = null;
+        private PeopleQuery _peopleQuery = null;
        
         public PhotoQuery Photos
         {
@@ -26,19 +27,30 @@ namespace Linq.Flickr
             }
         }
 
-        public HotTagQuery HotTags
+        public PopularTagQuery HotTags
         {
             get
             {
                 if (_hotTags == null)
                 {
-                    _hotTags = new HotTagQuery();
+                    _hotTags = new PopularTagQuery();
                 }
 
                 return _hotTags;
             }
         }
 
+        public PeopleQuery Peoples
+        {
+            get
+            {
+                if (_peopleQuery == null)
+                {
+                    _peopleQuery = new PeopleQuery();
+                }
+                return _peopleQuery;
+            }
+        }
 
         public void SubmitChanges()
         {

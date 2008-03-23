@@ -12,6 +12,7 @@ using System.Net;
 
 namespace Linq.Flickr.Repository
 {
+
     public class Base
     {
         protected string FLICKR_API_KEY = string.Empty;
@@ -289,53 +290,7 @@ namespace Linq.Flickr.Repository
 
         protected XElement GetElement(string requestUrl)
         {
-            //string hash = requestUrl.GetHash();
-            //string path = hash +".xml";
-
-            //XElement element = null;
-
-            //if (File.Exists(path))
-            //{
-            //    element = XElement.Load(path);
-            //}
-            //else
-            //{
-            //    FileStream stream = File.Open(hash + ".xml", FileMode.OpenOrCreate);
-            //    TextWriter writer = new StreamWriter(stream);
-
-            XElement element = XElement.Load(requestUrl);
-
-            //    element.Save(writer);
-            //}
-
-            return ParseElement(element);
-        }
-
-        protected XElement ParseElement(XElement element)
-        {
-            if (element.Attribute("stat").Value == "ok")
-            {
-                return element;
-            }
-            else
-            {
-                _error = (from erros in element.Descendants("err")
-                          select new Error
-                          {
-                              Code = erros.Attribute("code").Value,
-                              Message = erros.Attribute("msg").Value
-                          }).Single<Error>();
-
-                throw new ApplicationException("Error code: " + _error.Code + " Message: " + _error.Message);
-            }
-        }
-
-        private Error _error;
-
-        internal class Error
-        {
-            public string Code { get; set; }
-            public string Message { get; set; }
+            return requestUrl.GetElement();
         }
 
         protected string GetSignature(string methodName, bool includeMethod, IDictionary<string, string> sorted, params object[] args)

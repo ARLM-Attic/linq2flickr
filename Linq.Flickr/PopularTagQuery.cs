@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace Linq.Flickr
 {
-    public class HotTagQuery : Query<HotTag>
+    public class PopularTagQuery : Query<PopularTag>
     {
         protected override void AddItem(Bucket item)
         {
@@ -21,7 +21,7 @@ namespace Linq.Flickr
             throw new Exception("Remove not supported for hot tags");
         }
 
-        protected override void Process(LinqExtender.Interface.IModify<HotTag> items, Bucket bucket)
+        protected override void Process(LinqExtender.Interface.IModify<PopularTag> items, Bucket bucket)
         {
             object tagsPeriod = bucket.Items[TagColums.PERIOD].Value;
             TagPeriod period =  tagsPeriod == null ? TagPeriod.Day : (TagPeriod)tagsPeriod;
@@ -37,7 +37,7 @@ namespace Linq.Flickr
 
             using (ITag tagRepo = new TagRepository())
             {
-               IEnumerable<HotTag> tags = tagRepo.GetPopularTags(period, count);
+               IEnumerable<PopularTag> tags = tagRepo.GetPopularTags(period, count);
                // do the filter on score.
              
                if (score > 0)

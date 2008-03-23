@@ -49,7 +49,8 @@ namespace Linq.Flickr
     public enum PhotoOrder
     {
         Date_Posted,
-        Date_Taken
+        Date_Taken,
+        Interestingness
     }
 
     [Serializable]

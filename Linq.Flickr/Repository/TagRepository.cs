@@ -14,21 +14,14 @@ namespace Linq.Flickr.Repository
 
         #region ITag Members
 
-        IEnumerable<HotTag> ITag.GetPopularTags(TagPeriod period, int count)
+        IEnumerable<PopularTag> ITag.GetPopularTags(TagPeriod period, int count)
         {
             string method = Helper.GetExternalMethodName();
             string requestUrl = BuildUrl(method, "period", period.ToString().ToLower(), "count", count.ToString());
+           
+            RestToCollectionBuilder<PopularTag> builder = new RestToCollectionBuilder<PopularTag>("hottags");
 
-            XElement element = GetElement(requestUrl);
-
-            var query = from tag in element.Descendants("tag")
-                        select new HotTag
-                        {
-                            Title = tag.Value ?? string.Empty,
-                            Score = Convert.ToInt32(tag.Attribute("score").Value ?? string.Empty)
-                        };
-
-            return query;
+            return builder.ToCollection(requestUrl);
         }
 
         #endregion

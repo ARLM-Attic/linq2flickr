@@ -52,17 +52,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attribute\XAttributeAttribute.cs" />
+    <Compile Include="Attribute\XElementAttribute.cs" />
     <Compile Include="Attribute\FlickrMethodAttribute.cs" />
-    <Compile Include="Author.cs" />
+    <Compile Include="Attribute\XNameAttribute.cs" />
     <Compile Include="AuthToken.cs" />
+    <Compile Include="FlickrException.cs" />
+    <Compile Include="Repository\RestToCollectionBuilder.cs" />
     <Compile Include="Comment.cs" />
     <Compile Include="CommentQuery.cs" />
     <Compile Include="Configuration\FlickrSettings.cs" />
-    <Compile Include="HotTag.cs" />
+    <Compile Include="PopularTag.cs" />
     <Compile Include="Interface\IComment.cs" />
+    <Compile Include="Interface\IPeople.cs" />
     <Compile Include="Interface\ITag.cs" />
+    <Compile Include="PeopleQuery.cs" />
     <Compile Include="Repository\Base.cs" />
     <Compile Include="Repository\CommentRepository.cs" />
+    <Compile Include="Repository\PeopleRepository.cs" />
     <Compile Include="Repository\PhotoRepository.cs" />
     <Compile Include="FlickrContext.cs" />
     <Compile Include="PhotoQuery.cs" />
@@ -73,7 +80,7 @@
     <Compile Include="Repository\TagRepository.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="People.cs" />
-    <Compile Include="HotTagQuery.cs" />
+    <Compile Include="PopularTagQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />

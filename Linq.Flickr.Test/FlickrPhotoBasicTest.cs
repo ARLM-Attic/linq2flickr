@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Linq.Flickr;
 using System.IO;
 using System.Reflection;
+using System.Configuration;
 
 namespace Linq.Flickr.Test
 {
@@ -14,7 +15,7 @@ namespace Linq.Flickr.Test
     {
         FlickrContext _context = null;
         IList<string> _list = new List<string>();
-        private string USER_NAME = "hossain_mehfuz";
+        private string USER_NAME = System.Configuration.ConfigurationManager.AppSettings["USERNAME"];
         private bool deleteOnce = false;
 
         [SetUp]

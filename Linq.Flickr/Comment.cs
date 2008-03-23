@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using LinqExtender.Attribute;
 using LinqExtender;
+using Linq.Flickr.Attribute;
 
 namespace Linq.Flickr
 {
-   [Serializable]
-    public class Comment : QueryObjectBase
+    /// <summary>
+    ///  Holds comment informaton for a photo.
+    /// </summary>
+    [Serializable, XElement("comment")]
+    public partial class Comment : QueryObjectBase
     {
         public Comment()
         {
@@ -22,31 +26,24 @@ namespace Linq.Flickr
             }
         }
 
-        [LinqVisible(), OriginalFieldName("id")]
+        [LinqVisible(), OriginalFieldName("id"), XAttribute("id")]
         public string Id { get; set; }
 
-        [LinqVisible(), OriginalFieldName("photo_id")]
+        [LinqVisible(), OriginalFieldName("photo_id"), XAttribute("photo_id")]
         public string PhotoId { get; set; }
 
-        private Author _author = null;
-
-        [LinqVisible(false)]
-        public Author Author
-        {
-            get
-            {
-                if (_author == null)
-                    _author = new Author();
-                return _author;
-            }
-        }
-
-        [LinqVisible(false)]
+        [LinqVisible(false), XAttribute("permalink")]
         public string PermaLink { get; set; }
-        [LinqVisible(false)]
+        [LinqVisible(false), XElement("comment")]
         public string Text { get; set; }
 
+        [XAttribute("datecreate")]
         internal string PDateCreated { get; set; }
+
+        [XAttribute("author")]
+        public string Author { get; set; }
+        [XAttribute("authorname")]
+        public string AuthorName { get; set; }
 
         public DateTime DateCreated
         {

@@ -13,25 +13,8 @@ namespace Linq.Flickr.Repository
 
         private IEnumerable<Comment> GetComments(string requestUrl)
         {
-            XElement doc = GetElement(requestUrl);
-
-            string photoId = doc.Element("comments").Attribute("photo_id").Value ?? string.Empty;
-
-            var query = from comments in doc.Descendants("comment")
-                        select new Comment
-                        {
-                            PhotoId = photoId,
-                            Id = comments.Attribute("id").Value ?? string.Empty,
-                            PermaLink = comments.Attribute("permalink").Value ?? string.Empty,
-                            PDateCreated = comments.Attribute("datecreate").Value ?? string.Empty,
-                            Author =
-                            {
-                                Id = comments.Attribute("author").Value ?? string.Empty,
-                                Name = comments.Attribute("authorname").Value ?? string.Empty,
-                            },
-                            Text = comments.Value ?? string.Empty
-                        };
-            return query;
+            RestToCollectionBuilder<Comment> builder = new RestToCollectionBuilder<Comment>("comments");
+            return builder.ToCollection(requestUrl);
         }
 
         IEnumerable<Comment> IComment.GetComments(string photoId)
@@ -70,7 +53,7 @@ namespace Linq.Flickr.Repository
             {
                 string responseFromServer = DoHTTPPost(requestUrl);
                 XElement element = XElement.Parse(responseFromServer, LoadOptions.None);
-                ParseElement(element);
+                element.ValidateResponse();
 
                 return true;
             }

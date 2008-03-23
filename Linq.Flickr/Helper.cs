@@ -8,6 +8,8 @@ using Linq.Flickr.Interface;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
+using System.Xml.Linq;
+using Linq.Flickr.Repository;
 
 namespace Linq.Flickr
 {
@@ -41,6 +43,32 @@ namespace Linq.Flickr
 
             return BitConverter.ToString(output).Replace("-", "").ToLower();
         }
+
+        internal static XElement GetElement(this string requestUrl)
+        {
+            XElement element = XElement.Load(requestUrl);
+            return element.ValidateResponse();
+        }
+
+        public static XElement ValidateResponse(this XElement element)
+        {
+            if (element.Attribute("stat").Value == "ok")
+            {
+                return element;
+            }
+            else
+            {
+               var error = (from erros in element.Descendants("err")
+                          select new
+                          {
+                              Code = erros.Attribute("code").Value,
+                              Message = erros.Attribute("msg").Value
+                          }).Single();
+
+                throw new FlickrException(error.Code, error.Message);
+            }
+        }
+
 
         internal static void RefreshExternalMethodList(Type interfaceType)
         {

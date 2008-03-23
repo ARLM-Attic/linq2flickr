@@ -110,7 +110,7 @@ namespace Linq.Flickr.Repository
             }
         }
 
-        IList<Photo> IPhoto.GetRecent(int index, int itemsPerPage, PhotoSize size)
+        IList<Photo> IPhoto.GetMostInteresting(int index, int itemsPerPage, PhotoSize size)
         {
             string method = Helper.GetExternalMethodName();
             string requestUrl = BuildUrl(method, "page", index.ToString(), "per_page", itemsPerPage.ToString());
@@ -396,7 +396,7 @@ namespace Linq.Flickr.Repository
             {
                 string responseFromServer = DoHTTPPost(requestUrl);
                 XElement element = XElement.Parse(responseFromServer, LoadOptions.None);
-                ParseElement(element);
+                element.ValidateResponse();
 
                 return true;
             }
