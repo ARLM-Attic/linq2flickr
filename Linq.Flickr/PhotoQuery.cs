@@ -119,6 +119,7 @@ namespace Linq.Flickr
             public const string DESC = "Description";
             public const string FILENAME = "FileName";
             public const string POST_CONTENT = "PostContent";
+            public const string SEARCH_MODE = "SearchMode";
 
         }
 
@@ -205,6 +206,12 @@ namespace Linq.Flickr
                     if (item.Value != null && ((item.QueryVisible) || includeNonVisibleItems))
                     {
                         string value = Convert.ToString(item.Value);
+                        // fix for tagMode 
+                        if (string.Compare(item.Name, "tag_mode") == 0)
+                        {
+                            TagMode tagMode = (TagMode)item.Value;
+                            value = tagMode == TagMode.AND ? "all" : "any";
+                        }
 
                         if (!string.IsNullOrEmpty(value))
                         {
@@ -226,6 +233,11 @@ namespace Linq.Flickr
                                     {
                                         value = nsId;
                                     }
+                                }
+                                else if (string.Compare(item.Name ,"text") == 0)
+                                {
+                                    SearchMode searchMode = bucket.Items[PhotoColumns.SEARCH_MODE].Value == null ? SearchMode.FreeText : (SearchMode)bucket.Items[PhotoColumns.SEARCH_MODE].Value;
+                                    args[itemIndex] =  searchMode == SearchMode.TagsOnly ? "tags" : item.Name;
                                 }
                                 else
                                 {

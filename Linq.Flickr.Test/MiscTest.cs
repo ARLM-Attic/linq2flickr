@@ -16,7 +16,7 @@ namespace Linq.Flickr.Test
         public void Init()
         {
             _context = new FlickrContext();
-            _context.HotTags.OnError += new LinqExtender.Query<PopularTag>.ErrorHandler(HotTags_OnError);
+            _context.PopularTags.OnError += new LinqExtender.Query<PopularTag>.ErrorHandler(HotTags_OnError);
         }
 
         void HotTags_OnError(string error)
@@ -28,7 +28,7 @@ namespace Linq.Flickr.Test
         [Test]
         public void PopularTagTest()
         {
-            var query = from tag in _context.HotTags
+            var query = from tag in _context.PopularTags
                         where tag.Period == TagPeriod.Week && tag.Count == 10 orderby tag.Title ascending
                         select tag;
 

@@ -175,10 +175,25 @@ namespace Linq.Flickr
             }
         }
 
+        private int _tagMode = 0;
+
+        [LinqVisible, OriginalFieldName("tag_mode")]
+        public TagMode TagMode
+        {
+            get
+            {
+                return (TagMode)_tagMode;
+            }
+            internal set 
+            {
+                _tagMode = (int)value;
+            }
+        }
+
 
         private int _searchMode = 0;
 
-        [LinqVisible, OriginalFieldName("tag_mode")]
+        [LinqVisible]
         public SearchMode SearchMode
         {
             get
