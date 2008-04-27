@@ -14,6 +14,10 @@
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -54,15 +58,21 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TypeMock, Version=4.2.3.0, Culture=neutral, PublicKeyToken=3dae460033b8d8e2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External\TypeMock.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MiscTest.cs" />
+    <Compile Include="PhotoTest.Mock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FlickrPhotoBasicTest.cs" />
     <Compile Include="SequenceAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="TypeMock.bat" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Linq.Flickr\Linq.Flickr.csproj">
@@ -73,6 +83,9 @@
   <ItemGroup>
     <EmbeddedResource Include="blank.gif" />
     <Content Include="Readme.txt" />
+    <EmbeddedResource Include="Responses\Owner.xml" />
+    <EmbeddedResource Include="Responses\GetFrob.xml" />
+    <EmbeddedResource Include="Responses\Search.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

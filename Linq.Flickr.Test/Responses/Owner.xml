@@ -1,0 +1,6 @@
+﻿<rsp stat="ok">
+  <photos page="1" pages="1" perpage="100" total="2">
+    <photo id="2428052817" owner="63497523@N00" secret="3c35c7ed26" server="3237" farm="4" title="Mug Shot" ispublic="1" isfriend="0" isfamily="0" />
+    <photo id="2428750672" owner="92123871@N00" secret="f05fa37d8f" server="2231" farm="3" title="Cherny.com broken in IE8" ispublic="0" isfriend="0" isfamily="0" />
+  </photos>
+</rsp>
