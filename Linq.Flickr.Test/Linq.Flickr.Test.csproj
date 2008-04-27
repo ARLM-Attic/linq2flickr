@@ -83,6 +83,7 @@
   <ItemGroup>
     <EmbeddedResource Include="blank.gif" />
     <Content Include="Readme.txt" />
+    <EmbeddedResource Include="Responses\AddComment.xml" />
     <EmbeddedResource Include="Responses\Owner.xml" />
     <EmbeddedResource Include="Responses\GetFrob.xml" />
     <EmbeddedResource Include="Responses\Search.xml" />

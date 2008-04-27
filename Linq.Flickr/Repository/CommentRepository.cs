@@ -35,9 +35,8 @@ namespace Linq.Flickr.Repository
             string requestUrl = BuildUrl(method, "photo_id", photoId, "comment_text", text, "auth_token", authenitcatedToken, "api_sig", sig);
 
             string reposnse = DoHTTPPost(requestUrl);
-
             // get the photo id.
-            XElement elemnent = XElement.Parse(reposnse);
+            XElement elemnent = ParseElement(reposnse);
             return elemnent.Element("comment").Attribute("id").Value ?? string.Empty;
         }
 

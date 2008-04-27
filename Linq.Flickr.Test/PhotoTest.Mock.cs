@@ -18,6 +18,7 @@ namespace Linq.Flickr.Test
     {
         FlickrContext _context = null;
         private const string API_KEY = "cd80fd317eff3714d43fea491bb97f45";
+        private const string RESOURCE_NS = "Linq.Flickr.Test.Responses";
        
         [SetUp]
         public void Setup()
@@ -43,16 +44,16 @@ namespace Linq.Flickr.Test
 
             int count = query.Count();
 
-            Assert.IsTrue(count == 100);
-
             Photo first = query.First();
 
+            Assert.IsTrue(first.SharedProperty.Perpage == count);
             Assert.IsTrue(first.Title == "Mug Shot" && first.Id == "2428052817");
 
             Photo last = query.Last();
 
+            Assert.IsTrue(last.SharedProperty.Page == 1);
+            Assert.IsTrue(last.SharedProperty.Total == 105714);
             Assert.IsTrue(last.Title == "attendee event" && last.Id == "2423378493");
-
         }
 
         [Test]
@@ -79,6 +80,29 @@ namespace Linq.Flickr.Test
             Photo lastPhoto = query.Last();
 
             Assert.IsTrue(lastPhoto.ViewMode == ViewMode.Private);
+
+            MockManager.Verify();
+        }
+
+        [Test]
+        public void PhotoComment()
+        {
+            MockManager.Init();
+            Mock photoCommentMock = MockManager.Mock<CommentRepository>(Constructor.NotMocked);
+
+            photoCommentMock.ExpectAndReturn("Authenticate", "1234").Args(Permission.Delete.ToString());
+            photoCommentMock.ExpectAndReturn("GetSignature", "yyyy");
+            photoCommentMock.ExpectAndReturn("DoHTTPPost", MockElement(RESOURCE_NS + ".AddComment.xml").ToString());
+
+            Comment comment = new Comment();
+
+            comment.PhotoId = "1x";
+            comment.Text = "Testing comment add [LINQ.Flickr]";
+                
+            _context.Photos.Comments.Add(comment);
+            _context.SubmitChanges();
+
+            Assert.IsTrue(comment.Id == "1");
 
             MockManager.Verify();
         }

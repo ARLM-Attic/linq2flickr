@@ -9,6 +9,7 @@ namespace Linq.Flickr.Interface
     public interface IHttpCall
     {
         XElement GetElement(string requestUrl);
+        XElement ParseElement(string response);
         string DoHTTPPost(string requestUrl);
     }
 }

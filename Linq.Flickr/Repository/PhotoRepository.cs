@@ -212,6 +212,15 @@ namespace Linq.Flickr.Repository
         {
             XElement doc = base.GetElement(requestUrl);
 
+            Photo.CommonAttribute attribute = new Photo.CommonAttribute();
+
+            XElement photosElement = doc.Element("photos");
+
+            attribute.Page = Convert.ToInt32(photosElement.Attribute("page").Value ?? "0");
+            attribute.Pages = Convert.ToInt32(photosElement.Attribute("pages").Value ?? "0");
+            attribute.Total = Convert.ToInt32(photosElement.Attribute("total").Value ?? "0");
+            attribute.Perpage = Convert.ToInt32(photosElement.Attribute("perpage").Value ?? "0");
+
             var query = from photos in doc.Descendants("photo")
                         select new Photo
                         {
@@ -224,7 +233,8 @@ namespace Linq.Flickr.Repository
                             IsFamily = photos.Attribute("isfamily").Value == "0" ? false : true,
                             IsFriend = photos.Attribute("isfriend").Value == "0" ? false : true,
                             Url = (this as IPhoto).GetSizedPhotoUrl(photos.Attribute("id").Value, size) ?? string.Empty,
-                            PhotoSize = size
+                            PhotoSize = size,
+                            SharedProperty = attribute
                         };
             return query;
         } 

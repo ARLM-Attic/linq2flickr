@@ -313,9 +313,18 @@ namespace Linq.Flickr
                 _Url = value;
             }
         }
-        //public class CommonProperties
-        //{
-        //    public string 
-        //}
+
+
+        public class CommonAttribute
+        {
+            public int Page { get; set; }
+            public int Pages { get; set; }
+            public int Perpage { get; set; }
+            public int Total { get; set; }
+        }
+        /// <summary>
+        /// holds out the common propeties like page , total page count and total item count
+        /// </summary>
+        public CommonAttribute SharedProperty = new CommonAttribute();
     }
 }
