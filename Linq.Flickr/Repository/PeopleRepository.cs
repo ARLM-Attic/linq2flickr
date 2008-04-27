@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace Linq.Flickr.Repository
 {
-    class PeopleRepository : Base, IPeople
+    class PeopleRepository : BaseRepository, IPeople
     {
         public PeopleRepository() : base(typeof(IPeople)) { }
 

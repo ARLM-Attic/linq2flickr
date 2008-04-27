@@ -27,7 +27,7 @@ namespace Linq.Flickr
             }
         }
 
-        public PopularTagQuery HotTags
+        public PopularTagQuery PopularTags
         {
             get
             {

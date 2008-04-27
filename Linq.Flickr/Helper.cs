@@ -18,6 +18,7 @@ namespace Linq.Flickr
         public static class FlickrMethod
         {
             public const string GET_AUTH_TOKEN = "flickr.auth.getToken";
+            public const string GET_FROB = "flickr.auth.getFrob";
         }
 
         internal const string BASE_URL = "http://api.flickr.com/services/rest/";
@@ -44,12 +45,6 @@ namespace Linq.Flickr
             return BitConverter.ToString(output).Replace("-", "").ToLower();
         }
 
-        internal static XElement GetElement(this string requestUrl)
-        {
-            XElement element = XElement.Load(requestUrl);
-            return element.ValidateResponse();
-        }
-
         public static XElement ValidateResponse(this XElement element)
         {
             if (element.Attribute("stat").Value == "ok")
@@ -70,7 +65,7 @@ namespace Linq.Flickr
         }
 
 
-        internal static void RefreshExternalMethodList(Type interfaceType)
+        internal static void RefreshExternalMethodList(this Type interfaceType)
         {
             // not yet initialized for a particular interface type.
             if (!_interfaceList.ContainsKey(interfaceType.FullName))

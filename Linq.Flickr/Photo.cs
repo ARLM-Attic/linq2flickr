@@ -155,7 +155,7 @@ namespace Linq.Flickr
 
         public Photo()
         {
-            this.ViewMode = ViewMode.Public;
+            IsPublic = true;
             this.SortOrder = PhotoOrder.Date_Posted;
             this.SearchMode = SearchMode.FreeText;
         }
@@ -213,6 +213,15 @@ namespace Linq.Flickr
         {
             get
             {
+                if (!IsPublic)
+                    _visibility = (int)ViewMode.Private;
+                else if (IsFriend)
+                    _visibility = (int)ViewMode.Friends;
+                else if (IsFamily)
+                    _visibility = (int)ViewMode.Family;
+                else
+                    _visibility = (int)ViewMode.Public;
+
                 return (ViewMode)_visibility;
             }
             set
@@ -304,5 +313,9 @@ namespace Linq.Flickr
                 _Url = value;
             }
         }
+        //public class CommonProperties
+        //{
+        //    public string 
+        //}
     }
 }

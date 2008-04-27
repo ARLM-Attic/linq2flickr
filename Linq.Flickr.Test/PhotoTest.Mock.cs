@@ -17,18 +17,14 @@ namespace Linq.Flickr.Test
     public class PhotoTest
     {
         FlickrContext _context = null;
-        private Mock _photoMock = null;
         private const string API_KEY = "cd80fd317eff3714d43fea491bb97f45";
        
         [SetUp]
         public void Setup()
         {
-            MockManager.Init();
-
             _context = new FlickrContext();
             _context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHandler(Photos_OnError);
             _context.Photos.Comments.OnError += new LinqExtender.Query<Comment>.ErrorHandler(Comments_OnError);
-            
         }
 
         [Test]
@@ -106,7 +102,7 @@ namespace Linq.Flickr.Test
         [TearDown]
         public void TeadDown()
         {
-            MockManager.Verify();
+            _context = null;
         }
 
         void Photos_OnError(string error)

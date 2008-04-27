@@ -179,15 +179,15 @@ namespace Linq.Flickr
                     }
                     else
                     {
-                        string[] args = BuildSearchQuery(bucket, viewMode, false);
-                        items.AddRange(flickr.Search(index, itemsToTake, size, args));
+                        string[] args = BuildSearchQuery(flickr, bucket, viewMode, false);
+                        items.AddRange(flickr.Search(index, itemsToTake, size, token, args));
                     }
                 }
       
             }
         }
 
-        private string[] BuildSearchQuery(Bucket bucket, ViewMode viewMode, bool includeNonVisibleItems)
+        private string[] BuildSearchQuery(IPhoto flickr, Bucket bucket, ViewMode viewMode, bool includeNonVisibleItems)
         {
             string query = string.Empty;
             StringBuilder builder = new StringBuilder();
@@ -215,34 +215,31 @@ namespace Linq.Flickr
 
                         if (!string.IsNullOrEmpty(value))
                         {
-                            using (IPhoto flickr = new PhotoRepository())
+                            if ((item.Name == PhotoColumns.USER))
                             {
-                                if ((item.Name == PhotoColumns.USER))
+                                args[itemIndex] = "user_id";
+                                if (value.IsValidEmail())
                                 {
-                                    args[itemIndex] = "user_id";
-                                    if (value.IsValidEmail())
-                                    {
-                                        nsId = flickr.GetNSIDByEmail(value);
-                                    }
-                                    else
-                                    {
-                                        nsId = flickr.GetNSIDByUsername(value);
-                                    }
-                                    // set the new nslid
-                                    if (!string.IsNullOrEmpty(nsId))
-                                    {
-                                        value = nsId;
-                                    }
-                                }
-                                else if (string.Compare(item.Name ,"text") == 0)
-                                {
-                                    SearchMode searchMode = bucket.Items[PhotoColumns.SEARCH_MODE].Value == null ? SearchMode.FreeText : (SearchMode)bucket.Items[PhotoColumns.SEARCH_MODE].Value;
-                                    args[itemIndex] =  searchMode == SearchMode.TagsOnly ? "tags" : item.Name;
+                                    nsId = flickr.GetNSIDByEmail(value);
                                 }
                                 else
                                 {
-                                    args[itemIndex] = item.Name;
+                                    nsId = flickr.GetNSIDByUsername(value);
                                 }
+                                // set the new nslid
+                                if (!string.IsNullOrEmpty(nsId))
+                                {
+                                    value = nsId;
+                                }
+                            }
+                            else if (string.Compare(item.Name, "text") == 0)
+                            {
+                                SearchMode searchMode = bucket.Items[PhotoColumns.SEARCH_MODE].Value == null ? SearchMode.FreeText : (SearchMode)bucket.Items[PhotoColumns.SEARCH_MODE].Value;
+                                args[itemIndex] = searchMode == SearchMode.TagsOnly ? "tags" : item.Name;
+                            }
+                            else
+                            {
+                                args[itemIndex] = item.Name;
                             }
                             args[itemIndex + 1] = value;
                         }

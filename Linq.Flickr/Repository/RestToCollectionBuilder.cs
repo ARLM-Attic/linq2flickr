@@ -13,7 +13,7 @@ namespace Linq.Flickr.Repository
     /// Use for creating IEnumerable<typeparamref name="T"/> result from REST requestUrl
     /// </summary>
     /// <typeparam name="T">IDisposable</typeparam>
-    public class RestToCollectionBuilder<T> where T : IDisposable
+    public class RestToCollectionBuilder<T> : HttpCallBase where T : IDisposable 
     {
         private T _object;
         private string _rootElement = string.Empty;
@@ -142,7 +142,7 @@ namespace Linq.Flickr.Repository
 
         public IEnumerable<T> ToCollection(string requestUrl)
         {
-            XElement element = requestUrl.GetElement();
+            XElement element = base.GetElement(requestUrl);
 
             return ToCollection(element);
         }

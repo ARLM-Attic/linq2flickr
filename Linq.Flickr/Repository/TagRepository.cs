@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace Linq.Flickr.Repository
 {
-    public class TagRepository : Base, ITag
+    public class TagRepository : BaseRepository, ITag
     {
         public TagRepository() : base(typeof(ITag)) { }
 

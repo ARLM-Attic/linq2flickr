@@ -24,28 +24,20 @@ namespace Linq.Flickr.Repository
         Delete
     }
     //[DebuggerStepThrough]
-    public class PhotoRepository : Base, IPhoto
+    public class PhotoRepository : BaseRepository, IPhoto
     {
-
         public PhotoRepository() : base(typeof(IPhoto)) { }
-
-         string IPhoto.GetFrob()
-        {
-            string method = Helper.GetExternalMethodName();
-
-            return GetFrob(method);
-        }
-
+       
         AuthToken IPhoto.CheckToken(string token)
         {
             string method = Helper.GetExternalMethodName();
 
-            string sig = GetSignature(method, true, "auth_token", token);
+            string sig = base.GetSignature(method, true, "auth_token", token);
             string requestUrl = BuildUrl(method, "auth_token", token, "api_sig", sig);
 
             try
             {
-                XElement tokenElement = GetElement(requestUrl);
+                XElement tokenElement = base.GetElement(requestUrl);
 
                 return GetAToken(tokenElement);
             }
@@ -60,12 +52,12 @@ namespace Linq.Flickr.Repository
             string token = Authenticate();
             
             string method = Helper.GetExternalMethodName();
-            string sig = GetSignature(method, true, "auth_token", token);
+            string sig = base.GetSignature(method, true, "auth_token", token);
             string requestUrl = BuildUrl(method, "api_sig", sig, "auth_token", token);
 
             try
             {
-                XElement element = GetElement(requestUrl);
+                XElement element = base.GetElement(requestUrl);
 
                 People people = (from p in element.Descendants("user")
                                  select new People
@@ -96,12 +88,12 @@ namespace Linq.Flickr.Repository
 
         AuthToken IPhoto.GetTokenFromFrob(string frob)
         {
-            string sig = GetSignature(Helper.FlickrMethod.GET_AUTH_TOKEN, true, "frob", frob);
+            string sig = base.GetSignature(Helper.FlickrMethod.GET_AUTH_TOKEN, true, "frob", frob);
             string requestUrl = BuildUrl(Helper.FlickrMethod.GET_AUTH_TOKEN, "frob", frob, "api_sig", sig);
 
             try
             {
-                XElement tokenElement = GetElement(requestUrl);
+                XElement tokenElement = base.GetElement(requestUrl);
                 return GetAToken(tokenElement);
             }
             catch (Exception ex)
@@ -130,58 +122,14 @@ namespace Linq.Flickr.Repository
 
         string IPhoto.GetNSIDByUsername(string username)
         {
-            string nsId = string.Empty;
             string method = Helper.GetExternalMethodName();
-
-            string requestUrl = BuildUrl(method, "username", username);
-
-            try
-            {
-                XElement element = GetElement(requestUrl);
-                nsId = element.Element("user").Attribute("nsid").Value;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException(ex.Message);
-            }
-            
-            return nsId;
+            return base.GetNSID(method, "username", username);
         }
-
 
         string IPhoto.GetNSIDByEmail(string email)
         {
-            string nsId = string.Empty;
             string method = Helper.GetExternalMethodName();
-
-            string requestUrl = BuildUrl(email, "find_email", email);
-
-            try
-            {
-                XElement element = GetElement(requestUrl);
-                nsId = element.Element("user").Attribute("nsid").Value;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException(ex.Message);
-            }
-
-            return nsId;
-        }
-
-        private string GetNSID(string user)
-        {
-            string nsId = string.Empty;
-
-            if (user.IsValidEmail())
-            {
-                nsId = (this as IPhoto).GetNSIDByEmail(user);
-            }
-            else
-            {
-                nsId = (this as IPhoto).GetNSIDByUsername(user);
-            }
-            return nsId;
+            return base.GetNSID(method, "find_email", email);
         }
 
         internal class PhotoSizeWrapper
@@ -200,7 +148,7 @@ namespace Linq.Flickr.Repository
                 string method = Helper.GetExternalMethodName();
                 string requestUrl = BuildUrl(method, "photo_id", id);
 
-                XElement doc = GetElement(requestUrl);
+                XElement doc = base.GetElement(requestUrl);
 
                 var query = from sizes in doc.Descendants("size")
                             select new PhotoSizeWrapper
@@ -227,21 +175,18 @@ namespace Linq.Flickr.Repository
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        IEnumerable<Photo> IPhoto.Search(int index, int pageLen, PhotoSize photoSize, params string[] args)
+        IEnumerable<Photo> IPhoto.Search(int index, int pageLen, PhotoSize photoSize, string token, params string[] args)
         {
             string method = Helper.GetExternalMethodName();
 
-            string token = string.Empty;
             string sig = string.Empty;
-
-            token = (this as IPhoto).Authenticate(false, Permission.Delete);
 
             if (!string.IsNullOrEmpty(token))
             {
                 IDictionary<string, string> sorted = new SortedDictionary<string, string>();
                 ProcessArguments(args, sorted);
                 ProcessArguments(new object[] { "page", index.ToString(), "per_page", pageLen.ToString(), "auth_token", token }, sorted);
-                sig = GetSignature(method, true, sorted);
+                sig = base.GetSignature(method, true, sorted);
             }
 
             IDictionary<string, string> dicionary = new Dictionary<string, string>();
@@ -265,7 +210,7 @@ namespace Linq.Flickr.Repository
         #region PhotoGetBlock
         private IEnumerable<Photo> GetPhotos(string requestUrl, PhotoSize size)
         {
-            XElement doc = GetElement(requestUrl);
+            XElement doc = base.GetElement(requestUrl);
 
             var query = from photos in doc.Descendants("photo")
                         select new Photo
@@ -298,10 +243,10 @@ namespace Linq.Flickr.Repository
             string method = Helper.GetExternalMethodName();
 
             string token = (this as IPhoto).Authenticate(false, Permission.Delete);
-            string sig = GetSignature(method, true, "photo_id", id, "auth_token", token);
+            string sig = base.GetSignature(method, true, "photo_id", id, "auth_token", token);
             string requestUrl = BuildUrl(method, "photo_id", id, "auth_token", token, "api_sig", sig);
 
-            XElement doc = GetElement(requestUrl);
+            XElement doc = base.GetElement(requestUrl);
 
             var query = from photos in doc.Descendants("photo")
                         select new Photo
@@ -389,7 +334,7 @@ namespace Linq.Flickr.Repository
             string token = Authenticate();
             string method = Helper.GetExternalMethodName();
 
-            string sig = GetSignature(method, true, "photo_id", photoId, "auth_token", token);
+            string sig = base.GetSignature(method, true, "photo_id", photoId, "auth_token", token);
             string requestUrl = BuildUrl(method, "photo_id", photoId, "auth_token", token, "api_sig", sig);
 
             try
@@ -416,7 +361,7 @@ namespace Linq.Flickr.Repository
 
             ProcessArguments(new object[]{ "auth_token", token }, sorted);
 
-            string sig = GetSignature(Helper.UPLOAD_URL, false,sorted, args);
+            string sig = base.GetSignature(Helper.UPLOAD_URL, false,sorted, args);
            
             StringBuilder builder = new StringBuilder();
 
