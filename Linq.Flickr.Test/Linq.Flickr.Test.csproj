@@ -83,7 +83,7 @@
     <EmbeddedResource Include="blank.gif" />
     <Content Include="Readme.txt" />
     <EmbeddedResource Include="Responses\Photo.xml" />
-    <Content Include="Responses\PicPostData.txt" />
+    <EmbeddedResource Include="Responses\PicPostData.txt" />
     <EmbeddedResource Include="Responses\UploadStatus.xml" />
     <EmbeddedResource Include="Responses\HotTagGetList.xml" />
     <EmbeddedResource Include="Responses\PeopleInfo.xml" />

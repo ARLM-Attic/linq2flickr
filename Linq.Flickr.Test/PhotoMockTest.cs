@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using Linq.Flickr.Repository;
 using TypeMock;
 using System.Net;
+using System.Security.Cryptography;
 
 namespace Linq.Flickr.Test
 {
@@ -71,12 +72,33 @@ namespace Linq.Flickr.Test
             TextReader reader = new StreamReader(new FileStream(path, FileMode.Open));
             
             string content = reader.ReadToEnd();
+            string generatedHash = GetHash(content);
+            
+            reader.Close();
+
+            reader = new StreamReader(GetResourceStream(RESOURCE_NS + ".PicPostData.txt"));
+
+            content = reader.ReadToEnd();
+
+            string originalHash = GetHash(content);
 
             reader.Close();
+
+            //Assert.IsTrue(string.Compare(generatedHash, originalHash, true) == 0);
 
             Assert.IsTrue(photo.Id == "1");
 
             MockManager.Verify();
+        }
+
+        internal string GetHash(string inputString)
+        {
+            MD5 md5 = MD5CryptoServiceProvider.Create();
+
+            byte[] input = Encoding.UTF8.GetBytes(inputString);
+            byte[] output = MD5.Create().ComputeHash(input);
+
+            return BitConverter.ToString(output).Replace("-", "").ToLower();
         }
 
         private Stream GetResourceStream(string name)
