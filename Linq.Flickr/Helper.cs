@@ -64,6 +64,10 @@ namespace Linq.Flickr
             }
         }
 
+        public static XElement FindElement(this XElement element, XName name)
+        {
+            return element.Element(name);
+        }
 
         internal static void RefreshExternalMethodList(this Type interfaceType)
         {

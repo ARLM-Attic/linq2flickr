@@ -51,9 +51,7 @@ namespace Linq.Flickr.Repository
             try
             {
                 string responseFromServer = DoHTTPPost(requestUrl);
-                XElement element = XElement.Parse(responseFromServer, LoadOptions.None);
-                element.ValidateResponse();
-
+                XElement element = ParseElement(responseFromServer);
                 return true;
             }
             catch

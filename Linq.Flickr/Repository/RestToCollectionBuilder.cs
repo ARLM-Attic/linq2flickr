@@ -97,7 +97,8 @@ namespace Linq.Flickr.Repository
                     // process any attribute from root element.
                     if (!string.IsNullOrEmpty(_rootElement))
                     {
-                        ProcessAttribute(obj, element.Element(_rootElement));
+                        XElement root = element.FindElement(_rootElement);
+                        ProcessAttribute(obj, root);
                     }
 
                     XElement rootElement = node as XElement;
@@ -111,9 +112,12 @@ namespace Linq.Flickr.Repository
 
         private void ProcessAttribute(T obj, XElement element)
         {
-            foreach (XAttribute attribute in element.Attributes())
+            if (element != null)
             {
-                FillProperty(obj, attribute.Name.LocalName, (attribute.Value ?? string.Empty));
+                foreach (XAttribute attribute in element.Attributes())
+                {
+                    FillProperty(obj, attribute.Name.LocalName, (attribute.Value ?? string.Empty));
+                }
             }
         }
 

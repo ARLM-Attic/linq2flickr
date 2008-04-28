@@ -1,0 +1,8 @@
+﻿<rsp stat="ok">
+  <comments photo_id="1x">
+    <comment id="1"
+     author="11" authorname="John Doe" datecreate="1141841470"
+     permalink="#"
+         >This is a test comment</comment>
+  </comments>
+</rsp>
