@@ -76,7 +76,7 @@ namespace Linq.Flickr.Test
             
             reader.Close();
 
-            reader = new StreamReader(GetResourceStream(RESOURCE_NS + ".PicPostData.txt"));
+            reader = new StreamReader(GetResourceStream(RESOURCE_NS + ".PicPostData.txt"), true);
 
             content = reader.ReadToEnd();
 
@@ -84,7 +84,7 @@ namespace Linq.Flickr.Test
 
             reader.Close();
 
-            //Assert.IsTrue(string.Compare(generatedHash, originalHash, true) == 0);
+            Assert.IsTrue(string.Compare(originalHash, generatedHash, true) == 0);
 
             Assert.IsTrue(photo.Id == "1");
 
