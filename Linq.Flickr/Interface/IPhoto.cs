@@ -13,7 +13,7 @@ namespace Linq.Flickr.Interface
         [FlickrMethod("flickr.photos.getInfo")]
         Photo GetPhotoDetail(string id, PhotoSize size);
         [FlickrMethod("flickr.photos.search")]
-        IEnumerable<Photo> Search(int index, int pageLen, PhotoSize photoSize, params string[] args);
+        IEnumerable<Photo> Search(int index, int pageLen, PhotoSize photoSize, string token, params string[] args);
         [FlickrMethod("flickr.interestingness.getList")]
         IList<Photo> GetMostInteresting(int index, int itemsPerPage, PhotoSize photoSize);
         [FlickrMethod("flickr.photos.delete")]
@@ -26,8 +26,6 @@ namespace Linq.Flickr.Interface
         string GetNSIDByEmail(string email);
         [FlickrMethod("flickr.people.findByUsername")]
         string GetNSIDByUsername(string username);
-        [FlickrMethod("flickr.auth.getFrob")]
-        string GetFrob();
         [FlickrMethod("flickr.auth.getFrob")]
         AuthToken GetTokenFromFrob(string frob);
         [FlickrMethod("flickr.auth.checkToken")]
