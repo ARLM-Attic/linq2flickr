@@ -49,7 +49,7 @@ namespace Linq.Flickr.Repository
 
         People IPhoto.GetUploadStatus()
         {
-            string token = Authenticate();
+            string token = base.Authenticate(true, Permission.Delete.ToString());
             
             string method = Helper.GetExternalMethodName();
             string sig = base.GetSignature(method, true, "auth_token", token);
@@ -341,7 +341,7 @@ namespace Linq.Flickr.Repository
 
         bool IPhoto.Delete(string photoId)
         {
-            string token = Authenticate();
+            string token = base.Authenticate(true, Permission.Delete.ToString());
             string method = Helper.GetExternalMethodName();
 
             string sig = base.GetSignature(method, true, "photo_id", photoId, "auth_token", token);
@@ -363,7 +363,7 @@ namespace Linq.Flickr.Repository
 
         string IPhoto.Upload(object[] args, string fileName, byte[] photoData)
         {
-            string token = Authenticate();
+            string token = base.Authenticate(true, Permission.Delete.ToString());
 
             string boundary = "FLICKR_BOUNDARY";
 
@@ -390,7 +390,7 @@ namespace Linq.Flickr.Repository
             request.Timeout = 300000;
             // Set the ContentType property of the WebRequest.
             request.ContentType = "multipart/form-data;charset=UTF-8;boundary=" + boundary + "";
-          
+            
             byte[] photoAttributeData = Encoding.UTF8.GetBytes(builder.ToString());
             byte[] footer = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
 
@@ -407,6 +407,7 @@ namespace Linq.Flickr.Repository
 
             dataStream.Write(postContent, 0, postContent.Length);
             // Close the Stream object.
+            dataStream.Flush();
             dataStream.Close();
             // Get the response.
             WebResponse response = request.GetResponse();
@@ -417,25 +418,12 @@ namespace Linq.Flickr.Repository
             // Read the content.
             string responseFromServer = reader.ReadToEnd();
             // Clean up the streams.
-            reader.Close();
-            dataStream.Close();
             response.Close();
+            reader.Close();
+            
             // get the photo id.
-            XElement elemnent = XElement.Parse(responseFromServer);
+            XElement elemnent = ParseElement(responseFromServer);
             return elemnent.Element("photoid").Value ?? string.Empty;
-        }
-
-        private string Authenticate()
-        {
-            string token = string.Empty;
-
-            token = (this as IPhoto).Authenticate(true, Permission.Delete);
-
-            if (string.IsNullOrEmpty(token))
-            {
-                throw new ApplicationException("You must be authenticate to upload data");
-            }
-            return token;
         }
 
     }

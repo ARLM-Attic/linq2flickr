@@ -10,7 +10,7 @@ using System.Configuration;
 
 namespace Linq.Flickr.Test
 {
-    [TestFixture]
+    //[TestFixture]
     public class FlickrPhotoBasicTest
     {
         FlickrContext _context = null;
@@ -31,6 +31,11 @@ namespace Linq.Flickr.Test
                 DeleteAllPhotos();
                 deleteOnce = true;
             }
+        }
+
+        //[Test]
+        public void DoOriginalAdd()
+        {
             AddNewPhoto();
         }
 
@@ -76,79 +81,29 @@ namespace Linq.Flickr.Test
             }
             _context.SubmitChanges();
         }
-
-        [Test]
-        public void CommentTest()
-        {
-            Comment comment = new Comment();
-
-            comment.PhotoId = _list[0];
-            comment.Text = "Testing comment add [LINQ.Flickr]";
-
-            _context.Photos.Comments.Add(comment);
-            _context.SubmitChanges();
-
-            Assert.IsTrue(!string.IsNullOrEmpty(comment.Id));
-
-            Console.Out.WriteLine("Getting .. comments");
-
-            var query = from c in _context.Photos.Comments
-                        where c.PhotoId == comment.PhotoId && c.Id == comment.Id
-                        select c;
-
-            Assert.IsTrue(query.Count() == 1);
-
-            _context.Photos.Comments.Remove(query.Single<Comment>());
-
-            Console.Out.WriteLine("Delete comment " + comment.Id);
-
-            _context.SubmitChanges();
-
-            Console.Out.WriteLine("Done");
-        }
-
         
+        //[Test, Sequence(3)]
+        //public void TakeAndSkipTest()
+        //{
+        //    try
+        //    {
+        //        int page = (_list.Count) / 10;
 
-        [Test, Sequence(2)]
-        public void GetPhotoById()
-        {
-            try
-            {
-                var query = from ph in _context.Photos
-                            where ph.Id == _list[0]
-                            select new { ph.Id };
+        //        var query = (from ph in _context.Photos
+        //                     where ph.User == USER_NAME && ph.PhotoSize == PhotoSize.Square
+        //                     orderby PhotoOrder.Date_Taken ascending
+        //                     select ph).Skip(page - 1).Take(10);
 
-                var item = query.Single();
+        //        Photo photo = query.Last();
 
-                Assert.IsTrue(item.Id == _list[0]);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.Message);
-            }
-        }
-        [Test, Sequence(3)]
-        public void TakeAndSkipTest()
-        {
-            try
-            {
-                int page = (_list.Count) / 10;
+        //        Assert.IsTrue(photo.Id == _list[_list.Count - 1]);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Assert.Fail(ex.Message);
+        //    }
 
-                var query = (from ph in _context.Photos
-                             where ph.User == USER_NAME && ph.PhotoSize == PhotoSize.Square
-                             orderby PhotoOrder.Date_Taken ascending
-                             select ph).Skip(page - 1).Take(10);
-
-                Photo photo = query.Last();
-
-                Assert.IsTrue(photo.Id == _list[_list.Count - 1]);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.Message);
-            }
-
-        }
+        //}
         public void DeleteAdded()
         {
             var query = from ph in _context.Photos

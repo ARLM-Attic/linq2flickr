@@ -64,8 +64,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MiscTest.cs" />
-    <Compile Include="PhotoTestMock.cs" />
+    <Compile Include="PhotoMockTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FlickrPhotoBasicTest.cs" />
     <Compile Include="SequenceAttribute.cs" />
@@ -83,6 +82,11 @@
   <ItemGroup>
     <EmbeddedResource Include="blank.gif" />
     <Content Include="Readme.txt" />
+    <EmbeddedResource Include="Responses\Photo.xml" />
+    <Content Include="Responses\PicPostData.txt" />
+    <EmbeddedResource Include="Responses\UploadStatus.xml" />
+    <EmbeddedResource Include="Responses\HotTagGetList.xml" />
+    <EmbeddedResource Include="Responses\PeopleInfo.xml" />
     <EmbeddedResource Include="Responses\DeleteComment.xml" />
     <EmbeddedResource Include="Responses\GetComment.xml" />
     <EmbeddedResource Include="Responses\AddComment.xml" />

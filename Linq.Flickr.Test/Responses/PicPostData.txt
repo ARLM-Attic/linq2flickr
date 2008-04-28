@@ -1,0 +1,33 @@
+﻿--FLICKR_BOUNDARY
+Content-Disposition: form-data; name="api_key"
+
+cd80fd317eff3714d43fea491bb97f45
+--FLICKR_BOUNDARY
+Content-Disposition: form-data; name="auth_token"
+
+72157603949088883-026521662b2c509d
+--FLICKR_BOUNDARY
+Content-Disposition: form-data; name="api_sig"
+
+322b42a0130ba0e0805fcbf88a7e8807
+--FLICKR_BOUNDARY
+Content-Disposition: form-data; name="is_public"
+
+1
+--FLICKR_BOUNDARY
+Content-Disposition: form-data; name="is_friend"
+
+0
+--FLICKR_BOUNDARY
+Content-Disposition: form-data; name="is_family"
+
+0
+--FLICKR_BOUNDARY
+Content-Disposition: form-data; name="title"
+
+Flickr logo
+--FLICKR_BOUNDARY
+Content-Disposition: form-data; name="photo";filename="66295a76-1296-43dd-b71e-0c47f50b6cf6"
+Content-Type:application/octet-stream
+
+GIF89a

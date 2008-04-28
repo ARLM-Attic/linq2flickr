@@ -139,6 +139,7 @@ namespace Linq.Flickr.Repository
         public string Authenticate(bool validate, string permission)
         {
             string frob = string.Empty;
+            permission = permission.ToLower();
 
             if (HttpContext.Current != null)
             {
@@ -295,7 +296,28 @@ namespace Linq.Flickr.Repository
 
         public string GetSignature(string methodName, bool includeMethod, params object[] args)
         {
-            return GetSignature(methodName, includeMethod, new SortedDictionary<string, string>(), args);
+            IDictionary<string, string> sortedDic = new SortedDictionary<string, string>();
+
+            object[] originalArgs = args;
+
+            if (args.Length > 0)
+            {
+                if (args[0] is SortedDictionary<string, string>)
+                {
+                    sortedDic = args[0] as SortedDictionary<string, string>;
+
+                    if (args.Length > 1)
+                    {
+                        originalArgs = args[1] as object[];
+                    }
+                    else
+                    {
+                        originalArgs = new object[0];
+                    }
+                }
+
+            }
+            return GetSignature(methodName, includeMethod, sortedDic, originalArgs);
         }
         
         private string GetSignature(string methodName, bool includeMethod, IDictionary<string, string> sorted, params object[] args)
