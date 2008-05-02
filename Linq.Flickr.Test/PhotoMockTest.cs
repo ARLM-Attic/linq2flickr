@@ -12,6 +12,7 @@ using Linq.Flickr.Repository;
 using TypeMock;
 using System.Net;
 using System.Security.Cryptography;
+using System.Drawing;
 
 namespace Linq.Flickr.Test
 {
@@ -19,7 +20,6 @@ namespace Linq.Flickr.Test
     public class PhotoMockTest
     {
         FlickrContext _context = null;
-        private const string API_KEY = "cd80fd317eff3714d43fea491bb97f45";
         private const string RESOURCE_NS = "Linq.Flickr.Test.Responses";
        
         [SetUp]
@@ -31,7 +31,7 @@ namespace Linq.Flickr.Test
         }
 
         [Test]
-        public void DoPhotoUploadTest()
+        public void DoPhotoUploadAndDeleteTest()
         {
             MockManager.Init();
 
@@ -41,7 +41,14 @@ namespace Linq.Flickr.Test
             photoMock.ExpectAndReturn("Authenticate", "1234", 2).Args(true, Permission.Delete.ToString());
             photoMock.ExpectAndReturn("GetElement", MockElement(RESOURCE_NS + ".UploadStatus.xml"));
 
-            Photo photo = new Photo { Title = "Flickr logo", FileName ="Test.Mock", File = GetResourceStream("Linq.Flickr.Test.blank.gif"), ViewMode = ViewMode.Public };
+            Stream photoRes = GetResourceStream("Linq.Flickr.Test.blank.gif");
+
+            byte[] oImage = new byte[photoRes.Length];
+
+            photoRes.Read(oImage, 0, oImage.Length);
+            photoRes.Seek(0, SeekOrigin.Begin);
+
+            Photo photo = new Photo { Title = "Flickr logo", FileName ="Test.Mock", File = photoRes , ViewMode = ViewMode.Public };
            
             Mock httpRequest = MockManager.Mock(typeof(HttpWebRequest));
       
@@ -50,43 +57,73 @@ namespace Linq.Flickr.Test
             FileStream fileStream = null;
             
             if (!File.Exists(path))
-                fileStream = new FileStream(path, FileMode.OpenOrCreate);
+                fileStream = File.Create(path);
             else
-                fileStream = new FileStream(path, FileMode.Truncate);
+                fileStream = File.Open(path, FileMode.Truncate);
 
             httpRequest.ExpectSet("ContentType");
             httpRequest.ExpectAndReturn("GetRequestStream", fileStream);
 
-            MockObject responseObject = MockManager.MockObject<WebResponse>();
-            httpRequest.ExpectAndReturn("GetResponse", responseObject.Object);
+            MockObject webResponseMock = MockManager.MockObject<WebResponse>();
+            httpRequest.ExpectAndReturn("GetResponse", webResponseMock.Object);
 
-            responseObject.ExpectAndReturn("GetResponseStream", GetResourceStream(RESOURCE_NS + ".Photo.xml"));
-            responseObject.ExpectCall("Close");
+            webResponseMock.ExpectAndReturn("GetResponseStream", GetResourceStream(RESOURCE_NS + ".Photo.xml"));
+            webResponseMock.ExpectCall("Close");
 
             // add to the collection.
             _context.Photos.Add(photo);
             _context.Photos.SubmitChanges();
+
+            // read the binary content from file.
+            BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open));
+     
+            byte [] content = new byte[reader.BaseStream.Length];
+
+            content = reader.ReadBytes(content.Length);
+
+            reader.Close();
+
+            // end file read
+
+            // construct and verify image 
+            byte[] uImage = new byte[oImage.Length];
+
+            byte[] footer = Encoding.UTF8.GetBytes("\r\n--FLICKR_BOUNDARY--\r\n");
+
+            int endIndex = content.Length - footer.Length;
+            int startIndex = endIndex - oImage.Length;
+
+            int count = 0;
+
+            for (int index = startIndex; index < endIndex; index++)
+            {
+                uImage[count] = content[index];
+                count++;
+            }
+            MemoryStream mStream = new MemoryStream();
            
-            //string content = reader.ReadToEnd();
+            mStream.Write(uImage, 0, uImage.Length);
+            mStream.Seek(0, SeekOrigin.Begin);
 
-            TextReader reader = new StreamReader(new FileStream(path, FileMode.Open));
-            
-            string content = reader.ReadToEnd();
-            string generatedHash = GetHash(content);
-            
-            reader.Close();
+            using (Bitmap bitmap = new Bitmap(mStream))
+            {
+                
+            }
 
-            reader = new StreamReader(GetResourceStream(RESOURCE_NS + ".PicPostData.txt"), true);
-
-            content = reader.ReadToEnd();
-
-            string originalHash = GetHash(content);
-
-            reader.Close();
-
-            Assert.IsTrue(string.Compare(originalHash, generatedHash, true) == 0);
+            // end image verification.
 
             Assert.IsTrue(photo.Id == "1");
+
+            Mock photoDeletemock = MockManager.Mock<PhotoRepository>(Constructor.NotMocked);
+
+            photoDeletemock.ExpectAndReturn("Authenticate", "1234").Args(true, Permission.Delete.ToString());
+            photoDeletemock.ExpectAndReturn("GetSignature", "yyyy");
+            photoDeletemock.ExpectAndReturn("DoHTTPPost", MockElement(RESOURCE_NS + ".DeletePhoto.xml").ToString());
+
+            _context.Photos.Remove(photo);
+            _context.SubmitChanges();
+
+            Assert.IsTrue(photo.IsDeleted);
 
             MockManager.Verify();
         }

@@ -10,7 +10,7 @@ using System.Configuration;
 
 namespace Linq.Flickr.Test
 {
-    //[TestFixture]
+    //[TestFixture] -- not needed basically.
     public class FlickrPhotoBasicTest
     {
         FlickrContext _context = null;
@@ -33,7 +33,7 @@ namespace Linq.Flickr.Test
             }
         }
 
-        //[Test]
+        [Test]
         public void DoOriginalAdd()
         {
             AddNewPhoto();

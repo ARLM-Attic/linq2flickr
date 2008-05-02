@@ -50,6 +50,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -82,8 +83,8 @@
   <ItemGroup>
     <EmbeddedResource Include="blank.gif" />
     <Content Include="Readme.txt" />
+    <EmbeddedResource Include="Responses\DeletePhoto.xml" />
     <EmbeddedResource Include="Responses\Photo.xml" />
-    <EmbeddedResource Include="Responses\PicPostData.txt" />
     <EmbeddedResource Include="Responses\UploadStatus.xml" />
     <EmbeddedResource Include="Responses\HotTagGetList.xml" />
     <EmbeddedResource Include="Responses\PeopleInfo.xml" />
