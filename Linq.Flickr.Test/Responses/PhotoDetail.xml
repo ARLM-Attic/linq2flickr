@@ -1,0 +1,27 @@
+﻿<rsp stat="ok">
+  <photo id="2428052817" secret="3c35c7ed26" server="3237" farm="4" dateuploaded="1208716675" isfavorite="0" license="0" rotation="0" views="47" media="photo">
+    <owner nsid="63497523@N00" username="*Park+Ride*" realname="Adam Park" location="Manchester, UK" />
+    <title>Mug Shot</title>
+    <description />
+    <visibility ispublic="1" isfriend="0" isfamily="0" />
+    <dates posted="1208716675" taken="2008-04-15 23:03:00" takengranularity="0" lastupdate="1209326676" />
+    <editability cancomment="1" canaddmeta="0" />
+    <usage candownload="1" canblog="1" canprint="0" />
+    <comments>2</comments>
+    <notes />
+     <tags>
+      <tag id="2117276-2428052817-16011" author="63497523@N00" raw="microsoft" machine_tag="0">microsoft</tag>
+      <tag id="2117276-2428052817-12556" author="63497523@N00" raw="cups" machine_tag="0">cups</tag>
+      <tag id="2117276-2428052817-114625" author="63497523@N00" raw="MGS" machine_tag="0">mgs</tag>
+      <tag id="2117276-2428052817-821" author="63497523@N00" raw="coffee" machine_tag="0">coffee</tag>
+      <tag id="2117276-2428052817-69" author="63497523@N00" raw="seattle" machine_tag="0">seattle</tag>
+      <tag id="2117276-2428052817-16018" author="63497523@N00" raw="redmond" machine_tag="0">redmond</tag>
+      <tag id="2117276-2428052817-152684" author="63497523@N00" raw="redmond town center" machine_tag="0">redmondtowncenter</tag>
+      <tag id="2117276-2428052817-8686" author="63497523@N00" raw="360" machine_tag="0">360</tag>
+      <tag id="2117276-2428052817-124569" author="63497523@N00" raw="mvp" machine_tag="0">mvp</tag>
+    </tags>
+    <urls>
+      <url type="photopage">http://www.flickr.com/photos/adamjohnpark/2428052817/</url>
+    </urls>
+  </photo>
+</rsp>

@@ -269,10 +269,16 @@ namespace Linq.Flickr
             }
         }
 
+        /// <summary>
+        ///  text on which to search on flickr.
+        /// </summary>
         [LinqVisible(), OriginalFieldName("text")]
-        public string SearchText { get; set; }
+        public string SearchText { get; internal set; }
+        /// <summary>
+        /// Use to query user in flickr, is filled up only when a photo is get by photoId.
+        /// </summary>
         [LinqVisible()]
-        public string User { get; set; }
+        public string User { get; internal set; }
 
         string GetSizePostFix(PhotoSize size)
         {

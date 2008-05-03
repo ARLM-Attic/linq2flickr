@@ -35,95 +35,90 @@ namespace Linq.Flickr.Test
         {
             MockManager.Init();
 
-            Mock photoMock = MockManager.Mock<PhotoRepository>(Constructor.NotMocked);
-
-            photoMock.ExpectAndReturn("GetSignature", "yyyy", 2);
-            photoMock.ExpectAndReturn("Authenticate", "1234", 2).Args(true, Permission.Delete.ToString());
-            photoMock.ExpectAndReturn("GetElement", MockElement(RESOURCE_NS + ".UploadStatus.xml"));
-
             Stream photoRes = GetResourceStream("Linq.Flickr.Test.blank.gif");
+            Photo photo = new Photo { Title = "Flickr logo", FileName = "Test.Mock", File = photoRes, ViewMode = ViewMode.Public };
 
-            byte[] oImage = new byte[photoRes.Length];
-
-            photoRes.Read(oImage, 0, oImage.Length);
-            photoRes.Seek(0, SeekOrigin.Begin);
-
-            Photo photo = new Photo { Title = "Flickr logo", FileName ="Test.Mock", File = photoRes , ViewMode = ViewMode.Public };
-           
-            Mock httpRequest = MockManager.Mock(typeof(HttpWebRequest));
-      
-            string path = System.AppDomain.CurrentDomain.BaseDirectory + "\\photo.txt";
-
-            FileStream fileStream = null;
-            
-            if (!File.Exists(path))
-                fileStream = File.Create(path);
-            else
-                fileStream = File.Open(path, FileMode.Truncate);
-
-            httpRequest.ExpectSet("ContentType");
-            httpRequest.ExpectAndReturn("GetRequestStream", fileStream);
-
-            MockObject webResponseMock = MockManager.MockObject<WebResponse>();
-            httpRequest.ExpectAndReturn("GetResponse", webResponseMock.Object);
-
-            webResponseMock.ExpectAndReturn("GetResponseStream", GetResourceStream(RESOURCE_NS + ".Photo.xml"));
-            webResponseMock.ExpectCall("Close");
-
-            // add to the collection.
-            _context.Photos.Add(photo);
-            _context.Photos.SubmitChanges();
-
-            // read the binary content from file.
-            BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open));
-     
-            byte [] content = new byte[reader.BaseStream.Length];
-
-            content = reader.ReadBytes(content.Length);
-
-            reader.Close();
-
-            // end file read
-
-            // construct and verify image 
-            byte[] uImage = new byte[oImage.Length];
-
-            byte[] footer = Encoding.UTF8.GetBytes("\r\n--FLICKR_BOUNDARY--\r\n");
-
-            int endIndex = content.Length - footer.Length;
-            int startIndex = endIndex - oImage.Length;
-
-            int count = 0;
-
-            for (int index = startIndex; index < endIndex; index++)
+            using (FakeFlickrRepository<PhotoRepository, Photo> photoAddMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
-                uImage[count] = content[index];
-                count++;
-            }
-            MemoryStream mStream = new MemoryStream();
-           
-            mStream.Write(uImage, 0, uImage.Length);
-            mStream.Seek(0, SeekOrigin.Begin);
+                photoAddMock.MockSignatureCall();
+                photoAddMock.MockElementCall(RESOURCE_NS + ".UploadStatus.xml");
+                photoAddMock.MockAuthenticateCall(true, Permission.Delete, 2);
 
-            using (Bitmap bitmap = new Bitmap(mStream))
-            {
+                byte[] oImage = new byte[photoRes.Length];
+
+                photoRes.Read(oImage, 0, oImage.Length);
+                photoRes.Seek(0, SeekOrigin.Begin);
                 
+                string path = System.AppDomain.CurrentDomain.BaseDirectory + "\\photo.txt";
+
+                FileStream fileStream = null;
+
+                if (!File.Exists(path))
+                    fileStream = File.Create(path);
+                else
+                    fileStream = File.Open(path, FileMode.Truncate);
+
+                photoAddMock.FakeHttpRequestObject(fileStream);
+                photoAddMock.FakeWebResponse_GetResponse();
+                photoAddMock.FakeWebResponseObject(RESOURCE_NS + ".Photo.xml");
+                
+               
+                // add to the collection.
+                _context.Photos.Add(photo);
+                _context.Photos.SubmitChanges();
+
+                // read the binary content from file.
+                BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open));
+
+                byte[] content = new byte[reader.BaseStream.Length];
+
+                content = reader.ReadBytes(content.Length);
+
+                reader.Close();
+
+                // end file read
+
+                // construct and verify image 
+                byte[] uImage = new byte[oImage.Length];
+
+                byte[] footer = Encoding.UTF8.GetBytes("\r\n--FLICKR_BOUNDARY--\r\n");
+
+                int endIndex = content.Length - footer.Length;
+                int startIndex = endIndex - oImage.Length;
+
+                int count = 0;
+
+                for (int index = startIndex; index < endIndex; index++)
+                {
+                    uImage[count] = content[index];
+                    count++;
+                }
+                MemoryStream mStream = new MemoryStream();
+
+                mStream.Write(uImage, 0, uImage.Length);
+                mStream.Seek(0, SeekOrigin.Begin);
+
+                using (Bitmap bitmap = new Bitmap(mStream))
+                {
+
+                }
+
+                // end image verification.
+
+                Assert.IsTrue(photo.Id == "1");
             }
 
-            // end image verification.
+            using (FakeFlickrRepository<PhotoRepository, Photo> photoDeleteMock = new FakeFlickrRepository<PhotoRepository, Photo>())
+            {
+                photoDeleteMock.MockAuthenticateCall(true, Permission.Delete, 1);
+                photoDeleteMock.MockSignatureCall();
+                photoDeleteMock.MockDoHttpPost(RESOURCE_NS + ".DeletePhoto.xml");
 
-            Assert.IsTrue(photo.Id == "1");
+                _context.Photos.Remove(photo);
+                _context.SubmitChanges();
 
-            Mock photoDeletemock = MockManager.Mock<PhotoRepository>(Constructor.NotMocked);
-
-            photoDeletemock.ExpectAndReturn("Authenticate", "1234").Args(true, Permission.Delete.ToString());
-            photoDeletemock.ExpectAndReturn("GetSignature", "yyyy");
-            photoDeletemock.ExpectAndReturn("DoHTTPPost", MockElement(RESOURCE_NS + ".DeletePhoto.xml").ToString());
-
-            _context.Photos.Remove(photo);
-            _context.SubmitChanges();
-
-            Assert.IsTrue(photo.IsDeleted);
+                Assert.IsTrue(photo.IsDeleted);
+            }
 
             MockManager.Verify();
         }
@@ -148,47 +143,61 @@ namespace Linq.Flickr.Test
         {
             MockManager.Init();
 
-            Mock normSearchMock = MockManager.Mock<PhotoRepository>(Constructor.NotMocked);
+            using (FakeFlickrRepository<PhotoRepository, Photo> photoGetMock = new FakeFlickrRepository<PhotoRepository, Photo>())
+            {
+                photoGetMock.MockElementCall("Linq.Flickr.Test.Responses.Search.xml");
 
-            //string searchUrl = "http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=" +  API_KEY + "&SearchMode=1&tags=microsoft&page=1&per_page=100";
+                var searchQuery = from photo in _context.Photos
+                                  where photo.SearchMode == SearchMode.TagsOnly && photo.SearchText == "microsoft"
+                                  select photo;
 
-            normSearchMock.ExpectAndReturn("GetElement", MockElement("Linq.Flickr.Test.Responses.Search.xml"));
+                int count = searchQuery.Count();
 
+                Photo first = searchQuery.First();
 
-            var searchQuery = from photo in _context.Photos
-                              where photo.SearchMode == SearchMode.TagsOnly && photo.SearchText == "microsoft"
-                              select photo;
+                Assert.IsTrue(first.SharedProperty.Perpage == count);
+                Assert.IsTrue(first.Title == "Mug Shot" && first.Id == "2428052817");
 
-            int count = searchQuery.Count();
+                Photo last = searchQuery.Last();
 
-            Photo first = searchQuery.First();
+                Assert.IsTrue(last.SharedProperty.Page == 1);
+                Assert.IsTrue(last.SharedProperty.Total == 105714);
+                Assert.IsTrue(last.Title == "attendee event" && last.Id == "2423378493");
+            }
 
-            Assert.IsTrue(first.SharedProperty.Perpage == count);
-            Assert.IsTrue(first.Title == "Mug Shot" && first.Id == "2428052817");
+            using (FakeFlickrRepository<PhotoRepository, Photo> authenticatedMock = new FakeFlickrRepository<PhotoRepository, Photo>())
+            {
+       
+                authenticatedMock.MockGetFrob(1);
+                authenticatedMock.MockSignatureCall();
+                authenticatedMock.MockCreateDesktopToken(true, Permission.Delete);
+                authenticatedMock.MockGetNSIDByUsername("neetulee");
+                authenticatedMock.MockElementCall("Linq.Flickr.Test.Responses.Owner.xml");
 
-            Photo last = searchQuery.Last();
+                var authQuery = from photo in _context.Photos
+                                where photo.ViewMode == ViewMode.Owner && photo.User == "neetulee"
+                                select photo;
 
-            Assert.IsTrue(last.SharedProperty.Page == 1);
-            Assert.IsTrue(last.SharedProperty.Total == 105714);
-            Assert.IsTrue(last.Title == "attendee event" && last.Id == "2423378493");
+                Photo lastPhoto = authQuery.Last();
 
-            Mock authenticatedMock = MockManager.Mock<PhotoRepository>(Constructor.NotMocked);
+                Assert.IsTrue(lastPhoto.ViewMode == ViewMode.Private);
 
-            //string searchUrl = "http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=" + API_KEY + "&privacy_filter=0&user_id=xUser&api_sig=yyyy&page=1&per_page=100&auth_token=xyz";
+            }
 
-            authenticatedMock.ExpectAndReturn("GetFrob", "1");
-            authenticatedMock.ExpectAndReturn("GetSignature", "yyyy");
-            authenticatedMock.ExpectAndReturn("CreateDesktopToken", "xyz").Args("1", true, Permission.Delete.ToString().ToLower());
-            authenticatedMock.ExpectAndReturn("GetNSID", "xUser").Args("flickr.people.findByUsername", "username", "neetulee");
-            authenticatedMock.ExpectAndReturn("GetElement", MockElement("Linq.Flickr.Test.Responses.Owner.xml"));
+            using (FakeFlickrRepository<PhotoRepository, Photo> getDetailPhoto = new FakeFlickrRepository<PhotoRepository, Photo>())
+            {
+                getDetailPhoto.MockAuthenticateCall(false, Permission.Delete, 1);
+                getDetailPhoto.MockSignatureCall();
+                getDetailPhoto.MockElementCall("Linq.Flickr.Test.Responses.PhotoDetail.xml");
+               
+                var photoDetailQuery = from photo in _context.Photos
+                                       where photo.Id == "xxx"
+                                       select photo;
 
-            var authQuery = from photo in _context.Photos
-                            where photo.ViewMode == ViewMode.Owner && photo.User == "neetulee"
-                            select photo;
+                Photo detailPhoto = photoDetailQuery.Single();
 
-            Photo lastPhoto = authQuery.Last();
-
-            Assert.IsTrue(lastPhoto.ViewMode == ViewMode.Private);
+                Assert.IsTrue(detailPhoto.User == "*Park+Ride*");
+            }
 
             MockManager.Verify();
         }
@@ -201,49 +210,53 @@ namespace Linq.Flickr.Test
         {
             MockManager.Init();
 
-            #region Add comment
-            Mock photoCommentAdd = MockManager.Mock<CommentRepository>(Constructor.NotMocked);
-
-            photoCommentAdd.ExpectAndReturn("Authenticate", "1234").Args(Permission.Delete.ToString());
-            photoCommentAdd.ExpectAndReturn("GetSignature", "yyyy");
-            photoCommentAdd.ExpectAndReturn("DoHTTPPost", MockElement(RESOURCE_NS + ".AddComment.xml").ToString());
-
             Comment comment = new Comment();
 
-            comment.PhotoId = COMMENT_PHOTO_ID;
-            comment.Text = "Testing comment add [LINQ.Flickr]";
+            #region Add comment
+            using (FakeFlickrRepository<CommentRepository, Comment> commentAddMock = new FakeFlickrRepository<CommentRepository, Comment>())
+            {
+                commentAddMock.MockAuthenticateCall(Permission.Delete, 1);
+                commentAddMock.MockSignatureCall();
+                commentAddMock.MockDoHttpPostAndReturnStringResult(RESOURCE_NS + ".AddComment.xml");
 
-            _context.Photos.Comments.Add(comment);
-            _context.SubmitChanges();
+                comment.PhotoId = COMMENT_PHOTO_ID;
+                comment.Text = "Testing comment add [LINQ.Flickr]";
 
-            Assert.IsTrue(comment.Id == "1"); 
+                _context.Photos.Comments.Add(comment);
+                _context.SubmitChanges();
+
+                Assert.IsTrue(comment.Id == "1");
+            }
             #endregion
 
             #region Get added comment
-            Mock photoCommentMock = MockManager.Mock<CommentRepository>(Constructor.NotMocked);
-            Mock httpCallBase = MockManager.Mock<RestToCollectionBuilder<Comment>>(Constructor.NotMocked);
 
-            photoCommentMock.ExpectAndReturn("GetSignature", "yyyy");
-            httpCallBase.ExpectAndReturn("GetElement", MockElement(RESOURCE_NS + ".GetComment.xml"));
+            using (FakeFlickrRepository<CommentRepository, Comment> commentGetMock = new FakeFlickrRepository<CommentRepository, Comment>())
+            {
+                commentGetMock.MockSignatureCall();
+                commentGetMock.MockRESTBuilderGetElement(RESOURCE_NS + ".GetComment.xml");
 
-            var query = from c in _context.Photos.Comments
-                        where c.PhotoId == COMMENT_PHOTO_ID && c.Id == comment.Id
-                        select c;
+                var query = from c in _context.Photos.Comments
+                            where c.PhotoId == COMMENT_PHOTO_ID && c.Id == comment.Id
+                            select c;
 
-            Comment commentGet = query.Single();
+                Comment commentGet = query.Single();
 
-            Assert.IsTrue(commentGet.Author == "11" && commentGet.PhotoId == COMMENT_PHOTO_ID && commentGet.AuthorName == "John Doe"); 
+                Assert.IsTrue(commentGet.Author == "11" && commentGet.PhotoId == COMMENT_PHOTO_ID && commentGet.AuthorName == "John Doe");
+            }
             #endregion
 
             #region Delete added
-            Mock photoCommentDelete = MockManager.Mock<CommentRepository>(Constructor.NotMocked);
 
-            photoCommentDelete.ExpectAndReturn("Authenticate", "1234").Args(Permission.Delete.ToString());
-            photoCommentDelete.ExpectAndReturn("GetSignature", "yyyy");
-            photoCommentDelete.ExpectAndReturn("DoHTTPPost", MockElement(RESOURCE_NS + ".DeleteComment.xml").ToString());
+            using (FakeFlickrRepository<CommentRepository, Comment> commentDeleteMock = new FakeFlickrRepository<CommentRepository, Comment>())
+            {
+                commentDeleteMock.MockAuthenticateCall(Permission.Delete, 1);
+                commentDeleteMock.MockSignatureCall();
+                commentDeleteMock.MockDoHttpPostAndReturnStringResult(RESOURCE_NS + ".DeleteComment.xml");
 
-            _context.Photos.Comments.Remove(comment);
-            _context.SubmitChanges(); 
+                _context.Photos.Comments.Remove(comment);
+                _context.SubmitChanges();
+            }
             #endregion
 
             MockManager.Verify();
@@ -287,6 +300,7 @@ namespace Linq.Flickr.Test
 
             Mock photoMock = MockManager.Mock<PhotoRepository>(Constructor.NotMocked);
             Mock peopleMock = MockManager.Mock<PeopleRepository>(Constructor.NotMocked);
+            
             Mock restBuilderMock = MockManager.Mock<RestToCollectionBuilder<People>>(Constructor.NotMocked);
 
             // this also ensures that GetNSID should be called from photo repo only.

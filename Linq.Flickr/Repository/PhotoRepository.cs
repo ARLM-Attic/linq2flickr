@@ -252,7 +252,7 @@ namespace Linq.Flickr.Repository
 
             string method = Helper.GetExternalMethodName();
 
-            string token = (this as IPhoto).Authenticate(false, Permission.Delete);
+            string token = base.Authenticate(false, Permission.Delete.ToString());
             string sig = base.GetSignature(method, true, "photo_id", id, "auth_token", token);
             string requestUrl = BuildUrl(method, "photo_id", id, "auth_token", token, "api_sig", sig);
 
@@ -266,6 +266,7 @@ namespace Linq.Flickr.Repository
                             ServerId = photos.Attribute("server").Value,
                             SecretId = photos.Attribute("secret").Value,
                             Title = photos.Element("title").Value,
+                            User = photos.Element("owner").Attribute("username").Value ?? string.Empty,
                             Description = photos.Element("description").Value ?? string.Empty,
                             DateUploaded = photos.Attribute("dateuploaded").Value,
                             PTags = (from tag in photos.Descendants("tag")
@@ -275,12 +276,17 @@ namespace Linq.Flickr.Repository
                                         Title = tag.Value
                                     }).ToArray<Tag>(),
                             PhotoSize = size,
-                            Url = (this as IPhoto).GetSizedPhotoUrl(photos.Attribute("id").Value, size)
+                            Url = PhotoDetailUrl(photos.Attribute("id").Value, size)
                         };
 
             pObject = query.Single<Photo>();
 
             return pObject;
+        }
+
+        private string PhotoDetailUrl(string photoId, PhotoSize size)
+        {
+            return (this as IPhoto).GetSizedPhotoUrl(photoId, size);
         }
 
         public void Dispose()
