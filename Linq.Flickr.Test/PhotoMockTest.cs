@@ -167,10 +167,8 @@ namespace Linq.Flickr.Test
 
             using (FakeFlickrRepository<PhotoRepository, Photo> authenticatedMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
-       
-                authenticatedMock.MockGetFrob(1);
                 authenticatedMock.MockSignatureCall();
-                authenticatedMock.MockCreateDesktopToken(true, Permission.Delete);
+                authenticatedMock.MockCreateAndStoreNewToken(Permission.Delete);
                 authenticatedMock.MockGetNSIDByUsername("neetulee");
                 authenticatedMock.MockElementCall("Linq.Flickr.Test.Responses.Owner.xml");
 
@@ -191,7 +189,7 @@ namespace Linq.Flickr.Test
                 getDetailPhoto.MockElementCall("Linq.Flickr.Test.Responses.PhotoDetail.xml");
                
                 var photoDetailQuery = from photo in _context.Photos
-                                       where photo.Id == "xxx"
+                                       where photo.Id == "xxx" && photo.PhotoSize == PhotoSize.Medium
                                        select photo;
 
                 Photo detailPhoto = photoDetailQuery.Single();

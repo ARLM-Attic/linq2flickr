@@ -132,7 +132,7 @@ namespace Linq.Flickr.Repository
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -141,23 +141,42 @@ namespace Linq.Flickr.Repository
             string frob = string.Empty;
             permission = permission.ToLower();
 
-            if (HttpContext.Current != null)
+            string token = string.Empty;
+
+            if (validate)
             {
-                if (!string.IsNullOrEmpty(HttpContext.Current.Request["frob"]))
-                {
-                    frob = HttpContext.Current.Request["frob"];
-                }
-                else
-                {
-                    frob = GetFrob();
-                }
-                return CreateWebToken(frob, validate, permission);
+               token = CreateAndStoreNewToken(permission);
             }
             else
             {
-                frob = GetFrob();
-                return CreateDesktopToken(frob, validate, permission);
+                token = GetExistingToken(permission);
+
+                if (string.IsNullOrEmpty(token) && validate)
+                {
+                    token = CreateAndStoreNewToken(permission);
+                }
             }
+            return token;
+        }
+
+        private string GetExistingToken(string permission)
+        {
+            if (HttpContext.Current == null)
+                return CreateDesktopToken(false, permission);
+            else
+                return CreateWebToken(false, permission);
+        }
+
+        private string CreateAndStoreNewToken(string permission)
+        {
+            string token = string.Empty;
+
+            if (HttpContext.Current == null)
+                token = CreateDesktopToken(true, permission);
+            else
+                token = CreateWebToken(true, permission);
+
+            return token;
         }
 
         private string GetAuthenticationUrl(string permission, string frob)
@@ -214,10 +233,8 @@ namespace Linq.Flickr.Repository
             return token;
         }
 
-        private string CreateDesktopToken(string frob, bool validate, string permission)
+        private string CreateDesktopToken(bool validate, string permission)
         {
-            string sig = GetSignature(Helper.FlickrMethod.GET_AUTH_TOKEN, true, "frob", frob);
-            string requestUrl = BuildUrl(Helper.FlickrMethod.GET_AUTH_TOKEN, "frob", frob, "api_sig", sig);
             string token = string.Empty;
 
             XElement tokenElement = null;
@@ -226,12 +243,16 @@ namespace Linq.Flickr.Repository
             try
             {
                 tokenElement = XElement.Load(path);
-
             }
             catch
             {
                 if (validate)
                 {
+                    string frob = GetFrob();
+                    
+                    string sig = GetSignature(Helper.FlickrMethod.GET_AUTH_TOKEN, true, "frob", frob);
+                    string requestUrl = BuildUrl(Helper.FlickrMethod.GET_AUTH_TOKEN, "frob", frob, "api_sig", sig);
+           
                     IntializeToken(permission, frob);
 
                     tokenElement = GetElement(requestUrl);
@@ -261,13 +282,16 @@ namespace Linq.Flickr.Repository
             return token;
         }
 
-        private string CreateWebToken(string frob, bool validate, string permission)
+        private string CreateWebToken(bool validate, string permission)
         {
+            string frob = string.Empty;
             string token = string.Empty;
+
             try
             {
-                if (HttpContext.Current.Request.Cookies["token"] == null)
+                if (HttpContext.Current.Request.Cookies["token"] == null && validate)
                 {
+                    frob = CreateFrobIfNecessary(frob);
                     AuthToken tokenObject = (this as IPhoto).GetTokenFromFrob(frob);
 
                     HttpCookie authCookie = new HttpCookie(
@@ -280,17 +304,35 @@ namespace Linq.Flickr.Repository
                 }
                 else
                 {
-                    token = HttpContext.Current.Request.Cookies["token"].Value;
+                    if (HttpContext.Current.Request.Cookies["token"] != null)
+                    {
+                        token = HttpContext.Current.Request.Cookies["token"].Value;
+                    }
                 }
             }
             catch
             {
                 if (validate)
                 {
+                    frob = CreateFrobIfNecessary(frob);
                     IntializeToken(permission, frob);
                 }
             }
             return token;
+        }
+
+        private string CreateFrobIfNecessary(string frob)
+        {
+            // if it is a redirect by flickr then take the frob from url.
+            if (!string.IsNullOrEmpty(HttpContext.Current.Request["frob"]))
+            {
+                frob = HttpContext.Current.Request["frob"];
+            }
+            else
+            {
+                frob = GetFrob();
+            }
+            return frob;
         }
 
 

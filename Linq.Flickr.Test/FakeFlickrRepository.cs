@@ -117,9 +117,14 @@ namespace Linq.Flickr.Test
             _mockRepository.ExpectAndReturn("DoHTTPPost", MockElement(resource).ToString());
         }
 
+        public void MockCreateAndStoreNewToken(Permission permission)
+        {
+            _mockRepository.ExpectAndReturn("CreateAndStoreNewToken", "xyz").Args(permission.ToString().ToLower());
+        }
+
         public void MockCreateDesktopToken(bool validate, Permission permission)
         {
-            _mockRepository.ExpectAndReturn("CreateDesktopToken", "xyz").Args("1", validate, permission.ToString().ToLower());
+            _mockRepository.ExpectAndReturn("CreateDesktopToken", "xyz").Args(validate, permission.ToString().ToLower());
         }
 
         public void MockGetNSIDByUsername(string username)
