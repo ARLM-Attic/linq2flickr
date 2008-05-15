@@ -7,6 +7,7 @@ using Linq.Flickr;
 using System.IO;
 using System.Reflection;
 using System.Configuration;
+using LinqExtender;
 
 namespace Linq.Flickr.Test
 {
@@ -25,7 +26,7 @@ namespace Linq.Flickr.Test
             _context = new FlickrContext();
             _context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHandler(Photos_OnError);
             _context.Photos.Comments.OnError += new LinqExtender.Query<Comment>.ErrorHandler(Comments_OnError);
-
+            
             if (!deleteOnce)
             {
                 DeleteAllPhotos();
@@ -39,10 +40,10 @@ namespace Linq.Flickr.Test
             AddNewPhoto();
         }
 
-        void Comments_OnError(string error)
+        void Comments_OnError(ProviderException ex)
         {
-            Console.Out.WriteLine(error);
-            Assert.Fail(error);
+            Console.Out.WriteLine(ex.Message);
+            Assert.Fail(ex.StackTrace);
         }
         public void AddNewPhoto()
         {
@@ -63,9 +64,9 @@ namespace Linq.Flickr.Test
 
         }
 
-        void Photos_OnError(string error)
+        void Photos_OnError(ProviderException ex)
         {
-            Console.Error.WriteLine(error);
+            Console.Error.WriteLine(ex.Message);
         }
 
         private void DeleteAllPhotos()

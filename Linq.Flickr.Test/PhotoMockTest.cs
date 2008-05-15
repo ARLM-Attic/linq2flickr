@@ -13,6 +13,7 @@ using TypeMock;
 using System.Net;
 using System.Security.Cryptography;
 using System.Drawing;
+using LinqExtender;
 
 namespace Linq.Flickr.Test
 {
@@ -327,10 +328,10 @@ namespace Linq.Flickr.Test
             }
         }
 
-        void Comments_OnError(string error)
+        void Comments_OnError(ProviderException ex)
         {
-            Console.Out.WriteLine(error);
-            Assert.Fail(error);
+            Console.Out.WriteLine(ex.Message);
+            Assert.Fail(ex.StackTrace);
         }
 
         [TearDown]
@@ -339,10 +340,10 @@ namespace Linq.Flickr.Test
             _context = null;
         }
 
-        void Photos_OnError(string error)
+        void Photos_OnError(ProviderException ex)
         {
-            Console.Error.WriteLine(error);
-            Assert.Fail(error);
+            Console.Error.WriteLine(ex.Message);
+            Assert.Fail(ex.StackTrace);
         }
 
     }
