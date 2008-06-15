@@ -3,17 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
 using System.IO;
-using System.Web;
 using System.Net;
-using System.Web.Security;
 using Linq.Flickr.Interface;
-using Linq.Flickr.Attribute;
-using System.Reflection;
-using System.Xml;
 
 namespace Linq.Flickr.Repository
 {
@@ -23,7 +15,6 @@ namespace Linq.Flickr.Repository
         Write,
         Delete
     }
-    //[DebuggerStepThrough]
     public class PhotoRepository : BaseRepository, IPhoto
     {
         public PhotoRepository() : base(typeof(IPhoto)) { }
@@ -37,13 +28,13 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                XElement tokenElement = base.GetElement(requestUrl);
+                XElement tokenElement = GetElement(requestUrl);
 
                 return GetAToken(tokenElement);
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -76,7 +67,7 @@ namespace Linq.Flickr.Repository
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(ex.Message);
+                throw new Exception(ex.Message);
             }
         }
         
@@ -98,7 +89,7 @@ namespace Linq.Flickr.Repository
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -115,7 +106,7 @@ namespace Linq.Flickr.Repository
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(ex.Message);
+                throw new Exception(ex.Message);
             }
             return photos;
         }
@@ -173,8 +164,12 @@ namespace Linq.Flickr.Repository
         /// <summary>
         /// calls flickr.photos.search to list of photos.
         /// </summary>
-        /// <param name="filter"></param>
-        /// <returns></returns>
+        /// <param name="index"></param>
+        /// <param name="pageLen"></param>
+        /// <param name="photoSize"></param>
+        /// <param name="token"></param>
+        /// <param name="args"></param>
+        /// <returns>Enumerable of Photos</returns>
         IEnumerable<Photo> IPhoto.Search(int index, int pageLen, PhotoSize photoSize, string token, params string[] args)
         {
             string method = Helper.GetExternalMethodName();
@@ -201,7 +196,7 @@ namespace Linq.Flickr.Repository
 
             if (index < 1 || index > 500)
             {
-                throw new ApplicationException("Index must be between 1 and 500");
+                throw new Exception("Index must be between 1 and 500");
             }
 
             return GetPhotos(requestUrl, photoSize);
@@ -240,16 +235,17 @@ namespace Linq.Flickr.Repository
         } 
 
         #endregion
+        
         /// <summary>
         /// calls flickr.photos.getInfo to get the photo object.
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="size"></param>
+        /// <returns>Detail of photo</returns>
         Photo IPhoto.GetPhotoDetail(string id, PhotoSize size)
         {
             this._PhotoSize = size;
-            Photo pObject = null;
-
+        
             string method = Helper.GetExternalMethodName();
 
             string token = base.Authenticate(false, Permission.Delete.ToString());
@@ -258,30 +254,33 @@ namespace Linq.Flickr.Repository
 
             XElement doc = base.GetElement(requestUrl);
 
-            var query = from photos in doc.Descendants("photo")
+            var query = from photo in doc.Descendants("photo")
                         select new Photo
-                        {
-                            Id = photos.Attribute("id").Value,
-                            FarmId = photos.Attribute("farm").Value,
-                            ServerId = photos.Attribute("server").Value,
-                            SecretId = photos.Attribute("secret").Value,
-                            Title = photos.Element("title").Value,
-                            User = photos.Element("owner").Attribute("username").Value ?? string.Empty,
-                            Description = photos.Element("description").Value ?? string.Empty,
-                            DateUploaded = photos.Attribute("dateuploaded").Value,
-                            PTags = (from tag in photos.Descendants("tag")
-                                    select new Tag
-                                    {
-                                        Id = tag.Attribute("id").Value,
-                                        Title = tag.Value
-                                    }).ToArray<Tag>(),
-                            PhotoSize = size,
-                            Url = PhotoDetailUrl(photos.Attribute("id").Value, size)
-                        };
+                                   {
+                                       Id = photo.Attribute("id").Value,
+                                       FarmId = photo.Attribute("farm").Value,
+                                       ServerId = photo.Attribute("server").Value,
+                                       SecretId = photo.Attribute("secret").Value,
+                                       Title = photo.Element("title").Value,
+                                       User = photo.Element("owner").Attribute("username").Value ?? string.Empty,
+                                       NsId = photo.Element("owner").Attribute("nsid").Value ?? string.Empty,
+                                       Description = photo.Element("description").Value ?? string.Empty,
+                                       DateUploaded = photo.Attribute("dateuploaded").Value,
+                                       PTags = (from tag in photo.Descendants("tag")
+                                                select new Tag
+                                                           {
+                                                               Id = tag.Attribute("id").Value,
+                                                               Title = tag.Value
+                                                           }).ToArray<Tag>(),
+                                       PhotoSize = size,
+                                       PhotoPage = (from photoPage in photo.Descendants("url")
+                                                    where photoPage.Attribute("type").Value == "photopage"
+                                                    select photoPage.Value
+                                                   ).First(),
+                                       Url = PhotoDetailUrl(photo.Attribute("id").Value, size)
+                                   };
 
-            pObject = query.Single<Photo>();
-
-            return pObject;
+            return query.Single<Photo>();
         }
 
         private string PhotoDetailUrl(string photoId, PhotoSize size)
@@ -294,18 +293,18 @@ namespace Linq.Flickr.Repository
 
         }
 
-        private void EncodeAndAddItem(string boundary, ref StringBuilder baseRequest, params object [] items)
+        private static void EncodeAndAddItem(string boundary, ref StringBuilder baseRequest, params object [] items)
         {
             if (baseRequest == null)
             {
                 baseRequest = new StringBuilder();
             }
 
-            string form_data = "Content-Disposition: form-data; name=\"{0}\"\r\n";
-            string photo_key = "Content-Disposition: form-data; name=\"{0}\";filename=\"{1}\"\r\n";
-            string escape = "\r\n";
-            string content_type = "Content-Type:application/octet-stream";
-            string dash = "--";
+            const string form_data = "Content-Disposition: form-data; name=\"{0}\"\r\n";
+            const string photo_key = "Content-Disposition: form-data; name=\"{0}\";filename=\"{1}\"\r\n";
+            const string escape = "\r\n";
+            const string content_type = "Content-Type:application/octet-stream";
+            const string dash = "--";
 
             for (int index = 0; index < items.Length; index += 2)
             {
@@ -322,7 +321,7 @@ namespace Linq.Flickr.Repository
                     baseRequest.Append(dash);
                     baseRequest.Append(boundary);
                     baseRequest.Append(escape);
-                     
+
                     if (string.Compare(key, "Photo", true) == 0)
                     {
                         baseRequest.Append(string.Format(photo_key, key, value));
@@ -337,10 +336,7 @@ namespace Linq.Flickr.Repository
                         baseRequest.Append(value);
                         baseRequest.Append(escape);
                     }
-
                 }
-
-                
             }
         
         }
@@ -371,7 +367,7 @@ namespace Linq.Flickr.Repository
         {
             string token = base.Authenticate(true, Permission.Delete.ToString());
 
-            string boundary = "FLICKR_BOUNDARY";
+            const string boundary = "FLICKR_BOUNDARY";
 
             IDictionary<string, string> sorted = new SortedDictionary<string, string>();
 
@@ -388,7 +384,7 @@ namespace Linq.Flickr.Repository
             //builder = builder.Remove(builder.Length - 4, 4);
            
             // Create a request using a URL that can receive a post. 
-            HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(Helper.UPLOAD_URL);
+            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(Helper.UPLOAD_URL);
             // Set the Method property of the request to POST.
             request.Method = "POST";
             request.KeepAlive = true;

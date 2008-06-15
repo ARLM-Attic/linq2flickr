@@ -55,12 +55,12 @@ namespace Linq.Flickr
                 string fileName = (string)bucket.Items[PhotoColumns.FILENAME].Value;
 
                 if (string.IsNullOrEmpty(fileName))
-                    throw new ApplicationException("Please key in the filename for the photo");
+                    throw new Exception("Please key in the filename for the photo");
                
                 byte[] postContnet = (byte[])bucket.Items[PhotoColumns.POST_CONTENT].Value;
 
                 if (postContnet == null || postContnet.Length == 0)
-                    throw new ApplicationException("Zero photo length detected, please key in a valid photo file");
+                    throw new Exception("Zero photo length detected, please key in a valid photo file");
 
                 // check if the user has any storage.
                 int kbTobUploaded = (int)Math.Ceiling((float)(postContnet.Length / 1024f));
@@ -69,7 +69,7 @@ namespace Linq.Flickr
                     int currentByte = _people.BandWidth.UsedKB + kbTobUploaded ;
                     if (currentByte >= _people.BandWidth.RemainingKB)
                     {
-                        throw new ApplicationException("Storage limit excceded, try pro account!!");
+                        throw new Exception("Storage limit excceded, try pro account!!");
                     }
                 }
 
@@ -85,7 +85,7 @@ namespace Linq.Flickr
                 }
                 catch
                 {
-                    throw new ApplicationException("Upload failed");
+                    throw new Exception("Upload failed");
                 }
             }
         }
@@ -98,12 +98,12 @@ namespace Linq.Flickr
                 {
                     if (!flickr.Delete((string)bucket.Items[PhotoColumns.ID].Value))
                     {
-                        throw new ApplicationException("Photo delete failed");
+                        throw new Exception("Photo delete failed");
                     }
                 }
                 else
                 {
-                    throw new ApplicationException("Must have valid photo id to perform delete operation");
+                    throw new Exception("Must have valid photo id to perform delete operation");
                 }
             }
         }

@@ -196,6 +196,8 @@ namespace Linq.Flickr.Test
                 Photo detailPhoto = photoDetailQuery.Single();
 
                 Assert.IsTrue(detailPhoto.User == "*Park+Ride*");
+                Assert.IsTrue(detailPhoto.NsId == "63497523@N00");
+                Assert.IsTrue(detailPhoto.PhotoPage == "http://www.flickr.com/photos/adamjohnpark/2428052817/");
             }
 
             MockManager.Verify();

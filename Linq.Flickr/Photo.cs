@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using Linq.Flickr.Attribute;
 using System.IO;
 using System.Drawing;
 using LinqExtender;
 using LinqExtender.Attribute;
-using System.Drawing.Imaging;
 
 namespace Linq.Flickr
 {
     /// <summary>
-    ///  AND means the result will ANED with tags, And OR means it will be ORED.
+    ///  AND means the result will ANDED with tags, And OR means it will be ORED.
     /// </summary>
     public enum TagMode
     {
@@ -63,6 +57,7 @@ namespace Linq.Flickr
         public string Description { get; set; }
         [OriginalFieldName("photo_id"), LinqVisible]
         public string Id { get; set; }
+        public string PhotoPage { get; internal set; }
         internal string SecretId { get; set; }
         internal string ServerId { get; set; }
         internal string FarmId { get; set; }
@@ -70,6 +65,7 @@ namespace Linq.Flickr
         internal bool IsPublic { get; set; }
         internal bool IsFriend { get; set; }
         internal bool IsFamily { get; set; }
+
 
         public override bool IsNew
         {
@@ -147,7 +143,7 @@ namespace Linq.Flickr
             }
             catch
             {
-                throw new ApplicationException("Invalid image file");
+                throw new Exception("Invalid image file");
             }
 
 
@@ -272,17 +268,21 @@ namespace Linq.Flickr
         /// <summary>
         ///  text on which to search on flickr.
         /// </summary>
-        [LinqVisible(), OriginalFieldName("text")]
+        [LinqVisible, OriginalFieldName("text")]
         public string SearchText { get; internal set; }
         /// <summary>
         /// Use to query user in flickr, is filled up only when a photo is get by photoId.
         /// </summary>
-        [LinqVisible()]
+        [LinqVisible]
         public string User { get; internal set; }
+        /// <summary>
+        /// this is the unique Id aginst username, is availble with data only by GetPhotoDetail
+        /// </summary>
+        public string NsId { get; internal set; }    
 
-        string GetSizePostFix(PhotoSize size)
+        private string GetSizePostFix(PhotoSize size)
         {
-            string sizePostFx = string.Empty;
+            string sizePostFx;
 
             switch (size)
             {

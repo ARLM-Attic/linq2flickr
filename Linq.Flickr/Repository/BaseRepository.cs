@@ -40,7 +40,7 @@ namespace Linq.Flickr.Repository
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -126,7 +126,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                XElement element = GetElement(requestUrl);
+                var element = GetElement(requestUrl);
                 frob = element.Element("frob").Value ?? string.Empty;
                 return frob;
             }
@@ -215,9 +215,9 @@ namespace Linq.Flickr.Repository
                 }
                 return frob;
             }
-            catch (ApplicationException ex)
+            catch (Exception ex)
             {
-                throw new ApplicationException(ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -412,7 +412,7 @@ namespace Linq.Flickr.Repository
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(ex.Message);
+                throw new Exception(ex.Message);
             }
 
             return nsId;

@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Linq.Flickr.Interface;
-using Linq.Flickr.Repository;
 
 namespace Linq.Flickr
 {
     [Serializable]
     public class FlickrContext 
     {
-        private  PhotoQuery _Photos = null;
-        private PopularTagQuery _hotTags = null;
-        private PeopleQuery _peopleQuery = null;
+        private  PhotoQuery _Photos;
+        private PopularTagQuery _hotTags;
+        private PeopleQuery _peopleQuery;
        
         public PhotoQuery Photos
         {
