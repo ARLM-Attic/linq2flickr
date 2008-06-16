@@ -360,17 +360,17 @@ namespace Linq.Flickr.Repository
             return GetSignature(methodName, includeMethod, sortedDic, originalArgs);
         }
         
-        private string GetSignature(string methodName, bool includeMethod, IDictionary<string, string> sorted, params object[] args)
+        private string GetSignature(string methodName, bool includeMethod, IDictionary<string, string> sigItems, params object[] args)
         {
             string signature = string.Empty;
 
             if (includeMethod)
             {
                 // add the mehold name param first.
-                sorted.Add("method", methodName);
+                sigItems.Add("method", methodName);
             }
             // add the api key
-            sorted.Add("api_key", FLICKR_API_KEY);
+            sigItems.Add("api_key", FLICKR_API_KEY);
 
             if (args.Length > 0)
             {
@@ -380,24 +380,24 @@ namespace Linq.Flickr.Repository
                 {
                     if (!string.IsNullOrEmpty(Convert.ToString(args[index + 1])))
                     {
-                        if (!sorted.ContainsKey((string) args[index]))
+                        if (!sigItems.ContainsKey((string) args[index]))
                         {
-                            sorted.Add((string) args[index], Convert.ToString(args[index + 1]));
+                            sigItems.Add((string) args[index], Convert.ToString(args[index + 1]));
                         }
                     }
                 }
             }
             // sort the items.
 
-            var query = from dictionary in sorted
-                        orderby dictionary.Key ascending
-                        select dictionary.Key + dictionary.Value;
+            var query = from sigItem in sigItems
+                        orderby sigItem.Key ascending
+                        select sigItem.Key + sigItem.Value;
 
             IList sortedList = query.ToList();
 
             foreach (var keyValuePair in sortedList)
             {
-                signature += keyValuePair ;
+                signature += keyValuePair;
             }
 
             signature = SHARED_SECRET + signature;
