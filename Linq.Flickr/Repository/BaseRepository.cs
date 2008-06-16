@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Linq.Flickr.Interface;
 using System.Web;
 using Linq.Flickr.Configuration;
 using System.Xml.Linq;
 using System.IO;
 using System.Diagnostics;
-using System.Net;
+using System.Collections;
 
 namespace Linq.Flickr.Repository
 {
@@ -65,7 +64,7 @@ namespace Linq.Flickr.Repository
             dictionary.Add("api_key", FLICKR_API_KEY);
         }
 
-        protected string GetUrl(IDictionary<string, string> urlDic)
+        protected static string GetUrl(IDictionary<string, string> urlDic)
         {
             string url = string.Empty;
 
@@ -83,7 +82,7 @@ namespace Linq.Flickr.Repository
             return url;
         }
 
-        protected void ProcessArguments(object[] args, IDictionary<string, string> sorted)
+        protected static void ProcessArguments(object[] args, IDictionary<string, string> sorted)
         {
             int index = 0;
             while (index < args.Length)
@@ -118,7 +117,7 @@ namespace Linq.Flickr.Repository
 
         public string GetFrob()
         {
-            string method = Helper.FlickrMethod.GET_FROB;
+            const string method = Helper.FlickrMethod.GET_FROB;
             string signature = GetSignature(method, true);
             string requestUrl = BuildUrl(method, "api_sig", signature);
 
@@ -138,7 +137,6 @@ namespace Linq.Flickr.Repository
 
         public string Authenticate(bool validate, string permission)
         {
-            string frob = string.Empty;
             permission = permission.ToLower();
 
             string token = string.Empty;
@@ -151,7 +149,7 @@ namespace Linq.Flickr.Repository
             {
                 token = GetExistingToken(permission);
 
-                if (string.IsNullOrEmpty(token) && validate)
+                if (string.IsNullOrEmpty(token))
                 {
                     token = CreateAndStoreNewToken(permission);
                 }
@@ -338,15 +336,15 @@ namespace Linq.Flickr.Repository
 
         public string GetSignature(string methodName, bool includeMethod, params object[] args)
         {
-            IDictionary<string, string> sortedDic = new SortedDictionary<string, string>();
+            IDictionary<string, string> sortedDic = new Dictionary<string, string>();
 
             object[] originalArgs = args;
 
             if (args.Length > 0)
             {
-                if (args[0] is SortedDictionary<string, string>)
+                if (args[0] is Dictionary<string, string>)
                 {
-                    sortedDic = args[0] as SortedDictionary<string, string>;
+                    sortedDic = args[0] as Dictionary<string, string>;
 
                     if (args.Length > 1)
                     {
@@ -382,17 +380,24 @@ namespace Linq.Flickr.Repository
                 {
                     if (!string.IsNullOrEmpty(Convert.ToString(args[index + 1])))
                     {
-                        if (!sorted.ContainsKey((string)args[index]))
+                        if (!sorted.ContainsKey((string) args[index]))
                         {
-                            sorted.Add((string)args[index], Convert.ToString(args[index + 1]));
+                            sorted.Add((string) args[index], Convert.ToString(args[index + 1]));
                         }
                     }
                 }
             }
-        
-            foreach (string key in sorted.Keys)
+            // sort the items.
+
+            var query = from dictionary in sorted
+                        orderby dictionary.Key ascending
+                        select dictionary.Key + dictionary.Value;
+
+            IList sortedList = query.ToList();
+
+            foreach (var keyValuePair in sortedList)
             {
-                signature += key + sorted[key];
+                signature += keyValuePair ;
             }
 
             signature = SHARED_SECRET + signature;

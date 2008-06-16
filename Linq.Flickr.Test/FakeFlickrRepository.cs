@@ -20,9 +20,9 @@ namespace Linq.Flickr.Test
         private Mock _httpRequestMock = null;
         private Mock _httpCallBase = null;
 
-        private string signature = "xyz";
-        private string authToken = "1234";
-        private string nsId = "xUser";
+        private const string signature = "xyz";
+        private const string authToken = "1234";
+        private const string nsId = "xUser";
 
         public FakeFlickrRepository()
         {

@@ -178,7 +178,7 @@ namespace Linq.Flickr.Repository
 
             if (!string.IsNullOrEmpty(token))
             {
-                IDictionary<string, string> sorted = new SortedDictionary<string, string>();
+                IDictionary<string, string> sorted = new Dictionary<string, string>();
                 ProcessArguments(args, sorted);
                 ProcessArguments(new object[] { "page", index.ToString(), "per_page", pageLen.ToString(), "auth_token", token }, sorted);
                 sig = base.GetSignature(method, true, sorted);
@@ -369,7 +369,7 @@ namespace Linq.Flickr.Repository
 
             const string boundary = "FLICKR_BOUNDARY";
 
-            IDictionary<string, string> sorted = new SortedDictionary<string, string>();
+            IDictionary<string, string> sorted = new Dictionary<string, string>();
 
             ProcessArguments(new object[]{ "auth_token", token }, sorted);
 
