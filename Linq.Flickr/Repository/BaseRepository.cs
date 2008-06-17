@@ -393,9 +393,7 @@ namespace Linq.Flickr.Repository
                         orderby sigItem.Key ascending
                         select sigItem.Key + sigItem.Value;
 
-            IList sortedList = query.ToList();
-
-            foreach (var keyValuePair in sortedList)
+            foreach (var keyValuePair in query)
             {
                 signature += keyValuePair;
             }
