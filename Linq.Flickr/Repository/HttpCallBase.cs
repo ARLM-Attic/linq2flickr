@@ -9,7 +9,7 @@ using System.IO;
 
 namespace Linq.Flickr.Repository
 {
-    public class HttpCallBase : IHttpCall
+    public class HttpCallBase : IHttpCallBase
     {
         public XElement GetElement(string requestUrl)
         {

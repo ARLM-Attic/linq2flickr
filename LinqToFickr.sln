@@ -10,10 +10,10 @@ Global
 		SccNumberOfProjects = 3
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
-		SccProjectUniqueName0 = Linq.Flickr\\Linq.Flickr.csproj
-		SccProjectName0 = Linq.Flickr
-		SccLocalPath0 = Linq.Flickr
-		SccLocalPath1 = .
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Linq.Flickr\\Linq.Flickr.csproj
+		SccProjectName1 = Linq.Flickr
+		SccLocalPath1 = Linq.Flickr
 		SccProjectUniqueName2 = Linq.Flickr.Test\\Linq.Flickr.Test.csproj
 		SccProjectName2 = Linq.Flickr.Test
 		SccLocalPath2 = Linq.Flickr.Test

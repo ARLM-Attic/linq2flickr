@@ -32,7 +32,7 @@ namespace Linq.Flickr
 
         protected override void AddItem(Bucket bucket)
         {
-            using (IPhoto flickr = new PhotoRepository())
+            using (IPhotoRepository flickr = new PhotoRepository())
             {
                 if (_people == null)
                     _people = flickr.GetUploadStatus();
@@ -92,7 +92,7 @@ namespace Linq.Flickr
 
         protected override void RemoveItem(Bucket bucket)
         {
-            using (IPhoto flickr = new PhotoRepository())
+            using (IPhotoRepository flickr = new PhotoRepository())
             {
                 if (!string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.ID].Value))
                 {
@@ -125,7 +125,7 @@ namespace Linq.Flickr
 
         protected override void Process(IModify<Photo> items, Bucket bucket)
         {
-            using (IPhoto flickr = new PhotoRepository())
+            using (IPhotoRepository flickr = new PhotoRepository())
             {
                 // default values
                 PhotoSize size = bucket.Items[PhotoColumns.PHOTOSIZE].Value == null ? PhotoSize.Square : (PhotoSize)bucket.Items[PhotoColumns.PHOTOSIZE].Value;
@@ -187,7 +187,7 @@ namespace Linq.Flickr
             }
         }
 
-        private string[] BuildSearchQuery(IPhoto flickr, Bucket bucket, ViewMode viewMode, bool includeNonVisibleItems)
+        private string[] BuildSearchQuery(IPhotoRepository flickr, Bucket bucket, ViewMode viewMode, bool includeNonVisibleItems)
         {
             string query = string.Empty;
             StringBuilder builder = new StringBuilder();

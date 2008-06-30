@@ -7,14 +7,14 @@ using System.Xml.Linq;
 
 namespace Linq.Flickr.Repository
 {
-    public class TagRepository : BaseRepository, ITag
+    public class TagRepository : BaseRepository, ITagRepository
     {
-        public TagRepository() : base(typeof(ITag)) { }
+        public TagRepository() : base(typeof(ITagRepository)) { }
 
 
-        #region ITag Members
+        #region ITagRepository Members
 
-        IEnumerable<PopularTag> ITag.GetPopularTags(TagPeriod period, int count)
+        IEnumerable<PopularTag> ITagRepository.GetPopularTags(TagPeriod period, int count)
         {
             string method = Helper.GetExternalMethodName();
             string requestUrl = BuildUrl(method, "period", period.ToString().ToLower(), "count", count.ToString());

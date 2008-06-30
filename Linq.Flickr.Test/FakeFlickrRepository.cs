@@ -72,14 +72,14 @@ namespace Linq.Flickr.Test
             return Assembly.GetAssembly(this.GetType()).GetManifestResourceStream(name);
         }
 
-        public void MockAuthenticateCall(bool validate, Permission permission, int number)
-        {
-            _mockRepository.ExpectAndReturn("Authenticate", authToken, number).Args(validate, permission.ToString());
-        }
-
         public void MockAuthenticateCall(Permission permission, int number)
         {
             _mockRepository.ExpectAndReturn("Authenticate", authToken, number).Args(permission.ToString());
+        }
+
+        public void MockAuthenticateCall(bool validate, Permission permission, int number)
+        {
+            _mockRepository.ExpectAndReturn("Authenticate", authToken, number).Args(permission.ToString(), validate);
         }
 
         public void MockAuthenticateCall(int number)
@@ -120,11 +120,6 @@ namespace Linq.Flickr.Test
         public void MockCreateAndStoreNewToken(Permission permission)
         {
             _mockRepository.ExpectAndReturn("CreateAndStoreNewToken", "xyz").Args(permission.ToString().ToLower());
-        }
-
-        public void MockCreateDesktopToken(bool validate, Permission permission)
-        {
-            _mockRepository.ExpectAndReturn("CreateDesktopToken", "xyz").Args(validate, permission.ToString().ToLower());
         }
 
         public void MockGetNSIDByUsername(string username)

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30428</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{716F1EDD-B85E-45FB-B757-BFFC8CB2A011}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -62,7 +62,7 @@
     <Compile Include="Attribute\XNameAttribute.cs" />
     <Compile Include="AuthToken.cs" />
     <Compile Include="FlickrException.cs" />
-    <Compile Include="Interface\IHttpCall.cs" />
+    <Compile Include="Interface\IHttpCallBase.cs" />
     <Compile Include="Interface\IRepositoryBase.cs" />
     <Compile Include="Repository\HttpCallBase.cs" />
     <Compile Include="Repository\RestToCollectionBuilder.cs" />
@@ -70,9 +70,9 @@
     <Compile Include="CommentQuery.cs" />
     <Compile Include="Configuration\FlickrSettings.cs" />
     <Compile Include="PopularTag.cs" />
-    <Compile Include="Interface\IComment.cs" />
-    <Compile Include="Interface\IPeople.cs" />
-    <Compile Include="Interface\ITag.cs" />
+    <Compile Include="Interface\ICommentRepository.cs" />
+    <Compile Include="Interface\IPeopleRepository.cs" />
+    <Compile Include="Interface\ITagRepository.cs" />
     <Compile Include="PeopleQuery.cs" />
     <Compile Include="Repository\BaseRepository.cs" />
     <Compile Include="Repository\CommentRepository.cs" />
@@ -81,7 +81,7 @@
     <Compile Include="FlickrContext.cs" />
     <Compile Include="PhotoQuery.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="Interface\IPhoto.cs" />
+    <Compile Include="Interface\IPhotoRepository.cs" />
     <Compile Include="Photo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\TagRepository.cs" />

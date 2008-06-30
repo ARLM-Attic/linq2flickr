@@ -35,9 +35,9 @@ namespace Linq.Flickr
                 throw new Exception("Tag count should be less than 200");
             }
 
-            using (ITag tagRepo = new TagRepository())
+            using (ITagRepository tagRepositoryRepo = new TagRepository())
             {
-               IEnumerable<PopularTag> tags = tagRepo.GetPopularTags(period, count);
+               IEnumerable<PopularTag> tags = tagRepositoryRepo.GetPopularTags(period, count);
                // do the filter on score.
              
                if (score > 0)

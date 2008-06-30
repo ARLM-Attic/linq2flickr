@@ -7,9 +7,9 @@ using System.Xml.Linq;
 
 namespace Linq.Flickr.Repository
 {
-    public class CommentRepository : BaseRepository, IComment
+    public class CommentRepository : BaseRepository, ICommentRepository
     {
-        public CommentRepository() : base(typeof(IComment)){}
+        public CommentRepository() : base(typeof(ICommentRepository)){}
 
         private IEnumerable<Comment> GetComments(string requestUrl)
         {
@@ -17,7 +17,7 @@ namespace Linq.Flickr.Repository
             return builder.ToCollection(requestUrl);
         }
 
-        IEnumerable<Comment> IComment.GetComments(string photoId)
+        IEnumerable<Comment> ICommentRepository.GetComments(string photoId)
         {
             string method = Helper.GetExternalMethodName();
             string sig = GetSignature(method, true, "photo_id", photoId);
@@ -25,7 +25,7 @@ namespace Linq.Flickr.Repository
             return GetComments(requestUrl);
         }
        
-        string IComment.AddComment(string photoId, string text)
+        string ICommentRepository.AddComment(string photoId, string text)
         {
             string authenitcatedToken =  base.Authenticate(Permission.Delete.ToString());
 
@@ -40,7 +40,7 @@ namespace Linq.Flickr.Repository
             return elemnent.Element("comment").Attribute("id").Value ?? string.Empty;
         }
 
-        bool IComment.DeleteComment(string commentId)
+        bool ICommentRepository.DeleteComment(string commentId)
         {
             string authenitcatedToken = base.Authenticate(Permission.Delete.ToString());
             string method = Helper.GetExternalMethodName();

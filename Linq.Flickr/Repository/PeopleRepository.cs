@@ -7,13 +7,13 @@ using System.Xml.Linq;
 
 namespace Linq.Flickr.Repository
 {
-    public class PeopleRepository : BaseRepository, IPeople
+    public class PeopleRepository : BaseRepository, IPeopleRepository
     {
-        public PeopleRepository() : base(typeof(IPeople)) { }
+        public PeopleRepository() : base(typeof(IPeopleRepository)) { }
 
-        #region IPeople Members
+        #region IPeopleRepository Members
 
-        People IPeople.GetInfo(string userId)
+        People IPeopleRepository.GetInfo(string userId)
         {
             string method = Helper.GetExternalMethodName();
             string sig = GetSignature(method, true, "user_id", userId);
@@ -21,17 +21,17 @@ namespace Linq.Flickr.Repository
             return GetPeople(requestUrl).Single();
         }
 
-        People IPeople.GetByUsername(string username)
+        People IPeopleRepository.GetByUsername(string username)
         {
             string nsId = string.Empty;
 
-            using (IPhoto photo = new PhotoRepository())
+            using (IPhotoRepository photoRepository = new PhotoRepository())
             {
-                nsId = photo.GetNSIDByUsername(username);
+                nsId = photoRepository.GetNSIDByUsername(username);
 
                 if (!string.IsNullOrEmpty(nsId))
                 {
-                    return (this as IPeople).GetInfo(nsId);
+                    return (this as IPeopleRepository).GetInfo(nsId);
                 }
                 else
                 {

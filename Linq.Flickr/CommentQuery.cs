@@ -25,11 +25,11 @@ namespace Linq.Flickr
                 throw new Exception("Must have some text for the comment");
             }
 
-            using (IComment commentRepo = new CommentRepository())
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository())
             {
                 try
                 {
-                    string commentId = commentRepo.AddComment(photoId, text);
+                    string commentId = commentRepositoryRepo.AddComment(photoId, text);
                     // set the id.
                     bucket.Items[CommentColumns.ID].Value = commentId;
                 }
@@ -48,9 +48,9 @@ namespace Linq.Flickr
             {
                 throw new Exception("Must provide a comment_id");
             }
-            using (IComment commentRepo = new CommentRepository())
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository())
             {
-                commentRepo.DeleteComment(commentId);
+                commentRepositoryRepo.DeleteComment(commentId);
             }
         }
 
@@ -63,7 +63,7 @@ namespace Linq.Flickr
 
         protected override void Process(LinqExtender.Interface.IModify<Comment> items, Bucket bucket)
         {
-            using (IComment commentRepo = new CommentRepository())
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository())
             {
                 string photoId = (string) bucket.Items[CommentColumns.PHOTO_ID].Value;
                 string commentId = (string)bucket.Items[CommentColumns.ID].Value;
@@ -73,7 +73,7 @@ namespace Linq.Flickr
                     throw new Exception("Must have a valid photoId");
                 }
                 // get comments
-                IEnumerable<Comment> comments = commentRepo.GetComments(photoId);
+                IEnumerable<Comment> comments = commentRepositoryRepo.GetComments(photoId);
                 // filter 
                 if (!string.IsNullOrEmpty(commentId))
                 {

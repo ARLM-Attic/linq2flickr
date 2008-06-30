@@ -1,4 +1,6 @@
 ﻿using System;
+using Linq.Flickr.Interface;
+using Linq.Flickr.Repository;
 
 namespace Linq.Flickr
 {
@@ -44,6 +46,27 @@ namespace Linq.Flickr
                     _peopleQuery = new PeopleQuery();
                 }
                 return _peopleQuery;
+            }
+        }
+        /// <summary>
+        /// check if the user is already authicated for making authenticated calls.
+        /// </summary>
+        /// <returns>returns true/false</returns>
+        public bool IsAuthenticated()
+        {
+            using (IPhotoRepository photoRepository = new PhotoRepository())
+            {
+                return photoRepository.IsAuthenticated();
+            }
+        }
+        /// <summary>
+        /// does a manual authentication.
+        /// </summary>
+        public void Authenticate()
+        {
+            using (IPhotoRepository photoRepository = new PhotoRepository())
+            {
+                photoRepository.Authenticate(true, Permission.Delete);
             }
         }
 

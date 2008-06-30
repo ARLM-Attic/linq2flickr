@@ -43,7 +43,7 @@ namespace Linq.Flickr.Test
             {
                 photoAddMock.MockSignatureCall();
                 photoAddMock.MockElementCall(RESOURCE_NS + ".UploadStatus.xml");
-                photoAddMock.MockAuthenticateCall(true, Permission.Delete, 2);
+                photoAddMock.MockAuthenticateCall(Permission.Delete, 2);
 
                 byte[] oImage = new byte[photoRes.Length];
 
@@ -111,7 +111,7 @@ namespace Linq.Flickr.Test
 
             using (FakeFlickrRepository<PhotoRepository, Photo> photoDeleteMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
-                photoDeleteMock.MockAuthenticateCall(true, Permission.Delete, 1);
+                photoDeleteMock.MockAuthenticateCall(Permission.Delete, 1);
                 photoDeleteMock.MockSignatureCall();
                 photoDeleteMock.MockDoHttpPost(RESOURCE_NS + ".DeletePhoto.xml");
 

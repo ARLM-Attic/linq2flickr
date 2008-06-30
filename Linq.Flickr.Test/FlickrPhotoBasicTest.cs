@@ -15,14 +15,14 @@ namespace Linq.Flickr.Test
     public class FlickrPhotoBasicTest
     {
         FlickrContext _context = null;
-        IList<string> _list = new List<string>();
-        private string USER_NAME = System.Configuration.ConfigurationManager.AppSettings["USERNAME"];
+        IList<string> list = new List<string>();
+        private string USER_NAME = ConfigurationManager.AppSettings["USERNAME"];
         private bool deleteOnce = false;
 
         [SetUp]
         public void Init()
         {
-            _list.Clear();
+            list.Clear();
             _context = new FlickrContext();
             _context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHandler(Photos_OnError);
             _context.Photos.Comments.OnError += new LinqExtender.Query<Comment>.ErrorHandler(Comments_OnError);
@@ -59,7 +59,7 @@ namespace Linq.Flickr.Test
 
                 Assert.IsTrue(!string.IsNullOrEmpty(phtoto.Id));
 
-                _list.Add(phtoto.Id);
+                list.Add(phtoto.Id);
             }
 
         }
@@ -88,7 +88,7 @@ namespace Linq.Flickr.Test
         //{
         //    try
         //    {
-        //        int page = (_list.Count) / 10;
+        //        int page = (list.Count) / 10;
 
         //        var query = (from ph in _context.Photos
         //                     where ph.User == USER_NAME && ph.PhotoSize == PhotoSize.Square
@@ -97,7 +97,7 @@ namespace Linq.Flickr.Test
 
         //        Photo photo = query.Last();
 
-        //        Assert.IsTrue(photo.Id == _list[_list.Count - 1]);
+        //        Assert.IsTrue(photo.Id == list[list.Count - 1]);
         //    }
         //    catch (Exception ex)
         //    {
@@ -108,7 +108,7 @@ namespace Linq.Flickr.Test
         public void DeleteAdded()
         {
             var query = from ph in _context.Photos
-                        where ph.Id == _list[0]
+                        where ph.Id == list[0]
                         select ph;
 
             int count = query.Count();
@@ -121,7 +121,7 @@ namespace Linq.Flickr.Test
             _context.SubmitChanges();
 
             query = from ph in _context.Photos
-                    where ph.Id == _list[0]
+                    where ph.Id == list[0]
                     select ph;
 
             Assert.IsTrue(query.Count() == 0);

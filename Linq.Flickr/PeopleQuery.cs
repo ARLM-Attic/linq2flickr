@@ -28,7 +28,7 @@ namespace Linq.Flickr
 
         protected override void Process(LinqExtender.Interface.IModify<People> items, Bucket bucket)
         {
-            using (IPeople peopleRepo = new PeopleRepository())
+            using (IPeopleRepository peopleRepositoryRepo = new PeopleRepository())
             {
                 string userId = (string)bucket.Items[PeopleColumns.ID].Value;
                 string username = (string)bucket.Items[PeopleColumns.USERNAME].Value;
@@ -37,11 +37,11 @@ namespace Linq.Flickr
 
                 if (!string.IsNullOrEmpty(userId))
                 {
-                    people = peopleRepo.GetInfo(userId);
+                    people = peopleRepositoryRepo.GetInfo(userId);
                 }
                 else if (!string.IsNullOrEmpty(username))
                 {
-                    people = peopleRepo.GetByUsername(username);
+                    people = peopleRepositoryRepo.GetByUsername(username);
                 }
                 else
                 {
