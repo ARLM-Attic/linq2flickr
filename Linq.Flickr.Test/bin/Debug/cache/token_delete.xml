@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<rsp stat="ok">
-  <auth>
-    <token>72157603949088883-026521662b2c509d</token>
-    <perms>delete</perms>
-    <user nsid="89579150@N00" username="hossain_mehfuz" fullname="" />
-  </auth>
-</rsp>
