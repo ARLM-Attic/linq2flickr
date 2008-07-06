@@ -91,6 +91,12 @@ namespace Linq.Flickr
                                 select comment).Take(itemsToTake).Skip(index);
                     comments = query;
                 }
+                else
+                {
+                    var query = (from comment in comments
+                                 select comment).Take(itemsToTake).Skip(index);
+                    comments = query;
+                }
                 items.AddRange(comments, true);
             }
         }
