@@ -72,17 +72,26 @@ namespace Linq.Flickr
                 {
                     throw new Exception("Must have a valid photoId");
                 }
+
+                int index = bucket.ItemsToSkip ;
+                int itemsToTake = int.MaxValue;
+
+                if (bucket.ItemsToTake != null)
+                {
+                    itemsToTake = (int)bucket.ItemsToTake;
+                }
+
                 // get comments
                 IEnumerable<Comment> comments = commentRepositoryRepo.GetComments(photoId);
                 // filter 
                 if (!string.IsNullOrEmpty(commentId))
                 {
-                    var query = from comment in comments
+                    var query = (from comment in comments
                                 where comment.Id == commentId
-                                select comment;
+                                select comment).Take(itemsToTake).Skip(index);
                     comments = query;
                 }
-                items.AddRange(comments);
+                items.AddRange(comments, true);
             }
         }
     }
