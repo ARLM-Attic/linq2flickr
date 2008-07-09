@@ -129,16 +129,18 @@ namespace Linq.Flickr.Repository
                 throw new Exception(ex.Message);
             }
         }
-        protected string Authenticate (string permission, bool validate)
+
+       
+        protected AuthToken GetAuthenticatedToken (string permission, bool validate)
         {
             permission = permission.ToLower();
 
-            string token = string.Empty;
+            AuthToken token = null;
 
             if (IsAuthenticated())
                 token = GetExistingToken(permission);
 
-            if (string.IsNullOrEmpty(token) && validate)
+            if (token == null && validate)
             {
                 token = CreateAndStoreNewToken(permission);
             }
@@ -146,12 +148,17 @@ namespace Linq.Flickr.Repository
             return token;
         }
 
-        public string Authenticate(string permission)
+        protected string Authenticate(string permission, bool validate)
         {
-            return Authenticate(permission, true);
+            return GetAuthenticatedToken(permission, validate).Id;
         }
 
-        private string GetExistingToken(string permission)
+        public string Authenticate(string permission)
+        {
+            return GetAuthenticatedToken(permission, true).Id;
+        }
+
+        private AuthToken GetExistingToken(string permission)
         {
             if (HttpContext.Current == null)
                 return GetDesktopToken(false, permission);
@@ -159,41 +166,40 @@ namespace Linq.Flickr.Repository
                 return GetWebToken(false, permission);
         }
 
-        private string CreateAndStoreNewToken(string permission)
+        private AuthToken CreateAndStoreNewToken(string permission)
         {
             return HttpContext.Current != null ? CreateWebToken(permission) : CreateDesktopToken(permission);
         }
 
-        private string CreateWebToken(string permission)
+        private AuthToken CreateWebToken(string permission)
         {
-            string token = string.Empty;
-            string frob = string.Empty;
-
+            AuthToken token = null;
+         
             try
             {
                 if (HttpContext.Current.Request.Cookies["token"] == null)
                 {
-                    frob = CreateWebFrobIfNecessary();
+                    string frob = CreateWebFrobIfNecessary();
                     AuthToken tokenObject = (this as IPhotoRepository).GetTokenFromFrob(frob);
 
                     HttpCookie authCookie = new HttpCookie(
                         "token", // Name of auth cookie
-                        tokenObject.ID); // Hashed ticket
+                        tokenObject.Id + "|" + tokenObject.Perm + "|" + tokenObject.UserId); // Hashed ticket
                     authCookie.Expires = DateTime.Now.AddDays(30);
                     HttpContext.Current.Response.Cookies.Set(authCookie);
 
-                    token = tokenObject.ID;
+                    token = tokenObject;
                 }
             }
             catch
             {
-                frob = CreateWebFrobIfNecessary();
+                string frob = CreateWebFrobIfNecessary();
                 IntializeToken(permission, frob);
             }
             return token;
         }
 
-        private string CreateDesktopToken(string permission)
+        private AuthToken CreateDesktopToken(string permission)
         {
             XElement tokenElement = null;
             string token = string.Empty;
@@ -223,15 +229,10 @@ namespace Linq.Flickr.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error creating token", ex);
+                throw new Exception("Failed to complete the authentication process", ex);
             }
 
-            AuthToken tokenObject = GetAToken(tokenElement);
-
-            if (tokenObject != null)
-                token = tokenObject.ID;
-
-            return token;
+            return GetAToken(tokenElement);
         }
 
         private string GetAuthenticationUrl(string permission, string frob)
@@ -242,7 +243,7 @@ namespace Linq.Flickr.Repository
             return authenticateUrl;
         }
 
-        private string IntializeToken(string permission, string frob)
+        private void IntializeToken(string permission, string frob)
         {
             try
             {
@@ -265,10 +266,9 @@ namespace Linq.Flickr.Repository
 
                     if (p.HasExited)
                     {
-
+                        // do nothing.
                     }
                 }
-                return frob;
             }
             catch (Exception ex)
             {
@@ -281,14 +281,32 @@ namespace Linq.Flickr.Repository
             AuthToken token = (from tokens in tokenElement.Descendants("auth")
                                select new AuthToken
                                {
-                                   ID = tokens.Element("token").Value ?? string.Empty,
-                                   Perm = tokens.Element("perms").Value
+                                   Id = tokens.Element("token").Value ?? string.Empty,
+                                   Perm = tokens.Element("perms").Value,
+                                   UserId = tokens.Element("user").Attribute("nsid").Value ?? string.Empty
                                }).Single<AuthToken>();
 
             return token;
         }
+        protected AuthToken ValidateToken(string method, string token)
+        {
+            string sig = GetSignature(method, true, "auth_token", token);
+            string requestUrl = BuildUrl(method, "auth_token", token, "api_sig", sig);
 
-        private string GetDesktopToken(bool validate, string permission)
+            try
+            {
+                XElement tokenElement = GetElement(requestUrl);
+
+                return GetAToken(tokenElement);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        private AuthToken GetDesktopToken(bool validate, string permission)
         {
             string token = string.Empty;
 
@@ -297,13 +315,10 @@ namespace Linq.Flickr.Repository
 
             AuthToken tokenObject = GetAToken(tokenElement);
 
-            if (tokenObject != null)
-                token = tokenObject.ID;
-
-            return token;
+            return tokenObject;
         }
 
-        private string GetWebToken(bool validate, string permission)
+        private AuthToken GetWebToken(bool validate, string permission)
         {
             string token = string.Empty;
 
@@ -318,11 +333,18 @@ namespace Linq.Flickr.Repository
             {
                 if (validate)
                 {
-                    string frob = CreateWebFrobIfNecessary();
-                    IntializeToken(permission, frob);
+                    IntializeToken(permission, CreateWebFrobIfNecessary());
                 }
             }
-            return token;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                 string [] parts = token.Split(new char[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
+                 // build the object and return.   
+                 if (parts.Length == 3) return new AuthToken {Id = parts[0], Perm = parts[1], UserId = parts[2]};
+            }
+        
+            return null;
         }
 
         private string CreateWebFrobIfNecessary()

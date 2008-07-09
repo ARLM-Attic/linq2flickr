@@ -7,7 +7,8 @@ namespace Linq.Flickr
 {
     public class AuthToken
     {
-        public string ID { get; set; }
+        public string Id { get; set; }
         public string Perm { get; set; }
+        public string UserId { get; set; }
     }
 }

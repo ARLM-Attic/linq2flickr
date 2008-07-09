@@ -45,7 +45,13 @@ namespace Linq.Flickr
                 }
                 else
                 {
-                    throw new Exception("Must provider a valid user Id or name");
+                    // try to get autheticated person
+                    AuthToken token = peopleRepositoryRepo.GetAuthenticatedToken();
+
+                    if (token != null)
+                        people = peopleRepositoryRepo.GetInfo(token.UserId);
+                    else     
+                        throw new Exception("Query must contain a valid user id or name");
                 }
 
                 items.Add(people);

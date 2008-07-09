@@ -16,5 +16,7 @@ namespace Linq.Flickr.Interface
         /// <param name="username">username</param>
         /// <returns>UserInfo</returns>
         People GetByUsername(string username);
+
+        AuthToken GetAuthenticatedToken();
     }
 }

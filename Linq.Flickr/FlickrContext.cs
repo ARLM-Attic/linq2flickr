@@ -62,11 +62,11 @@ namespace Linq.Flickr
         /// <summary>
         /// does a manual authentication.
         /// </summary>
-        public void Authenticate()
+        public AuthToken Authenticate()
         {
             using (IPhotoRepository photoRepository = new PhotoRepository())
             {
-                photoRepository.Authenticate(true, Permission.Delete);
+                return photoRepository.Authenticate(true, Permission.Delete);
             }
         }
 

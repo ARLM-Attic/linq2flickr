@@ -23,20 +23,7 @@ namespace Linq.Flickr.Repository
         AuthToken IPhotoRepository.CheckToken(string token)
         {
             string method = Helper.GetExternalMethodName();
-
-            string sig = base.GetSignature(method, true, "auth_token", token);
-            string requestUrl = BuildUrl(method, "auth_token", token, "api_sig", sig);
-
-            try
-            {
-                XElement tokenElement = GetElement(requestUrl);
-
-                return GetAToken(tokenElement);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return ValidateToken(method, token);
         }
 
         People IPhotoRepository.GetUploadStatus()
@@ -73,9 +60,9 @@ namespace Linq.Flickr.Repository
         }
         
 
-        string IPhotoRepository.Authenticate(bool validate, Permission permission)
+        AuthToken IPhotoRepository.Authenticate(bool validate, Permission permission)
         {
-            return Authenticate(permission.ToString().ToLower(), validate);
+            return GetAuthenticatedToken(permission.ToString().ToLower(), validate);
         }
         bool IPhotoRepository.IsAuthenticated()
         {

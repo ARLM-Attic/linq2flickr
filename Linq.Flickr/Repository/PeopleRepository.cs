@@ -40,6 +40,11 @@ namespace Linq.Flickr.Repository
             }
         }
 
+        AuthToken IPeopleRepository.GetAuthenticatedToken()
+        {
+            return base.GetAuthenticatedToken(Permission.Delete.ToString(), false);
+        }
+
         #endregion
 
         private IEnumerable<People> GetPeople(string requestUrl)

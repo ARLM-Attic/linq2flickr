@@ -88,13 +88,13 @@ namespace Linq.Flickr
                 {
                     var query = (from comment in comments
                                 where comment.Id == commentId
-                                select comment).Take(itemsToTake).Skip(index);
+                                select comment).Skip(index).Take(itemsToTake);
                     comments = query;
                 }
                 else
                 {
                     var query = (from comment in comments
-                                 select comment).Take(itemsToTake).Skip(index);
+                                 select comment).Skip(index).Take(itemsToTake);
                     comments = query;
                 }
                 items.AddRange(comments, true);

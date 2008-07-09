@@ -20,7 +20,6 @@ namespace Linq.Flickr.Interface
         bool Delete(string photoId);
         [FlickrMethod("flickr.photos.getSizes")]
         string GetSizedPhotoUrl(string id, PhotoSize size);
-
         // user related methods.
         [FlickrMethod("flickr.people.findByEmail")]
         string GetNSIDByEmail(string email);
@@ -31,7 +30,7 @@ namespace Linq.Flickr.Interface
         [FlickrMethod("flickr.auth.checkToken")]
         AuthToken CheckToken(string token);
         //Method that POST_Call / Get calls to validate and upload photos.
-        string Authenticate(bool validate, Permission permission);
+        AuthToken Authenticate(bool validate, Permission permission);
         bool IsAuthenticated();
         string Upload(object[] args, string fileName, byte[] photoData);
         [FlickrMethod("flickr.people.getUploadStatus")]

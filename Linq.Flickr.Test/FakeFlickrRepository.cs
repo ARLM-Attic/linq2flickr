@@ -119,7 +119,7 @@ namespace Linq.Flickr.Test
 
         public void MockCreateAndStoreNewToken(Permission permission)
         {
-            _mockRepository.ExpectAndReturn("CreateAndStoreNewToken", "xyz").Args(permission.ToString().ToLower());
+            _mockRepository.ExpectAndReturn("CreateAndStoreNewToken", new AuthToken { Id= "xxx", Perm="write", UserId = "x@y"}).Args(permission.ToString().ToLower());
         }
 
         public void MockGetNSIDByUsername(string username)

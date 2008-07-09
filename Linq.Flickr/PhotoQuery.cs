@@ -161,7 +161,7 @@ namespace Linq.Flickr
                 else
                 {
                     bool authenticate = false;
-                    string token = string.Empty;
+                    AuthToken token = null;
                     // for private or semi-private photo do authenticate.
                     if (viewMode != ViewMode.Public)
                         authenticate = true;
@@ -180,7 +180,7 @@ namespace Linq.Flickr
                     else
                     {
                         string[] args = BuildSearchQuery(flickr, bucket, viewMode, false);
-                        items.AddRange(flickr.Search(index, itemsToTake, size, token, args));
+                        items.AddRange(flickr.Search(index, itemsToTake, size, token == null ? string.Empty : token.Id, args));
                     }
                 }
       
