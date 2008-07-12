@@ -150,7 +150,12 @@ namespace Linq.Flickr.Repository
 
         protected string Authenticate(string permission, bool validate)
         {
-            return GetAuthenticatedToken(permission, validate).Id;
+            AuthToken token = GetAuthenticatedToken(permission, validate);
+            if (token != null)
+            {
+                return token.Id;
+            }
+            return string.Empty;
         }
 
         public string Authenticate(string permission)
