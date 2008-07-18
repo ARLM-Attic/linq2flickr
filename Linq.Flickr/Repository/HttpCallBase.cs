@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using Linq.Flickr.Interface;
 using System.Xml.Linq;
 using System.Net;
@@ -13,7 +14,13 @@ namespace Linq.Flickr.Repository
     {
         public XElement GetElement(string requestUrl)
         {
-            XElement element = XElement.Load(requestUrl);
+            XmlReaderSettings readerSettings = new XmlReaderSettings();
+
+            readerSettings.IgnoreWhitespace = true;
+            readerSettings.IgnoreProcessingInstructions = true;
+            readerSettings.IgnoreComments = true;
+
+            XElement element = XElement.Load(XmlReader.Create(requestUrl, readerSettings));
             return element.ValidateResponse();
         }
 
