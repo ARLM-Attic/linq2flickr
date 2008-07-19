@@ -216,7 +216,7 @@ namespace Linq.Flickr.Repository
                         "token", // Name of auth cookie
                         tokenObject.Id + "|" + tokenObject.Perm + "|" + tokenObject.UserId); // Hashed ticket
                     authCookie.Expires = DateTime.Now.AddDays(30);
-                    HttpContext.Current.Response.Cookies.Set(authCookie);
+                    HttpContext.Current.Response.Cookies.Add(authCookie);
 
                     token = tokenObject;
                 }
@@ -415,7 +415,7 @@ namespace Linq.Flickr.Repository
                 if (cookie != null)
                 {
                     cookie.Expires = DateTime.Now.AddYears(-1);
-                    HttpContext.Current.Response.Cookies.Set(cookie);
+                    HttpContext.Current.Response.Cookies.Add(cookie);
                 }
             }
         }
