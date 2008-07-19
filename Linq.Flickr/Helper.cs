@@ -4,30 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using Linq.Flickr.Attribute;
-using Linq.Flickr.Interface;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Xml.Linq;
-using Linq.Flickr.Repository;
 
 namespace Linq.Flickr
 {
     internal static class Helper
     {
-        public static class FlickrMethod
-        {
-            public const string GET_AUTH_TOKEN = "flickr.auth.getToken";
-            public const string GET_FROB = "flickr.auth.getFrob";
-        }
-
         internal const string BASE_URL = "http://api.flickr.com/services/rest/";
         internal const string AUTH_URL = "http://flickr.com/services/auth/";
         internal const string UPLOAD_URL = "http://api.flickr.com/services/upload/";
 
         private readonly static IDictionary<string, string> _methodList = new Dictionary<string, string>();
         private readonly static IDictionary<string, string> _interfaceList = new Dictionary<string, string>();
-        private static Regex _emailRegex = new Regex(@"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex _emailRegex = new Regex(@"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static object _lockHandler = new object();
 
         internal static bool IsValidEmail(this string inputString)
@@ -37,7 +29,7 @@ namespace Linq.Flickr
 
         internal static string GetHash(this string inputString)
         {
-            MD5 md5 = MD5CryptoServiceProvider.Create();
+            MD5 md5 = MD5.Create();
 
             byte[] input = Encoding.UTF8.GetBytes(inputString);
             byte[] output = MD5.Create().ComputeHash(input);

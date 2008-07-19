@@ -42,7 +42,8 @@ namespace Linq.Flickr.Repository
 
         AuthToken IPeopleRepository.GetAuthenticatedToken()
         {
-            return base.GetAuthenticatedToken(Permission.Delete.ToString(), false);
+            string method = Helper.GetExternalMethodName();
+            return  (this as IRepositoryBase).GetAuthenticatedToken(Permission.Delete.ToString(), false);
         }
 
         #endregion

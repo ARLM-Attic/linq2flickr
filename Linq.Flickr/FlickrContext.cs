@@ -70,6 +70,28 @@ namespace Linq.Flickr
             }
         }
 
+        /// <summary>
+        /// removes the token from cache or cookie.
+        /// </summary>
+        /// <returns></returns>
+        public bool ClearToken()
+        {
+            bool result = true;
+
+            try
+            {
+                IRepositoryBase repository = new BaseRepository();
+                repository.ClearToken();
+            }
+            catch
+            {
+                result = false;
+            }
+
+            return result;
+        }
+
+
         public void SubmitChanges()
         {
             _Photos.SubmitChanges();

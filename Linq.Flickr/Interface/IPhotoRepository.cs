@@ -25,11 +25,11 @@ namespace Linq.Flickr.Interface
         string GetNSIDByEmail(string email);
         [FlickrMethod("flickr.people.findByUsername")]
         string GetNSIDByUsername(string username);
-        [FlickrMethod("flickr.auth.getFrob")]
+        [FlickrMethod("flickr.auth.getToken")]
         AuthToken GetTokenFromFrob(string frob);
         [FlickrMethod("flickr.auth.checkToken")]
         AuthToken CheckToken(string token);
-        //Method that POST_Call / Get calls to validate and upload photos.
+        [FlickrMethod("flickr.auth.getToken")]
         AuthToken Authenticate(bool validate, Permission permission);
         bool IsAuthenticated();
         string Upload(object[] args, string fileName, byte[] photoData);

@@ -19,27 +19,50 @@ namespace Linq.Flickr.Repository
         protected string STORE_PATH = string.Empty;
         protected string TOKEN_PATH = string.Empty;
 
-     
+        public BaseRepository()
+        {
+            LoadBase();
+        }
+
+        private void LoadBase()
+        {
+            try
+            {
+                LoadFromConfig();
+                Type myInterfaceType = typeof (IRepositoryBase);
+                myInterfaceType.RefreshExternalMethodList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error initializing Base", ex);
+            }
+        }
+
         public BaseRepository(Type intefaceType)
         {
             try
             {
-                // load the keys.
-                FLICKR_API_KEY = FlickrSettings.Current.ApiKey;
-                SHARED_SECRET = FlickrSettings.Current.SecretKey;
-
-                // if Offline application , then create a cache directory.
-                if (HttpContext.Current == null)
-                {
-                    STORE_PATH = FlickrSettings.Current.CacheDirectory;
-                    // path where token will be stored.
-                    TOKEN_PATH = STORE_PATH + "\\token_{0}.xml";
-                }
+                LoadBase();
                 intefaceType.RefreshExternalMethodList();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        private void LoadFromConfig()
+        {
+// load the keys.
+            FLICKR_API_KEY = FlickrSettings.Current.ApiKey;
+            SHARED_SECRET = FlickrSettings.Current.SecretKey;
+
+            // if Offline application , then create a cache directory.
+            if (HttpContext.Current == null)
+            {
+                STORE_PATH = FlickrSettings.Current.CacheDirectory;
+                // path where token will be stored.
+                TOKEN_PATH = STORE_PATH + "\\token_{0}.xml";
             }
         }
 
@@ -110,9 +133,9 @@ namespace Linq.Flickr.Repository
             }
         }
 
-        public string GetFrob()
+        string IRepositoryBase.GetFrob()
         {
-            const string method = Helper.FlickrMethod.GET_FROB;
+            string method = Helper.GetExternalMethodName();
             string signature = GetSignature(method, true);
             string requestUrl = BuildUrl(method, "api_sig", signature);
 
@@ -131,8 +154,10 @@ namespace Linq.Flickr.Repository
         }
 
        
-        protected AuthToken GetAuthenticatedToken (string permission, bool validate)
+        AuthToken  IRepositoryBase.GetAuthenticatedToken (string permission, bool validate)
         {
+            string method = Helper.GetExternalMethodName();
+
             permission = permission.ToLower();
 
             AuthToken token = null;
@@ -142,7 +167,7 @@ namespace Linq.Flickr.Repository
 
             if (token == null && validate)
             {
-                token = CreateAndStoreNewToken(permission);
+                token = CreateAndStoreNewToken(method, permission);
             }
 
             return token;
@@ -150,7 +175,7 @@ namespace Linq.Flickr.Repository
 
         protected string Authenticate(string permission, bool validate)
         {
-            AuthToken token = GetAuthenticatedToken(permission, validate);
+            AuthToken token =  (this as IRepositoryBase).GetAuthenticatedToken(permission, validate);
             if (token != null)
             {
                 return token.Id;
@@ -158,9 +183,9 @@ namespace Linq.Flickr.Repository
             return string.Empty;
         }
 
-        public string Authenticate(string permission)
+        protected string Authenticate(string permission)
         {
-            return GetAuthenticatedToken(permission, true).Id;
+            return  (this as IRepositoryBase).GetAuthenticatedToken(permission, true).Id;
         }
 
         private AuthToken GetExistingToken(string permission)
@@ -171,9 +196,9 @@ namespace Linq.Flickr.Repository
                 return GetWebToken(false, permission);
         }
 
-        private AuthToken CreateAndStoreNewToken(string permission)
+        private AuthToken CreateAndStoreNewToken(string method, string permission)
         {
-            return HttpContext.Current != null ? CreateWebToken(permission) : CreateDesktopToken(permission);
+            return HttpContext.Current != null ? CreateWebToken(permission) : CreateDesktopToken(method, permission);
         }
 
         private AuthToken CreateWebToken(string permission)
@@ -204,7 +229,7 @@ namespace Linq.Flickr.Repository
             return token;
         }
 
-        private AuthToken CreateDesktopToken(string permission)
+        private AuthToken CreateDesktopToken(string method, string permission)
         {
             XElement tokenElement = null;
             string token = string.Empty;
@@ -212,10 +237,10 @@ namespace Linq.Flickr.Repository
             try
             {
                 string path = string.Format(TOKEN_PATH, permission);
-                string frob = GetFrob();
+                string frob = (this as IRepositoryBase).GetFrob();
 
-                string sig = GetSignature(Helper.FlickrMethod.GET_AUTH_TOKEN, true, "frob", frob);
-                string requestUrl = BuildUrl(Helper.FlickrMethod.GET_AUTH_TOKEN, "frob", frob, "api_sig", sig);
+                string sig = GetSignature(method, true, "frob", frob);
+                string requestUrl = BuildUrl(method, "frob", frob, "api_sig", sig);
 
                 IntializeToken(permission, frob);
 
@@ -355,7 +380,7 @@ namespace Linq.Flickr.Repository
         private string CreateWebFrobIfNecessary()
         {
             // if it is a redirect by flickr then take the frob from url.
-            return !string.IsNullOrEmpty(HttpContext.Current.Request["frob"]) ? HttpContext.Current.Request["frob"] : GetFrob();
+            return !string.IsNullOrEmpty(HttpContext.Current.Request["frob"]) ? HttpContext.Current.Request["frob"] : (this as IRepositoryBase).GetFrob();
         }
 
         protected bool IsAuthenticated()
@@ -370,6 +395,29 @@ namespace Linq.Flickr.Repository
                 result = (HttpContext.Current.Request.Cookies["token"] != null);
 
             return result;
+        }
+
+        void IRepositoryBase.ClearToken()
+        {
+            string path = string.Format(TOKEN_PATH, Permission.Delete.ToString().ToLower());
+
+            if (HttpContext.Current == null)
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+            else
+            {
+                HttpCookie cookie = HttpContext.Current.Request.Cookies["token"];
+
+                if (cookie != null)
+                {
+                    cookie.Expires = DateTime.Now.AddYears(-1);
+                    HttpContext.Current.Response.Cookies.Set(cookie);
+                }
+            }
         }
 
         public string GetSignature(string methodName, bool includeMethod, params object[] args)

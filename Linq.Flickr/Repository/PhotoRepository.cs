@@ -62,7 +62,8 @@ namespace Linq.Flickr.Repository
 
         AuthToken IPhotoRepository.Authenticate(bool validate, Permission permission)
         {
-            return GetAuthenticatedToken(permission.ToString().ToLower(), validate);
+            string method = Helper.GetExternalMethodName();
+            return  (this as IRepositoryBase).GetAuthenticatedToken(permission.ToString().ToLower(), validate);
         }
         bool IPhotoRepository.IsAuthenticated()
         {
@@ -71,8 +72,10 @@ namespace Linq.Flickr.Repository
 
         AuthToken IPhotoRepository.GetTokenFromFrob(string frob)
         {
-            string sig = base.GetSignature(Helper.FlickrMethod.GET_AUTH_TOKEN, true, "frob", frob);
-            string requestUrl = BuildUrl(Helper.FlickrMethod.GET_AUTH_TOKEN, "frob", frob, "api_sig", sig);
+            string method = Helper.GetExternalMethodName();
+
+            string sig = base.GetSignature(method, true, "frob", frob);
+            string requestUrl = BuildUrl(method, "frob", frob, "api_sig", sig);
 
             try
             {
