@@ -51,7 +51,7 @@ namespace Linq.Flickr.Repository
         private IEnumerable<People> GetPeople(string requestUrl)
         {
             RestToCollectionBuilder<People> rest = new RestToCollectionBuilder<People>();
-            return rest.ToCollection(requestUrl);
+            return rest.ToCollection(requestUrl, null);
         }
 
         #region IDisposable Members

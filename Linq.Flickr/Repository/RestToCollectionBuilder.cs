@@ -38,21 +38,29 @@ namespace Linq.Flickr.Repository
         {
             if (_propertyMap.ContainsKey(name))
             {
-                Type info = obj.GetType();
+                ProcessMember(name, obj, value);
+            }
+        }
 
-                object[] xmlElements = info.GetCustomAttributes(typeof(XElementAttribute), true);
-                object[] xmlAttributes = info.GetCustomAttributes(typeof(XAttributeAttribute), true);
+        private void ProcessMember(string name, object obj, object value)
+        {
+            Type info = obj.GetType();
 
-                if (xmlElements.Length == 1 || xmlAttributes.Length == 1)
+            object[] xmlElements = info.GetCustomAttributes(typeof(XElementAttribute), true);
+            object[] xmlAttributes = info.GetCustomAttributes(typeof(XAttributeAttribute), true);
+
+            if (xmlElements.Length == 1 || xmlAttributes.Length == 1)
+            {
+                PropertyInfo pInfo = info.GetProperty(_propertyMap[name],
+                                                      BindingFlags.NonPublic | BindingFlags.Instance |
+                                                      BindingFlags.Public);
+
+                if (pInfo.CanWrite)
                 {
-                    PropertyInfo pInfo = info.GetProperty(_propertyMap[name], BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-
-                    if (pInfo.CanWrite)
-                    {
-                        pInfo.SetValue(obj, GetValue(pInfo.PropertyType, value), null);
-                    }
+                    pInfo.SetValue(obj, GetValue(pInfo.PropertyType, value), null);
                 }
             }
+
         }
 
         private object GetValue(Type type, object value)
@@ -71,11 +79,16 @@ namespace Linq.Flickr.Repository
                 case "System.Int32":
                     retValue = Convert.ToInt32(value);
                     break;
+                case "System.DateTime":
+                    retValue = Convert.ToDateTime(value);
+                    break;
             }
             return retValue;
         }
 
-        public IEnumerable<T> ToCollection(XElement element)
+        public delegate void ItemChangeHandler (T item);
+      
+        public IEnumerable<T> ToCollection(XElement element, ItemChangeHandler OnItemChange)
         {
             Type objectInfo = _object.GetType();
 
@@ -103,6 +116,12 @@ namespace Linq.Flickr.Repository
 
                     XElement rootElement = node as XElement;
                     ProcessNode(obj, rootElement);
+                    
+                    // raise event so that any change might take place.
+                    if (OnItemChange != null)
+                    {
+                        OnItemChange(obj);
+                    }
                     // finally add to the list.
                     list.Add(obj);
                 }
@@ -144,11 +163,10 @@ namespace Linq.Flickr.Repository
             ProcessAttribute(obj, rootElement);
         }
 
-        public IEnumerable<T> ToCollection(string requestUrl)
+        public IEnumerable<T> ToCollection(string requestUrl, ItemChangeHandler OnItemChange)
         {
             XElement element = base.GetElement(requestUrl);
-
-            return ToCollection(element);
+            return ToCollection(element, OnItemChange);
         }
 
         private void CreatePropertyMap(Type objectInfo)

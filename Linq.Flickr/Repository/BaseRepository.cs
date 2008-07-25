@@ -161,7 +161,7 @@ namespace Linq.Flickr.Repository
             permission = permission.ToLower();
 
             AuthToken token = null;
-
+                
             if (IsAuthenticated())
                 token = GetExistingToken(permission);
 

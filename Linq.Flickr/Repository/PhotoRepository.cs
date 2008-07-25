@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Xml.Linq;
 using System.IO;
@@ -58,7 +59,29 @@ namespace Linq.Flickr.Repository
                 throw new Exception(ex.Message);
             }
         }
-        
+
+        bool IPhotoRepository.SetMeta(string photoId, string title, string description)
+        {
+            string method = Helper.GetExternalMethodName();
+            string token = base.Authenticate(Permission.Delete.ToString());
+            string sig = base.GetSignature(method, true,"photo_id", photoId, "title", title, "description", description, "auth_token", token);
+            string requestUrl = BuildUrl(method, "photo_id", photoId, "title", title, "description", description, "auth_token", token, "api_sig", sig);
+
+            try
+            {
+                string responseFromServer = DoHTTPPost(requestUrl);
+                XElement element = XElement.Parse(responseFromServer, LoadOptions.None);
+                element.ValidateResponse();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+ 
+        }
+
 
         AuthToken IPhotoRepository.Authenticate(bool validate, Permission permission)
         {
@@ -201,32 +224,20 @@ namespace Linq.Flickr.Repository
         private IEnumerable<Photo> GetPhotos(string requestUrl, PhotoSize size)
         {
             XElement doc = base.GetElement(requestUrl);
-
-            Photo.CommonAttribute attribute = new Photo.CommonAttribute();
-
             XElement photosElement = doc.Element("photos");
 
-            attribute.Page = Convert.ToInt32(photosElement.Attribute("page").Value ?? "0");
-            attribute.Pages = Convert.ToInt32(photosElement.Attribute("pages").Value ?? "0");
-            attribute.Total = Convert.ToInt32(photosElement.Attribute("total").Value ?? "0");
-            attribute.Perpage = Convert.ToInt32(photosElement.Attribute("perpage").Value ?? "0");
+            RestToCollectionBuilder<Photo> builder = new RestToCollectionBuilder<Photo>("photos");
 
-            var query = from photos in doc.Descendants("photo")
-                        select new Photo
-                        {
-                            Id = photos.Attribute("id").Value ?? string.Empty,
-                            FarmId = photos.Attribute("farm").Value ?? string.Empty,
-                            ServerId = photos.Attribute("server").Value ?? string.Empty,
-                            SecretId = photos.Attribute("secret").Value ?? string.Empty,
-                            Title = photos.Attribute("title").Value ?? string.Empty,
-                            IsPublic = photos.Attribute("ispublic").Value == "0" ? false : true,
-                            IsFamily = photos.Attribute("isfamily").Value == "0" ? false : true,
-                            IsFriend = photos.Attribute("isfriend").Value == "0" ? false : true,
-                            Url = (this as IPhotoRepository).GetSizedPhotoUrl(photos.Attribute("id").Value, size) ?? string.Empty,
-                            PhotoSize = size,
-                            SharedProperty = attribute
-                        };
-            return query;
+            RestToCollectionBuilder<Photo.CommonAttribute> commBuilder =
+            new RestToCollectionBuilder<Photo.CommonAttribute>("photos");
+            Photo.CommonAttribute sharedProperty = commBuilder.ToCollection(doc, null).Single();
+         
+            return builder.ToCollection(photosElement, photo =>
+             {
+                 photo.Url = (this as IPhotoRepository).GetSizedPhotoUrl(photo.Id, size) ?? string.Empty;
+                 photo.PhotoSize = size;
+                 photo.SharedProperty = sharedProperty;
+             });
         } 
 
         #endregion
@@ -260,7 +271,7 @@ namespace Linq.Flickr.Repository
                                        User = photo.Element("owner").Attribute("username").Value ?? string.Empty,
                                        NsId = photo.Element("owner").Attribute("nsid").Value ?? string.Empty,
                                        Description = photo.Element("description").Value ?? string.Empty,
-                                       DateUploaded = photo.Attribute("dateuploaded").Value,
+                                       DateUploaded =  photo.Attribute("dateuploaded").Value,
                                        PTags = (from tag in photo.Descendants("tag")
                                                 select new Tag
                                                            {
@@ -268,7 +279,7 @@ namespace Linq.Flickr.Repository
                                                                Title = tag.Value
                                                            }).ToArray<Tag>(),
                                        PhotoSize = size,
-                                       PhotoPage = (from photoPage in photo.Descendants("url")
+                                       WebUrl = (from photoPage in photo.Descendants("url")
                                                     where photoPage.Attribute("type").Value == "photopage"
                                                     select photoPage.Value
                                                    ).First(),

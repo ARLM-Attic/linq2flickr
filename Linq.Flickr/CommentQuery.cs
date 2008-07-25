@@ -10,7 +10,7 @@ namespace Linq.Flickr
 {
     public class CommentQuery : Query<Comment>
     {
-        protected override void AddItem(Bucket bucket)
+        protected override bool AddItem(Bucket bucket)
         {
             string photoId = (string)bucket.Items[CommentColumns.PHOTO_ID].Value;
             string text = (string)bucket.Items[CommentColumns.TEXT].Value;
@@ -27,20 +27,32 @@ namespace Linq.Flickr
 
             using (ICommentRepository commentRepositoryRepo = new CommentRepository())
             {
-                try
-                {
-                    string commentId = commentRepositoryRepo.AddComment(photoId, text);
-                    // set the id.
-                    bucket.Items[CommentColumns.ID].Value = commentId;
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Comment add failed", ex);
-                }
+                string commentId = commentRepositoryRepo.AddComment(photoId, text);
+                // set the id.
+                bucket.Items[CommentColumns.ID].Value = commentId;
+
+                return (string.IsNullOrEmpty(commentId) == false);
             }
         }
 
-        protected override void RemoveItem(Bucket bucket)
+        protected override bool UpdateItem(Bucket bucket)
+        {
+            string commentId = (string)bucket.Items[CommentColumns.ID].Value;
+            string text = (string)bucket.Items[CommentColumns.TEXT].Value;
+
+            if (string.IsNullOrEmpty(commentId))
+                throw new Exception("Invalid comment Id");
+
+            if (string.IsNullOrEmpty(text))
+                throw new Exception("Blank comment is not allowed");
+
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository())
+            {
+                return commentRepositoryRepo.EditComment(commentId, text); 
+            }
+        }
+
+        protected override bool RemoveItem(Bucket bucket)
         {
             string commentId = (string)bucket.Items[CommentColumns.ID].Value;
 
@@ -50,7 +62,7 @@ namespace Linq.Flickr
             }
             using (ICommentRepository commentRepositoryRepo = new CommentRepository())
             {
-                commentRepositoryRepo.DeleteComment(commentId);
+                return commentRepositoryRepo.DeleteComment(commentId);
             }
         }
 

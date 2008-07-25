@@ -14,7 +14,7 @@ namespace Linq.Flickr.Repository
         private IEnumerable<Comment> GetComments(string requestUrl)
         {
             RestToCollectionBuilder<Comment> builder = new RestToCollectionBuilder<Comment>("comments");
-            return builder.ToCollection(requestUrl);
+            return builder.ToCollection(requestUrl, null);
         }
 
         IEnumerable<Comment> ICommentRepository.GetComments(string photoId)
@@ -47,6 +47,26 @@ namespace Linq.Flickr.Repository
 
             string sig = GetSignature(method, true, "comment_id", commentId, "auth_token", authenitcatedToken);
             string requestUrl = BuildUrl(method, "comment_id", commentId, "auth_token", authenitcatedToken, "api_sig", sig);
+
+            try
+            {
+                string responseFromServer = DoHTTPPost(requestUrl);
+                XElement element = ParseElement(responseFromServer);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        bool ICommentRepository.EditComment(string commentId, string text)
+        {
+            string method = Helper.GetExternalMethodName();
+            string authenitcatedToken = base.Authenticate(Permission.Delete.ToString());
+
+            string sig = GetSignature(method, true, "comment_id", commentId, "comment_text", text, "auth_token", authenitcatedToken);
+            string requestUrl = BuildUrl(method, "comment_id", commentId, "comment_text", text, "auth_token", authenitcatedToken, "api_sig", sig);
 
             try
             {

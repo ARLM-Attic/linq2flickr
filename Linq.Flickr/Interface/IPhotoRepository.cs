@@ -35,5 +35,7 @@ namespace Linq.Flickr.Interface
         string Upload(object[] args, string fileName, byte[] photoData);
         [FlickrMethod("flickr.people.getUploadStatus")]
         People GetUploadStatus();
+        [FlickrMethod("flickr.photos.setMeta")]
+        bool SetMeta(string photoId, string title, string description);
     }
 }

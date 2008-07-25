@@ -10,12 +10,12 @@ namespace Linq.Flickr
 {
     public class PeopleQuery : Query<People>
     {
-        protected override void AddItem(Bucket item)
+        protected override bool AddItem(Bucket item)
         {
             throw new Exception("Add item not supported for People");
         }
 
-        protected override void RemoveItem(Bucket item)
+        protected override bool RemoveItem(Bucket item)
         {
             throw new Exception("Remove item not supported for People");
         }

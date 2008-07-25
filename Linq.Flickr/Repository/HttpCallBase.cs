@@ -33,7 +33,7 @@ namespace Linq.Flickr.Repository
         public string DoHTTPPost(string requestUrl)
         {
             // Create a request using a URL that can receive a post. 
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(requestUrl);
             // Set the Method property of the request to POST.
             request.Method = "POST";
 
@@ -42,7 +42,7 @@ namespace Linq.Flickr.Repository
             request.ContentType = "charset=UTF-8";
             request.ContentLength = 0;
             // Get the request stream.
-            Stream dataStream = request.GetRequestStream();
+            Stream dataStream;
             // Get the response.
             WebResponse response = request.GetResponse();
 

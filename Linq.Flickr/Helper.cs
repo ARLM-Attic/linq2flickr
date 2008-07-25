@@ -37,6 +37,21 @@ namespace Linq.Flickr
             return BitConverter.ToString(output).Replace("-", "").ToLower();
         }
 
+        internal static DateTime GetDate(this string timeStamp)
+        {
+            long ticks = 0;
+            long.TryParse(timeStamp, out ticks);
+            // First make a System.DateTime equivalent to the UNIX Epoch.
+            System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+
+            // Add the number of seconds in UNIX timestamp to be converted.
+            dateTime = dateTime.AddSeconds(ticks);
+
+            // The dateTime now contains the right date/time so to format the string,
+            // use the standard formatting methods of the DateTime object.
+            return dateTime;
+        }
+
         public static XElement ValidateResponse(this XElement element)
         {
             if (element.Attribute("stat").Value == "ok")

@@ -11,12 +11,12 @@ namespace Linq.Flickr
 {
     public class PopularTagQuery : Query<PopularTag>
     {
-        protected override void AddItem(Bucket item)
+        protected override bool AddItem(Bucket item)
         {
             throw new Exception("Add not supported for hot tags");
         }
 
-        protected override void RemoveItem(Bucket item)
+        protected override bool RemoveItem(Bucket item)
         {
             throw new Exception("Remove not supported for hot tags");
         }

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project name="linqFlickr" default="build" >
+    <!-- Compile the test task and add it then use it. -->
+    <target name="clean">
+        <!-- Delete the build output. -->
+        <delete file="bin/Linq.Flickr" if="${file::exists('bin/Linq.Flickr.dll')}" />
+    </target>
+    <target name="build" depends="clean">
+        <mkdir dir="bin" />
+        <csc target="library" output="bin/Linq.Flickr.dll" >
+            <sources>
+                <include name="Linq.Flickr\Attribute\XAttributeAttribute.cs" />
+                <include name="Linq.Flickr\Attribute\XElementAttribute.cs" />
+                <include name="Linq.Flickr\Attribute\FlickrMethodAttribute.cs" />
+                <include name="Linq.Flickr\Attribute\XNameAttribute.cs" />
+                <include name="Linq.Flickr\AuthToken.cs" />
+                <include name="Linq.Flickr\FlickrException.cs" />
+                <include name="Linq.Flickr\Interface\IHttpCallBase.cs" />
+                <include name="Linq.Flickr\Interface\IRepositoryBase.cs" />
+                <include name="Linq.Flickr\Repository\HttpCallBase.cs" />
+                <include name="Linq.Flickr\Repository\RestToCollectionBuilder.cs" />
+                <include name="Linq.Flickr\Comment.cs" />
+                <include name="Linq.Flickr\CommentQuery.cs" />
+                <include name="Linq.Flickr\Configuration\FlickrSettings.cs" />
+                <include name="Linq.Flickr\PopularTag.cs" />
+                <include name="Linq.Flickr\Interface\ICommentRepository.cs" />
+                <include name="Linq.Flickr\Interface\IPeopleRepository.cs" />
+                <include name="Linq.Flickr\Interface\ITagRepository.cs" />
+                <include name="Linq.Flickr\PeopleQuery.cs" />
+                <include name="Linq.Flickr\Repository\BaseRepository.cs" />
+                <include name="Linq.Flickr\Repository\CommentRepository.cs" />
+                <include name="Linq.Flickr\Repository\PeopleRepository.cs" />
+                <include name="Linq.Flickr\Repository\PhotoRepository.cs" />
+                <include name="Linq.Flickr\FlickrContext.cs" />
+                <include name="Linq.Flickr\PhotoQuery.cs" />
+                <include name="Linq.Flickr\Helper.cs" />
+                <include name="Linq.Flickr\Interface\IPhotoRepository.cs" />
+                <include name="Linq.Flickr\Photo.cs" />
+                <include name="Linq.Flickr\Properties\AssemblyInfo.cs" />
+                <include name="Linq.Flickr\Repository\TagRepository.cs" />
+                <include name="Linq.Flickr\Tag.cs" />
+                <include name="Linq.Flickr\People.cs" />
+                <include name="Linq.Flickr\PopularTagQuery.cs" />
+            </sources>
+            <references basedir="${project::get-base-directory()}\External">
+                <include name="LinqExtender.dll"/>
+            </references>
+        </csc>
+
+        <copy todir="${project::get-base-directory()}\bin" overwrite="true">
+            <fileset basedir="${project::get-base-directory()}\External">
+                <include name="LinqExtender.dll"/>
+            </fileset>
+        </copy>
+        
+    </target>
+
+    
+</project>

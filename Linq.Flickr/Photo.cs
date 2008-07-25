@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Drawing;
+using Linq.Flickr.Attribute;
 using LinqExtender;
 using LinqExtender.Attribute;
 
@@ -47,24 +48,119 @@ namespace Linq.Flickr
         Interestingness
     }
 
-    [Serializable]
+    public enum FilterMode
+    {
+        Safe = 1,
+        Moderate = 2,
+        Restricted = 3
+    }
+
+    [Serializable, XElement("photo")]
     public class Photo : QueryObjectBase
     {
         private string _Url = string.Empty;
-        [LinqVisible(false), OriginalFieldName("title")]
+        [LinqVisible(false), OriginalFieldName("title"), XAttribute("title")]
         public string Title { get; set; }
         [LinqVisible(false), OriginalFieldName("description")]
         public string Description { get; set; }
-        [OriginalFieldName("photo_id"), LinqVisible]
+        [OriginalFieldName("photo_id"), LinqVisible, UniqueIdentifier, XAttribute("id")]
         public string Id { get; set; }
-        public string PhotoPage { get; internal set; }
+
+        private string _webUrl = string.Empty;
+        /// <summary>
+        /// The original url of the photo in flickr page.
+        /// </summary>
+        public string WebUrl
+        {
+            get
+            {
+                _webUrl = string.Format("http://www.flickr.com/photos/{0}/{1}/", NsId, Id);
+                return _webUrl;
+            }
+            internal set
+            {
+                _webUrl = value;   
+            }
+        }
+        [XAttribute("secret")]
         internal string SecretId { get; set; }
+        [XAttribute("server")]
         internal string ServerId { get; set; }
+        [XAttribute("farm")]
         internal string FarmId { get; set; }
+        [XAttribute("dateupload")]
         internal string DateUploaded { get; set;}
+        /// <summary>
+        /// tied to Extras option
+        /// </summary>
+        [XAttribute("lastupdate")]
+        internal string LastUpdated { get; set; }
+        /// <summary>
+        /// tied to Extras option
+        /// </summary>
+        [XAttribute("datetaken")]
+        internal string DateTaken { get; set; }
+        [XAttribute("ispublic")]
         internal bool IsPublic { get; set; }
+        [XAttribute("isfriend")]
         internal bool IsFriend { get; set; }
+        [XAttribute("isfamily")]
         internal bool IsFamily { get; set; }
+       /// <summary>
+       /// tied to Extras option
+       /// </summary>
+        [XAttribute("license")]
+        public string License { get; internal set; }
+        /// <summary>
+        /// tied to Extras option
+        /// </summary>
+        [XAttribute("views")]
+        public int Views { get; internal set; }
+        /// <summary>
+        /// tied to Extras option
+        /// </summary>
+        [XAttribute("owner_name")]
+        public string OwnerName { get; internal set; }
+        /// <summary>
+        /// tied to Extras option
+        /// </summary>
+        [XAttribute("media")]
+        public string Media { get; internal set; }
+        /// <summary>
+        /// tied to Extras option
+        /// </summary>
+        [XAttribute("original_format")]
+        public string OriginalFormat { get; internal set; }
+        /// <summary>
+        /// tied to Extras option Geo
+        /// </summary>
+        [XAttribute("latitude")]
+        public string Latitude { get; internal set; }
+        /// <summary>
+        /// tied to Extras option Geo
+        /// </summary>
+        [XAttribute("longitude")]
+        public string Longitude { get; internal set; }
+        /// <summary>
+        /// tied to Extras option Geo
+        /// </summary>
+        [XAttribute("accuracy")]
+        public string Accuracy { get; internal set; }
+
+        private int _filterMode;
+
+        [OriginalFieldName("safe_search"), LinqVisible]
+        public FilterMode FilterMode
+        {
+            get
+            {
+                return (FilterMode)_filterMode;
+            }
+            internal set
+            {
+                _filterMode = (int)value;
+            }      
+        }
 
 
         public override bool IsNew
@@ -143,10 +239,8 @@ namespace Linq.Flickr
             }
             catch
             {
-                throw new Exception("Invalid image file");
+                return null;
             }
-
-
         }
 
         public Photo()
@@ -154,6 +248,7 @@ namespace Linq.Flickr
             IsPublic = true;
             this.SortOrder = PhotoOrder.Date_Posted;
             this.SearchMode = SearchMode.FreeText;
+            this.FilterMode = FilterMode.Safe;
         }
 
         private int _size = 0;
@@ -165,7 +260,7 @@ namespace Linq.Flickr
             {
                 return (PhotoSize)_size;
             }
-            set
+            internal set
             {
                 _size = (int)value;
             }
@@ -196,12 +291,19 @@ namespace Linq.Flickr
             {
                 return (SearchMode)_searchMode;
             }
-            set
+            internal set
             {
                 _searchMode = (int)value;
             }
         }
-
+        /// <summary>
+        /// A comma-delimited list of extra information to fetch for each returned record. 
+        /// Currently supported fields are: license, date_upload, date_taken, owner_name, icon_server, 
+        /// original_format, last_update, geo, tags, machine_tags, o_dims, views, media. 
+        /// </summary>
+        [LinqVisible, OriginalFieldName("extras")]
+        public string Extras { get; internal set; }
+  
         int _visibility = 0;
 
         [LinqVisible(), OriginalFieldName("privacy_filter")]
@@ -239,12 +341,35 @@ namespace Linq.Flickr
                 _sortOrder = (int)value;
             }
         }
-        
+        /// <summary>
+        /// date when photo is uploaded in flickr
+        /// </summary>
         public DateTime UploadedOn
         {
             get
             {
-               return new DateTime(long.Parse(DateUploaded));
+                return DateUploaded.GetDate();
+            }
+        }
+        /// <summary>
+        /// date when photo is updated in flickr
+        /// </summary>
+        public DateTime UpdatedOn
+        {
+            get
+            {
+                return LastUpdated.GetDate();
+            }
+        }
+
+        /// <summary>
+        /// the date when the photo is taken.
+        /// </summary>
+        public DateTime TakeOn
+        {
+            get
+            {
+                return DateTime.Parse(DateTaken);
             }
         }
 
@@ -278,6 +403,7 @@ namespace Linq.Flickr
         /// <summary>
         /// this is the unique Id aginst username, is availble with data only by GetPhotoDetail
         /// </summary>
+        [XAttribute("owner")]
         public string NsId { get; internal set; }    
 
         private string GetSizePostFix(PhotoSize size)
@@ -320,17 +446,33 @@ namespace Linq.Flickr
             }
         }
 
-
-        public class CommonAttribute
+        [XElement("photos")]
+        public class CommonAttribute : IDisposable
         {
+            [XAttribute("page")]
             public int Page { get; set; }
+            [XAttribute("pages")]
             public int Pages { get; set; }
+            [XAttribute("perpage")]
             public int Perpage { get; set; }
+            [XAttribute("total")]
             public int Total { get; set; }
+
+            #region IDisposable Members
+
+            void IDisposable.Dispose()
+            {
+                //throw new NotImplementedException();
+            }
+
+            #endregion
         }
+
         /// <summary>
         /// holds out the common propeties like page , total page count and total item count
         /// </summary>
-        public CommonAttribute SharedProperty = new CommonAttribute();
+        public CommonAttribute SharedProperty { get; set; }
     }
+
+   
 }

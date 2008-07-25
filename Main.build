@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<project name="LinqToFlickr" default="run">
+    
+    <property name="nunit" value="ThirdParty\Nunit\nunit-console.exe" />
+    <property name="typemock" value="C:\Program Files\Typemock\Typemock Isolator\TMockRunner.exe" />
+
+    <target name="run">
+        <nant target="build">
+        <buildfiles>
+            <include name="LinqFlickr.build" />
+            <include name="LinqFlickrTest.build" />
+        </buildfiles>
+        </nant>
+        <!-- Dynamically load Typemock NAnat tasks --><!--
+        <loadtasks assembly="${typemock.dir}\TypeMock.NAntBuild.dll" />
+        --><!-- Start Typemock Isolator --><!--
+        <typemockstart target="2.0"/>-->
+
+        <!-- Execute tests using NUnit -->
+        <exec program="${typemock}" failonerror="false" verbose="true" >
+  	        <arg value="${nunit}" />
+            	<arg value="bin\Linq.Flickr.Test.dll" />
+        </exec>
+        <!-- Stop Typemock Isolator -->
+        <!--<typemockstop/>-->
+    </target>
+</project>
+
+
+

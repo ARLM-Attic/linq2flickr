@@ -117,8 +117,6 @@ namespace Linq.Flickr.Test
 
                 _context.Photos.Remove(photo);
                 _context.SubmitChanges();
-
-                Assert.IsTrue(photo.IsDeleted);
             }
 
             MockManager.Verify();
@@ -126,7 +124,7 @@ namespace Linq.Flickr.Test
 
         internal string GetHash(string inputString)
         {
-            MD5 md5 = MD5CryptoServiceProvider.Create();
+            MD5 md5 = MD5.Create();
 
             byte[] input = Encoding.UTF8.GetBytes(inputString);
             byte[] output = MD5.Create().ComputeHash(input);
@@ -148,22 +146,42 @@ namespace Linq.Flickr.Test
             {
                 photoGetMock.MockElementCall("Linq.Flickr.Test.Responses.Search.xml");
 
-                var searchQuery = from photo in _context.Photos
-                                  where photo.SearchMode == SearchMode.TagsOnly && photo.SearchText == "microsoft"
-                                  select photo;
+                var searchQuery = (from p in _context.Photos
+                             where p.SearchText == "macbook" && p.FilterMode == FilterMode.Safe && p.Extras == "views,date_taken,media,date_upload, license,geo,last_update"
+                             orderby PhotoOrder.Interestingness ascending
+                             select p).Take(100);
 
                 int count = searchQuery.Count();
 
                 Photo first = searchQuery.First();
 
                 Assert.IsTrue(first.SharedProperty.Perpage == count);
-                Assert.IsTrue(first.Title == "Mug Shot" && first.Id == "2428052817");
+                Assert.IsTrue(first.Title == "doubleMac.jpg" && first.Id == "538886990");
+                Assert.IsTrue(first.Views == 38);
 
                 Photo last = searchQuery.Last();
 
                 Assert.IsTrue(last.SharedProperty.Page == 1);
-                Assert.IsTrue(last.SharedProperty.Total == 105714);
-                Assert.IsTrue(last.Title == "attendee event" && last.Id == "2423378493");
+                Assert.IsTrue(last.SharedProperty.Total == 110229);
+                Assert.IsTrue(last.Title == "Perfect" && last.Id == "2485512205");
+
+                DateTime dateTime =  DateTime.Parse("2008-05-12 04:07:20");
+                
+                Assert.IsTrue(dateTime == last.TakeOn);
+
+                dateTime = GetDate("1210590440");
+
+                Assert.IsTrue(dateTime == last.UploadedOn);
+
+                dateTime = GetDate("1210590442");
+
+                Assert.IsTrue(dateTime == last.UpdatedOn);
+
+                //Assert.IsTrue();
+
+                string constructedWebUrl = string.Format("http://www.flickr.com/photos/{0}/{1}/", last.NsId, last.Id);
+
+                Assert.IsTrue(string.Compare(constructedWebUrl, last.WebUrl, StringComparison.Ordinal) == 0);
             }
 
             using (FakeFlickrRepository<PhotoRepository, Photo> authenticatedMock = new FakeFlickrRepository<PhotoRepository, Photo>())
@@ -197,10 +215,21 @@ namespace Linq.Flickr.Test
 
                 Assert.IsTrue(detailPhoto.User == "*Park+Ride*");
                 Assert.IsTrue(detailPhoto.NsId == "63497523@N00");
-                Assert.IsTrue(detailPhoto.PhotoPage == "http://www.flickr.com/photos/adamjohnpark/2428052817/");
+                Assert.IsTrue(detailPhoto.WebUrl == "http://www.flickr.com/photos/63497523@N00/2428052817/");
             }
 
             MockManager.Verify();
+        }
+
+        DateTime GetDate(string timeStamp)
+        {
+            long ticks = 0;
+            long.TryParse(timeStamp, out ticks);
+            // First make a System.DateTime equivalent to the UNIX Epoch.
+            System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+            // Add the number of seconds in UNIX timestamp to be converted.
+            dateTime = dateTime.AddSeconds(ticks);
+            return dateTime;
         }
 
         private const string COMMENT_PHOTO_ID = "1x";

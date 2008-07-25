@@ -15,6 +15,8 @@ namespace Linq.Flickr.Interface
         string AddComment(string photoId, string text);
         [FlickrMethod("flickr.photos.comments.deleteComment")]
         bool DeleteComment(string commentId);
+        [FlickrMethod("flickr.photos.comments.editComment")]
+        bool EditComment(string photoId, string text);
         
     }
 }

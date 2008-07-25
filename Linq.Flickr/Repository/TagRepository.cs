@@ -21,7 +21,7 @@ namespace Linq.Flickr.Repository
            
             RestToCollectionBuilder<PopularTag> builder = new RestToCollectionBuilder<PopularTag>("hottags");
 
-            return builder.ToCollection(requestUrl);
+            return builder.ToCollection(requestUrl, null);
         }
 
         #endregion
