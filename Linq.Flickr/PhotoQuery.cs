@@ -141,6 +141,11 @@ namespace Linq.Flickr
             {
                 get { return "FilterMode"; }
             }
+
+            public static string EXTRAS
+            {
+                get { return "Extras"; }
+            }
         }
 
         protected override void Process(IModify<Photo> items, Bucket bucket)
@@ -256,6 +261,11 @@ namespace Linq.Flickr
                             {
                                 SearchMode searchMode = bucket.Items[PhotoColumns.SEARCH_MODE].Value == null ? SearchMode.FreeText : (SearchMode)bucket.Items[PhotoColumns.SEARCH_MODE].Value;
                                 args[itemIndex] = searchMode == SearchMode.TagsOnly ? "tags" : item.Name;
+                            }
+                            else if (string.Compare(item.Name, "extras") == 0)
+                            {
+                                ExtrasOption extras = bucket.Items[PhotoColumns.EXTRAS].Value == null ? ExtrasOption.None : (ExtrasOption)bucket.Items[PhotoColumns.EXTRAS].Value;
+                                args[itemIndex] = extras.GetExtrasString();
                             }
                             else
                             {

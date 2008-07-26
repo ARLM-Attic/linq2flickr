@@ -52,6 +52,66 @@ namespace Linq.Flickr
             return dateTime;
         }
 
+
+        internal static string GetExtrasString(this ExtrasOption extras)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            if ((extras & ExtrasOption.Date_Taken) == ExtrasOption.Date_Taken)
+            {
+                builder.Append(ExtrasOption.Date_Taken.ToString());
+            }
+            if ((extras & ExtrasOption.Date_Upload) == ExtrasOption.Date_Upload)
+            {
+                if (builder.Length > 0) builder.Append(",");
+                builder.Append(ExtrasOption.Date_Upload.ToString());
+            }
+            if ((extras & ExtrasOption.Icon_Server) == ExtrasOption.Icon_Server)
+            {
+                if (builder.Length > 0) builder.Append(",");
+                builder.Append(ExtrasOption.Icon_Server.ToString());
+            }
+            if ((extras & ExtrasOption.License) == ExtrasOption.License)
+            {
+                if (builder.Length > 0) builder.Append(",");
+                builder.Append(ExtrasOption.License.ToString());
+            }
+            if ((extras & ExtrasOption.Owner_Name) == ExtrasOption.Owner_Name)
+            {
+                if (builder.Length > 0) builder.Append(",");
+                builder.Append(ExtrasOption.Owner_Name.ToString());
+            }
+            if ((extras & ExtrasOption.Original_Format) == ExtrasOption.Original_Format)
+            {
+                if (builder.Length > 0) builder.Append(",");
+                builder.Append(ExtrasOption.Owner_Name.ToString());
+            }
+
+            if ((extras & ExtrasOption.Last_Update) == ExtrasOption.Last_Update)
+            {
+                if (builder.Length > 0) builder.Append(",");
+                builder.Append(ExtrasOption.Last_Update.ToString());
+            }
+
+            if ((extras & ExtrasOption.Tags) == ExtrasOption.Tags)
+            {
+                if (builder.Length > 0) builder.Append(",");
+                builder.Append(ExtrasOption.Tags.ToString());
+            }
+
+            if ((extras & ExtrasOption.Geo) == ExtrasOption.Geo)
+            {
+                if (builder.Length > 0) builder.Append(",");
+                builder.Append(ExtrasOption.Geo.ToString());
+            }
+            if ((extras & ExtrasOption.Views) == ExtrasOption.Views)
+            {
+                if (builder.Length > 0) builder.Append(",");
+                builder.Append(ExtrasOption.Views.ToString());
+            }
+            return builder.ToString().ToLower();
+        }
+
         public static XElement ValidateResponse(this XElement element)
         {
             if (element.Attribute("stat").Value == "ok")

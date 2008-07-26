@@ -147,7 +147,8 @@ namespace Linq.Flickr.Test
                 photoGetMock.MockElementCall("Linq.Flickr.Test.Responses.Search.xml");
 
                 var searchQuery = (from p in _context.Photos
-                             where p.SearchText == "macbook" && p.FilterMode == FilterMode.Safe && p.Extras == "views,date_taken,media,date_upload, license,geo,last_update"
+                             where p.SearchText == "macbook" && p.FilterMode == FilterMode.Safe 
+                             && p.Extras == (ExtrasOption.Views | ExtrasOption.Date_Taken | ExtrasOption.Date_Upload)
                              orderby PhotoOrder.Interestingness ascending
                              select p).Take(100);
 

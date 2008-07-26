@@ -55,6 +55,25 @@ namespace Linq.Flickr
         Restricted = 3
     }
 
+    [Flags]
+    public enum ExtrasOption
+    {
+        None = 0,
+        License = 1,
+        Date_Upload = 2,
+        Date_Taken = 4,
+        Owner_Name = 8,
+        Icon_Server = 16,
+        Original_Format = 32,
+        Last_Update = 64,
+        Geo = 128,
+        Tags = 256,
+        Machine_Tags = 512,
+        Views = 1024,
+        Media = 2048,
+        All = License | Date_Upload | Date_Taken | Owner_Name | Icon_Server | Original_Format | Last_Update | Geo | Tags | Machine_Tags | Views | Media,
+    }
+
     [Serializable, XElement("photo")]
     public class Photo : QueryObjectBase
     {
@@ -267,7 +286,9 @@ namespace Linq.Flickr
         }
 
         private int _tagMode = 0;
-
+        /// <summary>
+        /// Defines the tag condition ANY or AND , default is ANY
+        /// </summary>
         [LinqVisible, OriginalFieldName("tag_mode")]
         public TagMode TagMode
         {
@@ -284,6 +305,9 @@ namespace Linq.Flickr
 
         private int _searchMode = 0;
 
+        /// <summary>
+        /// Defines in which mode you will get the photos , Currenlty supported FreeText or TagsOnly
+        /// </summary>
         [LinqVisible]
         public SearchMode SearchMode
         {
@@ -296,16 +320,34 @@ namespace Linq.Flickr
                 _searchMode = (int)value;
             }
         }
+        private ExtrasOption _extras = ExtrasOption.None;
+
         /// <summary>
         /// A comma-delimited list of extra information to fetch for each returned record. 
         /// Currently supported fields are: license, date_upload, date_taken, owner_name, icon_server, 
-        /// original_format, last_update, geo, tags, machine_tags, o_dims, views, media. 
+        /// original_format, last_update, geo, tags, machine_tags, views, media. 
+        /// Use ExtrasOption enum with  | to set your options. Ex 
+        /// p.Extras == (ExtrasOption.Views | ExtrasOption.Date_Taken | ExtrasOption.Date_Upload), dont forget to use parenthesis.
         /// </summary>
         [LinqVisible, OriginalFieldName("extras")]
-        public string Extras { get; internal set; }
+        public ExtrasOption Extras
+        {
+            get
+            {
+                return _extras;
+            }
+            set
+            {
+                _extras = value;
+            }
+        }
   
         int _visibility = 0;
 
+        /// <summary>
+        /// Defines which type photo you want to get , Private or others, if you want get things from your stream
+        /// use ViewMode.Owner.
+        /// </summary>
         [LinqVisible(), OriginalFieldName("privacy_filter")]
         public ViewMode ViewMode
         {
