@@ -262,6 +262,8 @@ namespace Linq.Flickr.Test
 
             #region Get added comment
 
+            Comment commentGet = null;
+
             using (FakeFlickrRepository<CommentRepository, Comment> commentGetMock = new FakeFlickrRepository<CommentRepository, Comment>())
             {
                 commentGetMock.MockSignatureCall();
@@ -271,9 +273,23 @@ namespace Linq.Flickr.Test
                             where c.PhotoId == COMMENT_PHOTO_ID && c.Id == comment.Id
                             select c;
 
-                Comment commentGet = query.Single();
+                commentGet = query.Single();
 
                 Assert.IsTrue(commentGet.Author == "11" && commentGet.PhotoId == COMMENT_PHOTO_ID && commentGet.AuthorName == "John Doe");
+            }
+            #endregion
+
+
+            #region update comment
+            using (FakeFlickrRepository<CommentRepository, Comment> commentUpdateMock = new FakeFlickrRepository<CommentRepository, Comment>())
+            {
+                commentUpdateMock.MockAuthenticateCall(Permission.Delete, 1);
+                commentUpdateMock.MockSignatureCall();
+                commentUpdateMock.MockDoHttpPostAndReturnStringResult(RESOURCE_NS + ".UpdateComment.xml");
+
+                commentGet.Text = "CommentUpdate";
+
+                _context.SubmitChanges();
             }
             #endregion
 

@@ -49,9 +49,7 @@ namespace Linq.Flickr
         {
             get
             {
-                long longdate = 0;
-                long.TryParse(PDateCreated, out longdate);
-                return new DateTime(longdate);
+                return PDateCreated.GetDate();
             }
         }
     }

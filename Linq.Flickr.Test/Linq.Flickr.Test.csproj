@@ -84,6 +84,7 @@
   <ItemGroup>
     <EmbeddedResource Include="blank.gif" />
     <Content Include="Readme.txt" />
+    <EmbeddedResource Include="Responses\UpdateComment.xml" />
     <EmbeddedResource Include="Responses\PhotoDetail.xml" />
     <EmbeddedResource Include="Responses\DeletePhoto.xml" />
     <EmbeddedResource Include="Responses\Photo.xml" />
