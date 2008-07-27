@@ -185,6 +185,8 @@ namespace Linq.Flickr.Test
                 Assert.IsTrue(string.Compare(constructedWebUrl, last.WebUrl, StringComparison.Ordinal) == 0);
             }
 
+            Photo authPhoto = null;
+
             using (FakeFlickrRepository<PhotoRepository, Photo> authenticatedMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
                 authenticatedMock.MockSignatureCall();
@@ -196,10 +198,26 @@ namespace Linq.Flickr.Test
                                 where photo.ViewMode == ViewMode.Owner && photo.User == "neetulee"
                                 select photo;
 
-                Photo lastPhoto = authQuery.Last();
+                authPhoto = authQuery.Last();
 
-                Assert.IsTrue(lastPhoto.ViewMode == ViewMode.Private);
+                Assert.IsTrue(authPhoto.ViewMode == ViewMode.Private);
 
+            }
+
+            
+            using (FakeFlickrRepository<PhotoRepository, Photo> authenticatedMockU = new FakeFlickrRepository<PhotoRepository, Photo>())
+            {
+                const string updatedTitle = "NewTitle";
+                authenticatedMockU.MockAuthenticateCall(Permission.Delete, 1);
+                // line verfies if the text is passed properly for update.
+                authenticatedMockU.MockSignatureCall("flickr.photos.setMeta", true, "photo_id", authPhoto.Id, "title", updatedTitle,
+                                                     "description", authPhoto.Description ?? " ", "auth_token", "1234");
+
+                authenticatedMockU.MockDoHttpPostAndReturnStringResult(RESOURCE_NS + ".DeletePhoto.xml");
+
+                authPhoto.Title = updatedTitle;
+                // will raise a update call.
+                _context.SubmitChanges();
             }
 
             using (FakeFlickrRepository<PhotoRepository, Photo> getDetailPhoto = new FakeFlickrRepository<PhotoRepository, Photo>())
@@ -214,6 +232,7 @@ namespace Linq.Flickr.Test
 
                 Photo detailPhoto = photoDetailQuery.Single();
 
+                Assert.IsTrue(detailPhoto.UploadedOn == GetDate("1208716675"));
                 Assert.IsTrue(detailPhoto.User == "*Park+Ride*");
                 Assert.IsTrue(detailPhoto.NsId == "63497523@N00");
                 Assert.IsTrue(detailPhoto.WebUrl == "http://www.flickr.com/photos/63497523@N00/2428052817/");
@@ -283,11 +302,13 @@ namespace Linq.Flickr.Test
             #region update comment
             using (FakeFlickrRepository<CommentRepository, Comment> commentUpdateMock = new FakeFlickrRepository<CommentRepository, Comment>())
             {
+                const string updateText = "#123#";
                 commentUpdateMock.MockAuthenticateCall(Permission.Delete, 1);
-                commentUpdateMock.MockSignatureCall();
+                // line verfies if the text is passed properly for update.
+                commentUpdateMock.MockSignatureCall("flickr.photos.comments.editComment", true, "comment_id", "1", "comment_text", updateText, "auth_token", "1234");
                 commentUpdateMock.MockDoHttpPostAndReturnStringResult(RESOURCE_NS + ".UpdateComment.xml");
 
-                commentGet.Text = "CommentUpdate";
+                commentGet.Text = updateText;
 
                 _context.SubmitChanges();
             }

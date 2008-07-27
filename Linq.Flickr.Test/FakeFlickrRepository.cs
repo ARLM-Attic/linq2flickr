@@ -38,6 +38,11 @@ namespace Linq.Flickr.Test
             _mockRepository.ExpectAndReturn("GetSignature", signature);
         }
 
+        public void MockSignatureCall(string method, bool doInclude, params object[] args)
+        {
+            _mockRepository.ExpectAndReturn("GetSignature", signature).Args(method, doInclude, args);
+        }
+
         public void MockAutheticatedGetElement(string resource, bool validate, Permission permission)
         {
             this.MockSignatureCall();
@@ -115,6 +120,11 @@ namespace Linq.Flickr.Test
         public void MockDoHttpPostAndReturnStringResult(string resource)
         {
             _mockRepository.ExpectAndReturn("DoHTTPPost", MockElement(resource).ToString());
+        }
+
+        public void MockMethodCalll(string method, object ret, int timesToRun,  params object [] args)
+        {
+            _mockRepository.ExpectAndReturn(method, ret, timesToRun).Args(args);
         }
 
         public void MockCreateAndStoreNewToken(Permission permission)

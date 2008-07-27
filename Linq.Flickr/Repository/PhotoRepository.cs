@@ -271,7 +271,10 @@ namespace Linq.Flickr.Repository
                                        User = photo.Element("owner").Attribute("username").Value ?? string.Empty,
                                        NsId = photo.Element("owner").Attribute("nsid").Value ?? string.Empty,
                                        Description = photo.Element("description").Value ?? string.Empty,
-                                       DateUploaded =  photo.Attribute("dateuploaded").Value,
+                                       DateUploaded =  photo.Element("dates").Attribute("posted").Value ?? string.Empty,
+                                       DateTaken = photo.Element("dates").Attribute("taken").Value ?? string.Empty,
+                                       LastUpdated = photo.Element("dates").Attribute("lastupdate").Value ?? string.Empty,
+
                                        PTags = (from tag in photo.Descendants("tag")
                                                 select new Tag
                                                            {

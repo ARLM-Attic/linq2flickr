@@ -2,7 +2,7 @@
 <project name="LinqToFlickr" default="run">
     
     <property name="nunit" value="ThirdParty\Nunit\nunit-console.exe" />
-    <property name="typemock" value="C:\Program Files\Typemock\Typemock Isolator\TMockRunner.exe" />
+    <property name="typemock" value="C:\Program Files\Typemock\Isolator\4.3\TMockRunner.exe" />
 
     <target name="run">
         <nant target="build">
