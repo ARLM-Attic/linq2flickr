@@ -265,7 +265,8 @@ namespace Linq.Flickr
                             else if (string.Compare(item.Name, "extras") == 0)
                             {
                                 ExtrasOption extras = bucket.Items[PhotoColumns.EXTRAS].Value == null ? ExtrasOption.None : (ExtrasOption)bucket.Items[PhotoColumns.EXTRAS].Value;
-                                args[itemIndex] = extras.GetExtrasString();
+                                args[itemIndex] = item.Name;
+                                value = extras.GetExtrasString();
                             }
                             else
                             {

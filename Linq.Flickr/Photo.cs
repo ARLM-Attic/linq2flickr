@@ -415,20 +415,28 @@ namespace Linq.Flickr
             }
         }
 
-        internal Tag[] PTags { get; set; }
-        public Tag[] PhotoTags { get { return PTags; } }
-
         private string[] _tags = new string[0];
-
-        internal string Tags 
+        /// <summary>
+        ///  array of photo tags.
+        /// </summary>
+        public string[] Tags
         {
             get
             {
-                return string.Join(",", _tags).Replace(" ", string.Empty);
+                return _tags;
             }
             set
             {
-                _tags = value.Split(new char[] { ',', ';'}, StringSplitOptions.RemoveEmptyEntries);
+                _tags = value;
+            }
+        }
+
+        [XAttribute("tags")]
+        internal string PTags 
+        {
+            set
+            {
+                _tags = value.Split(new char[] { ',', ';', ' '}, StringSplitOptions.RemoveEmptyEntries);
             }
         }
 

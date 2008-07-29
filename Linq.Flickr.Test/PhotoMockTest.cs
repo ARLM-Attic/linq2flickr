@@ -148,7 +148,7 @@ namespace Linq.Flickr.Test
 
                 var searchQuery = (from p in _context.Photos
                              where p.SearchText == "macbook" && p.FilterMode == FilterMode.Safe 
-                             && p.Extras == (ExtrasOption.Views | ExtrasOption.Date_Taken | ExtrasOption.Date_Upload)
+                             && p.Extras == (ExtrasOption.Views | ExtrasOption.Date_Taken | ExtrasOption.Date_Upload | ExtrasOption.Tags | ExtrasOption.Date_Upload)
                              orderby PhotoOrder.Interestingness ascending
                              select p).Take(100);
 
@@ -157,26 +157,28 @@ namespace Linq.Flickr.Test
                 Photo first = searchQuery.First();
 
                 Assert.IsTrue(first.SharedProperty.Perpage == count);
-                Assert.IsTrue(first.Title == "doubleMac.jpg" && first.Id == "538886990");
-                Assert.IsTrue(first.Views == 38);
+                Assert.IsTrue(first.Title == "test" && first.Id == "505611561");
+                Assert.IsTrue(first.Views == 8);
 
                 Photo last = searchQuery.Last();
 
                 Assert.IsTrue(last.SharedProperty.Page == 1);
-                Assert.IsTrue(last.SharedProperty.Total == 110229);
-                Assert.IsTrue(last.Title == "Perfect" && last.Id == "2485512205");
+                Assert.IsTrue(last.SharedProperty.Total == 66604);
+                Assert.IsTrue(last.Title == "DSCN0355" && last.Id == "2373030074");
 
-                DateTime dateTime =  DateTime.Parse("2008-05-12 04:07:20");
+                DateTime dateTime = DateTime.Parse("2008-03-29 20:25:05");
                 
                 Assert.IsTrue(dateTime == last.TakeOn);
 
-                dateTime = GetDate("1210590440");
+                dateTime = GetDate("1206847505");
 
                 Assert.IsTrue(dateTime == last.UploadedOn);
 
-                dateTime = GetDate("1210590442");
+                dateTime = GetDate("1206847506");
 
                 Assert.IsTrue(dateTime == last.UpdatedOn);
+
+                Assert.IsTrue(last.Tags.Length == 2);
 
                 //Assert.IsTrue();
 
