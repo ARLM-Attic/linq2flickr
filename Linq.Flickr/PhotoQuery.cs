@@ -226,6 +226,9 @@ namespace Linq.Flickr
             {
                 BucketItem item = bucket.Items[key];
 
+                if (string.Compare(item.Name, PhotoColumns.SEARCH_MODE) == 0) continue;
+                if (string.Compare(item.Name, PhotoColumns.PHOTOSIZE) == 0) continue;
+
                 if (item.Name != PhotoColumns.PHOTOSIZE) // PhotoSize is for internal use.
                 {
                     if (item.Value != null && ((item.QueryVisible) || includeNonVisibleItems))
@@ -262,6 +265,7 @@ namespace Linq.Flickr
                                 SearchMode searchMode = bucket.Items[PhotoColumns.SEARCH_MODE].Value == null ? SearchMode.FreeText : (SearchMode)bucket.Items[PhotoColumns.SEARCH_MODE].Value;
                                 args[itemIndex] = searchMode == SearchMode.TagsOnly ? "tags" : item.Name;
                             }
+                            
                             else if (string.Compare(item.Name, "extras") == 0)
                             {
                                 ExtrasOption extras = bucket.Items[PhotoColumns.EXTRAS].Value == null ? ExtrasOption.None : (ExtrasOption)bucket.Items[PhotoColumns.EXTRAS].Value;
