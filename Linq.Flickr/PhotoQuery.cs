@@ -190,8 +190,8 @@ namespace Linq.Flickr
                     // for private or semi-private photo do authenticate.
                     if (viewMode != ViewMode.Public)
                         authenticate = true;
-                    if (authenticate)
-                        token = flickr.Authenticate(authenticate, Permission.Delete);
+
+                    token = flickr.Authenticate(authenticate, Permission.Delete);
 
                     if (bucket.Items[PhotoColumns.ID].Value != null)
                     {

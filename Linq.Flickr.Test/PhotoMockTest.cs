@@ -63,25 +63,25 @@ namespace Linq.Flickr.Test
                 photoAddMock.FakeWebResponse_GetResponse();
                 photoAddMock.FakeWebResponseObject(RESOURCE_NS + ".Photo.xml");
                 
-               
                 // add to the collection.
                 _context.Photos.Add(photo);
                 _context.Photos.SubmitChanges();
 
+                fileStream.Dispose();
+
+                FileStream readStream = File.Open(path, FileMode.Open);
+
                 // read the binary content from file.
-                BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open));
+                BinaryReader reader = new BinaryReader(readStream);
 
                 byte[] content = new byte[reader.BaseStream.Length];
 
                 content = reader.ReadBytes(content.Length);
 
-
                 reader.Close();
-
-                fileStream.Close();
-                fileStream.Dispose();
-
-                File.Delete(path);
+                
+                readStream.Close();
+                readStream.Dispose();
 
                 // end file read
 
