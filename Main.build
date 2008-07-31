@@ -2,7 +2,10 @@
 <project name="LinqToFlickr" default="run">
     
     <property name="nunit" value="ThirdParty\Nunit\nunit-console.exe" />
-    <property name="typemock" value="C:\Program Files\Typemock\Isolator\4.3\TMockRunner.exe" />
+    <property name="typemock" value="C:\Program Files\Typemock\Isolator\4.3\TMockRunner.exe" /> 
+    <property name="targetDirectory" value="${project::get-base-directory()}\bin" overwrite="false" /> 
+    <property name="deployZipFilename" value="Linq.Flickr.Lib.zip" overwrite="true" />      
+    <property name="deployZipFileLocation" value="${path::combine(path::get-full-path(targetDirectory), deployZipFilename)}" overwrite="true" />  
 
     <target name="run">
         <nant target="build">
@@ -21,6 +24,15 @@
   	        <arg value="${nunit}" />
             	<arg value="bin\Linq.Flickr.Test.dll" />
         </exec>
+
+	 <zip zipfile="${deployZipFileLocation}" includeemptydirs="true">  
+      		<fileset basedir="${targetDirectory}">  
+       	 		<include name="Linq.Flickr.dll*" />  
+                <include name="LinqExtender.dll*" />
+                <include name="readme.txt*" />
+            </fileset>  
+    	 </zip>  			
+
         <!-- Stop Typemock Isolator -->
         <!--<typemockstop/>-->
     </target>

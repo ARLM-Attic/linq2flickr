@@ -52,6 +52,8 @@
                 <include name="LinqExtender.dll"/>
             </fileset>
         </copy>
+
+        <copy todir="${project::get-base-directory()}\bin" file="${project::get-base-directory()}\readme.txt" overwrite="true" />
         
     </target>
 
