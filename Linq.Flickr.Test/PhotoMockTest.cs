@@ -50,7 +50,7 @@ namespace Linq.Flickr.Test
                 photoRes.Read(oImage, 0, oImage.Length);
                 photoRes.Seek(0, SeekOrigin.Begin);
                 
-                string path = System.AppDomain.CurrentDomain.BaseDirectory + "\\photo.txt";
+                string path = System.AppDomain.CurrentDomain.BaseDirectory + "\\photo.txt" ;
 
                 FileStream fileStream = null;
 
@@ -75,7 +75,13 @@ namespace Linq.Flickr.Test
 
                 content = reader.ReadBytes(content.Length);
 
+
                 reader.Close();
+
+                fileStream.Close();
+                fileStream.Dispose();
+
+                File.Delete(path);
 
                 // end file read
 
@@ -104,6 +110,7 @@ namespace Linq.Flickr.Test
 
                 }
 
+                mStream.Close();
                 // end image verification.
 
                 Assert.IsTrue(photo.Id == "1");

@@ -18,15 +18,7 @@ namespace Linq.Flickr
         {
         }
 
-        public override bool IsNew
-        {
-            get
-            {
-                return string.IsNullOrEmpty(this.Id) ? true : false;
-            }
-        }
-
-        [LinqVisible(), OriginalFieldName("id"), XAttribute("id")]
+        [LinqVisible(), OriginalFieldName("id"), XAttribute("id"), UniqueIdentifier]
         public string Id { get; set; }
 
         [LinqVisible(), OriginalFieldName("photo_id"), XAttribute("photo_id")]

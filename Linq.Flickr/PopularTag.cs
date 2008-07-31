@@ -17,14 +17,6 @@ namespace Linq.Flickr
     [XElement("tag")]
     public class PopularTag : QueryObjectBase
     {
-        public override bool IsNew
-        {
-            get
-            {
-                return string.IsNullOrEmpty(Title) ? true : false;
-            }
-        }
-
         [LinqVisible(false), XElement("tag")]
         public string Title { get; internal set; }
         [LinqVisible, XAttribute("score")]

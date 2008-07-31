@@ -180,16 +180,6 @@ namespace Linq.Flickr
                 _filterMode = (int)value;
             }      
         }
-
-
-        public override bool IsNew
-        {
-            get
-            {
-                return string.IsNullOrEmpty(this.Id) ? true : false;
-            }
-        }
-        
         private string _uploadFilename = string.Empty;
 
         [LinqVisible(false), OriginalFieldName("photo")]
@@ -411,7 +401,9 @@ namespace Linq.Flickr
         {
             get
             {
-                return DateTime.Parse(DateTaken);
+                DateTime date;
+                DateTime.TryParse(DateTaken, out date);
+                return date;
             }
         }
 

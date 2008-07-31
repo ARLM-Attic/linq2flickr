@@ -18,14 +18,7 @@ namespace Linq.Flickr
     [XElement("person")]
     public class People : QueryObjectBase
     {
-        public override bool IsNew
-        {
-            get
-            {
-                return (string.IsNullOrEmpty(Id));
-            }
-        }
-        [LinqVisible, XAttribute("nsid")]
+        [LinqVisible, XAttribute("nsid"), UniqueIdentifier]
         public string Id { get; set; }
         [XAttribute("ispro")]
         public bool IsPro { get; set; }
