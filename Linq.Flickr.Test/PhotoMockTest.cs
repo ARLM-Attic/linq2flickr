@@ -231,12 +231,13 @@ namespace Linq.Flickr.Test
 
             using (FakeFlickrRepository<PhotoRepository, Photo> getDetailPhoto = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
+                getDetailPhoto.MockCreateAndStoreNewToken(Permission.Delete);
                 getDetailPhoto.MockAuthenticateCall(false, Permission.Delete, 1);
                 getDetailPhoto.MockSignatureCall();
                 getDetailPhoto.MockElementCall("Linq.Flickr.Test.Responses.PhotoDetail.xml");
                
                 var photoDetailQuery = from photo in _context.Photos
-                                       where photo.Id == "xxx" && photo.PhotoSize == PhotoSize.Medium
+                                       where photo.Id == "xxx" && photo.PhotoSize == PhotoSize.Medium && photo.ViewMode == ViewMode.Owner
                                        select photo;
 
                 Photo detailPhoto = photoDetailQuery.Single();

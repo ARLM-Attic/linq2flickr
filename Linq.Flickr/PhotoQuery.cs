@@ -30,6 +30,26 @@ namespace Linq.Flickr
             }
         }
 
+        protected override Photo GetItem(Bucket item)
+        {
+            // default values
+            PhotoSize size = item.Items[PhotoColumns.PHOTOSIZE].Value == null ? PhotoSize.Square : (PhotoSize)item.Items[PhotoColumns.PHOTOSIZE].Value;
+            ViewMode viewMode = item.Items[PhotoColumns.VIEWMODE].Value == null ? ViewMode.Public : (ViewMode)item.Items[PhotoColumns.VIEWMODE].Value;
+         
+            Photo photo = null;
+            using (IPhotoRepository flickr = new PhotoRepository())
+            {
+                AuthToken token = GetToken(viewMode, flickr);
+           
+                if (item.Items[PhotoColumns.ID].Value != null)
+                {
+                    photo = flickr.GetPhotoDetail((string) item.Items[PhotoColumns.ID].Value, size);
+                    
+                }
+            }
+            return photo;
+        }
+
         protected override bool AddItem(Bucket bucket)
         {
             using (IPhotoRepository flickr = new PhotoRepository())
@@ -185,31 +205,24 @@ namespace Linq.Flickr
                 }
                 else
                 {
-                    bool authenticate = false;
-                    AuthToken token = null;
-                    // for private or semi-private photo do authenticate.
-                    if (viewMode != ViewMode.Public)
-                        authenticate = true;
-
-                    token = flickr.Authenticate(authenticate, Permission.Delete);
-
-                    if (bucket.Items[PhotoColumns.ID].Value != null)
-                    {
-                        Photo photo = flickr.GetPhotoDetail((string)bucket.Items[PhotoColumns.ID].Value, size);
-
-                        if (photo != null)
-                        {
-                            items.Add(photo);
-                        }
-                    }
-                    else
-                    {
-                        string[] args = BuildSearchQuery(flickr, bucket, viewMode, false);
-                        items.AddRange(flickr.Search(index, itemsToTake, size, token == null ? string.Empty : token.Id, args));
-                    }
+                    AuthToken token = GetToken(viewMode, flickr);
+                    string[] args = BuildSearchQuery(flickr, bucket, viewMode, false);
+                    items.AddRange(flickr.Search(index, itemsToTake, size, token == null ? string.Empty : token.Id, args));
                 }
       
             }
+        }
+
+        private AuthToken GetToken(ViewMode viewMode, IPhotoRepository flickr)
+        {
+            bool authenticate = false;
+            AuthToken token = null;
+            // for private or semi-private photo do authenticate.
+            if (viewMode != ViewMode.Public)
+                authenticate = true;
+
+            token = flickr.Authenticate(authenticate, Permission.Delete);
+            return token;
         }
 
         private string[] BuildSearchQuery(IPhotoRepository flickr, Bucket bucket, ViewMode viewMode, bool includeNonVisibleItems)
