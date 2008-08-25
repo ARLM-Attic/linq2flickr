@@ -1,0 +1,28 @@
+<Project DefaultTargets="Deploy" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Project="Include.targets"/>
+  <Import Project="Linq.Flickr.targets"/>
+ 
+  <Target Name="Deploy" DependsOnTargets="Build">
+    <MakeDir Directories="$(BinDir)" />
+    <BatchCopy source="$(SourceDir)\Bin\Release" DestinationFolder="$(BinDir)" ExtensionToExclude=".pdb;" />
+    <BatchCopy source="$(TestDir)\Bin\Release" DestinationFolder="$(BinDir)" ExtensionToExclude=".pdb;" />
+      
+    <TypeMockRegister Company ="MEHFUZ HOSSAIN" License="L123-APDG-8A28-8F1B-E974" AutoDeploy="True"/>
+
+    <TypeMockStart/>
+      <Exec ContinueOnError="false" Command="$(NUnit) $(BinDir)\Linq.Flickr.Test.dll"/>
+    <TypeMockStop/>
+    
+    <!-- successful test -->
+
+    <CreateItem Include="$(BinDir)\**\Linq.Flickr.dll;$(BinDir)\**\LinqExtender.dll;readme.txt;" >
+      <Output ItemName="FilesToZip" TaskParameter="Include"/>
+    </CreateItem>
+
+    <Zip Files="@(FilesToZip)" Flatten="true" 
+                ZipFileName="$(BinDir)\Linq.Flickr.Lib.zip" />
+     
+  </Target>
+    
+</Project>

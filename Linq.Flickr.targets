@@ -1,0 +1,8 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="Build">
+    <MSBuild Projects="LinqToFlickr.sln"
+          Properties="Configuration=Release"  />
+  </Target>
+  
+</Project>
