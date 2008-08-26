@@ -1,3 +1,6 @@
-ECHO ON
-ThirdParty\Nant\nant.exe -buildfile:main.build -l:output.txt
+@ECHO ON
+
+C:\Windows\Microsoft.NET\Framework\v3.5\msbuild.exe Master.proj /fileLogger
+
+
 
