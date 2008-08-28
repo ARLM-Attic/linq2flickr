@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Linq.Flickr.Interface;
-using System.Xml.Linq;
 
 namespace Linq.Flickr.Repository
 {
@@ -50,7 +48,7 @@ namespace Linq.Flickr.Repository
 
         private IEnumerable<People> GetPeople(string requestUrl)
         {
-            RestToCollectionBuilder<People> rest = new RestToCollectionBuilder<People>();
+            CollectionBuilder<People> rest = new CollectionBuilder<People>();
             return rest.ToCollection(requestUrl, null);
         }
 

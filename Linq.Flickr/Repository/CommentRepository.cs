@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Xml;
 using Linq.Flickr.Interface;
-using System.Xml.Linq;
 
 namespace Linq.Flickr.Repository
 {
@@ -13,7 +11,7 @@ namespace Linq.Flickr.Repository
 
         private IEnumerable<Comment> GetComments(string requestUrl)
         {
-            RestToCollectionBuilder<Comment> builder = new RestToCollectionBuilder<Comment>("comments");
+            CollectionBuilder<Comment> builder = new CollectionBuilder<Comment>("comments");
             return builder.ToCollection(requestUrl, null);
         }
 
@@ -36,8 +34,8 @@ namespace Linq.Flickr.Repository
 
             string reposnse = DoHTTPPost(requestUrl);
             // get the photo id.
-            XElement elemnent = ParseElement(reposnse);
-            return elemnent.Element("comment").Attribute("id").Value ?? string.Empty;
+            XmlElement element = ParseElement(reposnse);
+            return element.Element("comment").Attribute("id").Value ?? string.Empty;
         }
 
         bool ICommentRepository.DeleteComment(string commentId)
@@ -51,7 +49,7 @@ namespace Linq.Flickr.Repository
             try
             {
                 string responseFromServer = DoHTTPPost(requestUrl);
-                XElement element = ParseElement(responseFromServer);
+                XmlElement element = ParseElement(responseFromServer);
                 return true;
             }
             catch
@@ -71,7 +69,7 @@ namespace Linq.Flickr.Repository
             try
             {
                 string responseFromServer = DoHTTPPost(requestUrl);
-                XElement element = ParseElement(responseFromServer);
+                XmlElement element = ParseElement(responseFromServer);
                 return true;
             }
             catch

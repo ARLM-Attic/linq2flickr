@@ -4,6 +4,9 @@ using Linq.Flickr.Repository;
 
 namespace Linq.Flickr
 {
+    /// <summary>
+    /// Entry point for LINQ to Flickr query.
+    /// </summary>
     [Serializable]
     public class FlickrContext 
     {

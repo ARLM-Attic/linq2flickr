@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using Linq.Flickr.Interface;
 using System.Web;
 using Linq.Flickr.Configuration;
-using System.Xml.Linq;
 using System.IO;
 using System.Diagnostics;
-using System.Collections;
 
 namespace Linq.Flickr.Repository
 {
@@ -231,7 +230,7 @@ namespace Linq.Flickr.Repository
 
         private AuthToken CreateDesktopToken(string method, string permission)
         {
-            XElement tokenElement = null;
+            XmlElement tokenElement = null;
             string token = string.Empty;
 
             try
@@ -306,7 +305,7 @@ namespace Linq.Flickr.Repository
             }
         }
 
-        protected static AuthToken GetAToken(XElement tokenElement)
+        protected static AuthToken GetAToken(XmlElement tokenElement)
         {
             AuthToken token = (from tokens in tokenElement.Descendants("auth")
                                select new AuthToken
@@ -325,7 +324,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                XElement tokenElement = GetElement(requestUrl);
+                XmlElement tokenElement = GetElement(requestUrl);
 
                 return GetAToken(tokenElement);
             }
@@ -339,10 +338,9 @@ namespace Linq.Flickr.Repository
         private AuthToken GetDesktopToken(bool validate, string permission)
         {
             string token = string.Empty;
-
             string path = string.Format(TOKEN_PATH, permission);
-            XElement tokenElement = XElement.Load(path); ;
 
+            XmlElement tokenElement = XmlExtension.Load(XmlReader.Create(new StreamReader(path))); ;
             AuthToken tokenObject = GetAToken(tokenElement);
 
             return tokenObject;
@@ -496,7 +494,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                XElement element = GetElement(requestUrl);
+                XmlElement element = GetElement(requestUrl);
                 nsId = element.Element("user").Attribute("nsid").Value;
             }
             catch (Exception ex)

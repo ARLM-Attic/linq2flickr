@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Linq.Flickr.Interface;
-using System.Xml.Linq;
 
 namespace Linq.Flickr.Repository
 {
@@ -19,7 +15,7 @@ namespace Linq.Flickr.Repository
             string method = Helper.GetExternalMethodName();
             string requestUrl = BuildUrl(method, "period", period.ToString().ToLower(), "count", count.ToString());
            
-            RestToCollectionBuilder<PopularTag> builder = new RestToCollectionBuilder<PopularTag>("hottags");
+            CollectionBuilder<PopularTag> builder = new CollectionBuilder<PopularTag>("hottags");
 
             return builder.ToCollection(requestUrl, null);
         }

@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
+﻿using System.Xml;
 using Linq.Flickr.Interface;
-using System.Xml.Linq;
 using System.Net;
 using System.IO;
 
 namespace Linq.Flickr.Repository
 {
+    /// <summary>
+    /// Provides interface implementation for Doing HTTP calls.
+    /// </summary>
     public class HttpCallBase : IHttpCallBase
     {
-        public XElement GetElement(string requestUrl)
+        public XmlElement GetElement(string requestUrl)
         {
             XmlReaderSettings readerSettings = new XmlReaderSettings();
 
@@ -20,13 +18,13 @@ namespace Linq.Flickr.Repository
             readerSettings.IgnoreProcessingInstructions = true;
             readerSettings.IgnoreComments = true;
 
-            XElement element = XElement.Load(XmlReader.Create(requestUrl, readerSettings));
+            XmlElement element = XmlExtension.Load(XmlReader.Create(requestUrl, readerSettings));
             return element.ValidateResponse();
         }
 
-        public XElement ParseElement(string response)
+        public XmlElement ParseElement(string response)
         {
-            XElement element = XElement.Parse(response);
+            XmlElement element = XmlExtension.Parse(response);
             return element.ValidateResponse();
         }
 

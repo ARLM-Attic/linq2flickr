@@ -29,25 +29,25 @@ namespace Linq.Flickr.Test
             _mockRepository = MockManager.Mock<T>(Constructor.NotMocked);
         }
 
-        public void MockElementCall(string resource)
+        public void FakeElementCall(string resource)
         {
             _mockRepository.ExpectAndReturn("GetElement", MockElement(resource));
         }
-        public void MockSignatureCall()
+        public void FakeSignatureCall()
         {
             _mockRepository.ExpectAndReturn("GetSignature", signature);
         }
 
-        public void MockSignatureCall(string method, bool doInclude, params object[] args)
+        public void FakeSignatureCall(string method, bool doInclude, params object[] args)
         {
             _mockRepository.ExpectAndReturn("GetSignature", signature).Args(method, doInclude, args);
         }
 
         public void MockAutheticatedGetElement(string resource, bool validate, Permission permission)
         {
-            this.MockSignatureCall();
-            this.MockAuthenticateCall(validate, permission , 1);
-            this.MockElementCall(resource);
+            this.FakeSignatureCall();
+            this.FakeAuthenticateCall(validate, permission , 1);
+            this.FakeElementCall(resource);
         }
 
         public Mock FakeHttpRequestObject(Stream stream)
@@ -77,17 +77,17 @@ namespace Linq.Flickr.Test
             return Assembly.GetAssembly(this.GetType()).GetManifestResourceStream(name);
         }
 
-        public void MockAuthenticateCall(Permission permission, int number)
+        public void FakeAuthenticateCall(Permission permission, int number)
         {
             _mockRepository.ExpectAndReturn("Authenticate", authToken, number).Args(permission.ToString());
         }
 
-        public void MockAuthenticateCall(bool validate, Permission permission, int number)
+        public void FakeAuthenticateCall(bool validate, Permission permission, int number)
         {
             _mockRepository.ExpectAndReturn("Authenticate", authToken, number).Args(permission.ToString(), validate);
         }
 
-        public void MockAuthenticateCall(int number)
+        public void FakeAuthenticateCall(int number)
         {
             _mockRepository.ExpectAndReturn("Authenticate", authToken, number);
         }
@@ -102,24 +102,24 @@ namespace Linq.Flickr.Test
         }
 
 
-        public void MockAuthenticateCall(Permission permission)
+        public void FakeAuthenticateCall(Permission permission)
         {
             _mockRepository.ExpectAndReturn("Authenticate", authToken).Args(permission.ToString());
         }
 
         public void MockRESTBuilderGetElement(string resource)
         {
-            _httpCallBase = MockManager.Mock<RestToCollectionBuilder<Item>>(Constructor.NotMocked);
+            _httpCallBase = MockManager.Mock<CollectionBuilder<Item>>(Constructor.NotMocked);
             _httpCallBase.ExpectAndReturn("GetElement", MockElement(resource));    
         }
 
-        public void MockDoHttpPost(string resource)
+        public void FakeDoHttpPost(string resource)
         {
-            _mockRepository.ExpectAndReturn("DoHTTPPost", MockElement(resource).ToString());
+            _mockRepository.ExpectAndReturn("DoHTTPPost", MockElement(resource).OwnerDocument.InnerXml);
         }
-        public void MockDoHttpPostAndReturnStringResult(string resource)
+        public void FakeDoHttpPostAndReturnStringResult(string resource)
         {
-            _mockRepository.ExpectAndReturn("DoHTTPPost", MockElement(resource).ToString());
+            _mockRepository.ExpectAndReturn("DoHTTPPost", MockElement(resource).OwnerDocument.InnerXml);
         }
 
         public void MockMethodCalll(string method, object ret, int timesToRun,  params object [] args)
@@ -127,23 +127,23 @@ namespace Linq.Flickr.Test
             _mockRepository.ExpectAndReturn(method, ret, timesToRun).Args(args);
         }
 
-        public void MockCreateAndStoreNewToken(Permission permission)
+        public void FakeCreateAndStoreNewToken(Permission permission)
         {
             _mockRepository.ExpectAndReturn("CreateAndStoreNewToken", new AuthToken { Id = "xxx", Perm = "write", UserId = "x@y" }).Args("flickr.auth.getToken", permission.ToString().ToLower());
         }
 
-        public void MockGetNSIDByUsername(string username)
+        public void FakeGetNSIDByUsername(string username)
         {
             _mockRepository.ExpectAndReturn("GetNSID", nsId).Args("flickr.people.findByUsername", "username", username);
         }
 
-        private XElement MockElement(string resource)
+        private XmlElement MockElement(string resource)
         {
             using (Stream resourceStream = Assembly.GetAssembly(this.GetType()).GetManifestResourceStream(resource))
             {
-                XmlReader reader = XmlReader.Create(resourceStream);
-                XElement tElement = XElement.Load(reader);
-                return tElement;
+                XmlDocument doc = new XmlDocument();
+                doc.Load(XmlReader.Create(resourceStream));
+                return doc.DocumentElement;
             }
         }
 
