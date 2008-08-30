@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Reflection;
 using Linq.Flickr.Attribute;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
-using System.Xml.Linq;
 
 namespace Linq.Flickr
 {
@@ -111,31 +109,6 @@ namespace Linq.Flickr
             }
             return builder.ToString().ToLower();
         }
-
-        public static XElement ValidateResponse(this XElement element)
-        {
-            if (element.Attribute("stat").Value == "ok")
-            {
-                return element;
-            }
-            else
-            {
-               var error = (from erros in element.Descendants("err")
-                          select new
-                          {
-                              Code = erros.Attribute("code").Value,
-                              Message = erros.Attribute("msg").Value
-                          }).Single();
-
-                throw new FlickrException(error.Code, error.Message);
-            }
-        }
-
-        public static XElement FindElement(this XElement element, XName name)
-        {
-            return element.Element(name);
-        }
-
         internal static void RefreshExternalMethodList(this Type interfaceType)
         {
             // not yet initialized for a particular interface type.
