@@ -132,10 +132,12 @@ namespace Linq.Flickr
         private void ProcessNode(T obj, XmlElement rootElement)
         {
 
-            if (rootElement.HasChildNodes)
+            IList<XmlElement> decendants = rootElement.Descendants();
+
+            if (decendants.Count > 0)
             {
                 // set the elements
-                foreach (XmlElement item in rootElement.Descendants())
+                foreach (XmlElement item in decendants)
                 {
                     FillProperty(obj, item.LocalName, (item.InnerXml ?? string.Empty));
                 }

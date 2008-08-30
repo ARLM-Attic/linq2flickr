@@ -52,7 +52,7 @@ namespace Linq.Flickr.Repository
 
         private void LoadFromConfig()
         {
-// load the keys.
+            // load the keys.
             FLICKR_API_KEY = FlickrSettings.Current.ApiKey;
             SHARED_SECRET = FlickrSettings.Current.SecretKey;
 
@@ -143,7 +143,7 @@ namespace Linq.Flickr.Repository
             try
             {
                 var element = GetElement(requestUrl);
-                frob = element.Element("frob").Value ?? string.Empty;
+                frob = element.Element("frob").InnerXml ?? string.Empty;
                 return frob;
             }
             catch (Exception ex)
@@ -310,8 +310,8 @@ namespace Linq.Flickr.Repository
             AuthToken token = (from tokens in tokenElement.Descendants("auth")
                                select new AuthToken
                                {
-                                   Id = tokens.Element("token").Value ?? string.Empty,
-                                   Perm = tokens.Element("perms").Value,
+                                   Id = tokens.Element("token").InnerXml ?? string.Empty,
+                                   Perm = tokens.Element("perms").InnerXml,
                                    UserId = tokens.Element("user").Attribute("nsid").Value ?? string.Empty
                                }).Single<AuthToken>();
 

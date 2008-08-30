@@ -351,7 +351,7 @@ namespace Linq.Flickr.Test
 
             var query = from tag in _context.PopularTags
                         where tag.Period == TagPeriod.Day && tag.Count == 6
-                        orderby tag.Score ascending
+                        orderby tag.Title ascending
                         select tag;
 
             int count = query.Count();
@@ -364,7 +364,7 @@ namespace Linq.Flickr.Test
 
             PopularTag lastTag = query.Last();
 
-            Assert.IsTrue(lastTag.Score == 20);
+            Assert.IsTrue(lastTag.Score == 10);
 
             MockManager.Verify();
         }
