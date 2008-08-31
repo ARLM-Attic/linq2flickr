@@ -85,7 +85,7 @@
     <Compile Include="Photo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\TagRepository.cs" />
-    <Compile Include="XmlExtension.cs" />
+    <Compile Include="RestExtension.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="People.cs" />
     <Compile Include="PopularTagQuery.cs" />

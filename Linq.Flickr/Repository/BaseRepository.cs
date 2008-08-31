@@ -143,7 +143,7 @@ namespace Linq.Flickr.Repository
             try
             {
                 var element = GetElement(requestUrl);
-                frob = element.Element("frob").InnerXml ?? string.Empty;
+                frob = element.Element("frob").InnerText ?? string.Empty;
                 return frob;
             }
             catch (Exception ex)
@@ -310,8 +310,8 @@ namespace Linq.Flickr.Repository
             AuthToken token = (from tokens in tokenElement.Descendants("auth")
                                select new AuthToken
                                {
-                                   Id = tokens.Element("token").InnerXml ?? string.Empty,
-                                   Perm = tokens.Element("perms").InnerXml,
+                                   Id = tokens.Element("token").InnerText ?? string.Empty,
+                                   Perm = tokens.Element("perms").InnerText,
                                    UserId = tokens.Element("user").Attribute("nsid").Value ?? string.Empty
                                }).Single<AuthToken>();
 
@@ -340,7 +340,7 @@ namespace Linq.Flickr.Repository
             string token = string.Empty;
             string path = string.Format(TOKEN_PATH, permission);
 
-            XmlElement tokenElement = XmlExtension.Load(XmlReader.Create(new StreamReader(path))); ;
+            XmlElement tokenElement = RestExtension.Load(XmlReader.Create(new StreamReader(path))); ;
             AuthToken tokenObject = GetAToken(tokenElement);
 
             return tokenObject;

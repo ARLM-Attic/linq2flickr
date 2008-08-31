@@ -18,13 +18,13 @@ namespace Linq.Flickr.Repository
             readerSettings.IgnoreProcessingInstructions = true;
             readerSettings.IgnoreComments = true;
 
-            XmlElement element = XmlExtension.Load(XmlReader.Create(requestUrl, readerSettings));
+            XmlElement element = RestExtension.Load(XmlReader.Create(requestUrl, readerSettings));
             return element.ValidateResponse();
         }
 
         public XmlElement ParseElement(string response)
         {
-            XmlElement element = XmlExtension.Parse(response);
+            XmlElement element = RestExtension.Parse(response);
             return element.ValidateResponse();
         }
 

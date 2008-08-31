@@ -139,15 +139,15 @@ namespace Linq.Flickr
                 // set the elements
                 foreach (XmlElement item in decendants)
                 {
-                    FillProperty(obj, item.LocalName, (item.InnerXml ?? string.Empty));
+                    FillProperty(obj, item.LocalName, (item.InnerText ?? string.Empty));
                 }
             }
             else
             {
                 // single element.
-                if (!string.IsNullOrEmpty(rootElement.InnerXml))
+                if (!string.IsNullOrEmpty(rootElement.InnerText))
                 {
-                    FillProperty(obj, rootElement.LocalName, (rootElement.InnerXml ?? string.Empty));
+                    FillProperty(obj, rootElement.LocalName, (rootElement.InnerText ?? string.Empty));
                 }
             }
 

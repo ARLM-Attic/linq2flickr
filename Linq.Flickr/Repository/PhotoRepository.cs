@@ -71,7 +71,7 @@ namespace Linq.Flickr.Repository
             try
             {
                 string responseFromServer = DoHTTPPost(requestUrl);
-                XmlElement element = XmlExtension.Parse(responseFromServer);
+                XmlElement element = RestExtension.Parse(responseFromServer);
                 element.ValidateResponse();
 
                 return true;
@@ -268,20 +268,20 @@ namespace Linq.Flickr.Repository
                                        FarmId = photo.Attribute("farm").Value,
                                        ServerId = photo.Attribute("server").Value,
                                        SecretId = photo.Attribute("secret").Value,
-                                       Title = photo.Element("title").InnerXml,
+                                       Title = photo.Element("title").InnerText,
                                        User = photo.Element("owner").Attribute("username").Value ?? string.Empty,
                                        NsId = photo.Element("owner").Attribute("nsid").Value ?? string.Empty,
-                                       Description = photo.Element("description").InnerXml ?? string.Empty,
+                                       Description = photo.Element("description").InnerText ?? string.Empty,
                                        DateUploaded = photo.Element("dates").Attribute("posted").Value ?? string.Empty,
                                        DateTaken = photo.Element("dates").Attribute("taken").Value ?? string.Empty,
                                        LastUpdated =
                                            photo.Element("dates").Attribute("lastupdate").Value ?? string.Empty,
                                        Tags = (from tag in photo.Descendants("tag")
-                                               select tag.InnerXml ?? string.Empty).ToArray(),
+                                               select tag.InnerText ?? string.Empty).ToArray(),
                                        PhotoSize = size,
                                        WebUrl = (from photoPage in photo.Descendants("url")
                                                     where photoPage.Attribute("type").Value == "photopage"
-                                                    select photoPage.InnerXml
+                                                    select photoPage.InnerText
                                                    ).First(),
                                        Url = PhotoDetailUrl(photo.Attribute("id").Value, size)
                                    };
@@ -358,7 +358,7 @@ namespace Linq.Flickr.Repository
             try
             {
                 string responseFromServer = DoHTTPPost(requestUrl);
-                XmlElement element = XmlExtension.Parse(responseFromServer);
+                XmlElement element = RestExtension.Parse(responseFromServer);
                 element.ValidateResponse();
 
                 return true;
@@ -431,7 +431,7 @@ namespace Linq.Flickr.Repository
             
             // get the photo id.
             XmlElement elemnent = ParseElement(responseFromServer);
-            return elemnent.Element("photoid").InnerXml ?? string.Empty;
+            return elemnent.Element("photoid").InnerText ?? string.Empty;
         }
 
     }
