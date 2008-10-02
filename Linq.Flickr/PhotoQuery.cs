@@ -302,6 +302,13 @@ namespace Linq.Flickr
                 args[itemIndex + 1] = GetSortOrder(bucket.OrderByClause.FieldName, bucket.OrderByClause.IsAscending);
                 itemIndex += 2;
             }
+            else
+            {
+                // default is relevance
+                args[itemIndex] = "sort";
+                args[itemIndex + 1] = GetSortOrder(string.Empty, false);
+                itemIndex += 2;
+            }
             // not user id is provided and , owner is specified then get my photos.
             if (viewMode == ViewMode.Owner && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.USER].Value))
             {
@@ -312,24 +319,26 @@ namespace Linq.Flickr
             return args;
         }
 
-        private string GetSortOrder(string orderBy , bool asc)
+        private static string GetSortOrder(string orderBy, bool asc)
         {
-            string order = orderBy.ToLower().Replace('_', '-');
-            // if order by is defined in system , then do the following, or less just return the item.
-            if (string.Compare(orderBy, PhotoOrder.Date_Taken.ToString(), true) ==0 ||
-                    string.Compare(orderBy, PhotoOrder.Date_Posted.ToString(), true) ==0 || 
-                    string.Compare(orderBy, PhotoOrder.Interestingness.ToString(), true) == 0)
+            orderBy = orderBy ?? string.Empty;
+            if (!string.IsNullOrEmpty(orderBy))
             {
-                if (!asc)
+                if (orderBy.Equals(PhotoOrder.Date_Taken.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    order += "-desc";
+                    return "date-taken-" + ((asc) ? "asc" : "desc");
                 }
-                else
+                if (orderBy.Equals(PhotoOrder.Date_Posted.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    order += "-asc";
+                    return "date-posted-" + ((asc) ? "asc" : "desc");
+                }
+                if (orderBy.Equals(PhotoOrder.Interestingness.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return "interestingness-" + ((asc) ? "asc" : "desc");
                 }
             }
-            return order;
+            return "relevance";
         }
     }
-}
+ }
+
