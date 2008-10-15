@@ -18,7 +18,19 @@ namespace Linq.Flickr.Repository
             readerSettings.IgnoreProcessingInstructions = true;
             readerSettings.IgnoreComments = true;
 
-            XmlElement element = RestExtension.Load(XmlReader.Create(requestUrl, readerSettings));
+            WebRequest request = WebRequest.Create(requestUrl);
+            WebResponse response = request.GetResponse();
+
+            Stream stream = response.GetResponseStream();
+
+            XmlReader reader = XmlReader.Create(stream, readerSettings);
+            XmlElement element = RestExtension.Load(reader);
+
+            // close the reader explicitly.
+            reader.Close();
+            stream.Close();
+            response.Close();
+    
             return element.ValidateResponse();
         }
 
