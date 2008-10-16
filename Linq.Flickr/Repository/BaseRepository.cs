@@ -249,9 +249,9 @@ namespace Linq.Flickr.Repository
 
                 FileStream stream = File.Open(path, FileMode.OpenOrCreate);
 
-                TextWriter writer = new StreamWriter(stream);
+                StreamWriter writer = new StreamWriter(stream);
 
-                tokenElement.Save(writer);
+                tokenElement.OwnerDocument.Save(writer);
 
                 writer.Close();
                 stream.Close();
