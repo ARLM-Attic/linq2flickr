@@ -24,6 +24,24 @@ In cache direcotry the authentication token will be stored for desktop based app
 
 
 
+Uploading photos 
+============================
+
+FlickrContext context = new FlickrContext();
+
+Photo p = new Photo { Title = "Test", Description = "new Description", FilePath="c:\somephoto.jpg" }
+
+OR
+
+Photo p = new Photo { Title = "Test", Description = "new Description", File= Stream }
+
+context.Photos.Add(p);
+context.Photos.SubmitChanges();
+
+string photoId = p.Id;
+
+
+
 Example queries 
 ===============
 
@@ -151,6 +169,12 @@ _context.Photos.Peoples
  
 /*All have the OnError handler */
 
+Getting My photos
+=================
+
+var query = from photo in context.Photos
+            where photo.ViewMode == ViewMode.Owner
+            select photo;
 
 Others
 ---------
