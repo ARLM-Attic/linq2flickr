@@ -209,7 +209,7 @@ namespace Linq.Flickr.Repository
             dicionary.Add("api_key", FLICKR_API_KEY);
 
             ProcessArguments(args, dicionary);
-            ProcessArguments( new object [] {"api_sig", sig, "page", index.ToString(), "per_page", pageLen.ToString(), "auth_token", token }, dicionary);
+            ProcessArguments( new object [] {"extras", "owner_name", "api_sig", sig, "page", index.ToString(), "per_page", pageLen.ToString(), "auth_token", token }, dicionary);
 
             string requestUrl = GetUrl(dicionary);
 

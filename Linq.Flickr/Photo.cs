@@ -138,7 +138,7 @@ namespace Linq.Flickr
         /// <summary>
         /// tied to Extras option
         /// </summary>
-        [XAttribute("owner_name")]
+        [XAttribute("ownername")]
         public string OwnerName { get; internal set; }
         /// <summary>
         /// tied to Extras option
