@@ -443,9 +443,10 @@ namespace Linq.Flickr
         [LinqVisible]
         public string User { get; internal set; }
         /// <summary>
-        /// this is the unique Id aginst username, is availble with data only by GetPhotoDetail
+        /// This is the unique Id aginst username, availble only when photos are get by Id explictly.
+        /// This can be used in where clause for getting photo by nsId
         /// </summary>
-        [XAttribute("owner")]
+        [XAttribute("owner"), OriginalFieldName("user_id"), LinqVisible]
         public string NsId { get; internal set; }    
 
         private string GetSizePostFix(PhotoSize size)

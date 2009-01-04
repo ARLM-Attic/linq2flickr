@@ -148,6 +148,7 @@ namespace Linq.Flickr
         {
             public const string ID = "Id";
             public const string USER = "User";
+            public const string NSID = "NsId";
             public const string SEARCHTEXT = "SearchText";
             public const string PHOTOSIZE = "PhotoSize";
             public const string VIEWMODE = "ViewMode";
@@ -256,7 +257,7 @@ namespace Linq.Flickr
 
                         if (!string.IsNullOrEmpty(value))
                         {
-                            if ((item.Name == PhotoColumns.USER))
+                            if (item.Name == PhotoColumns.USER)
                             {
                                 args[itemIndex] = "user_id";
                                 if (value.IsValidEmail())
