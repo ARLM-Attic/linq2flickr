@@ -83,6 +83,7 @@ namespace Linq.Flickr
             this.SortOrder = PhotoOrder.Date_Posted;
             this.SearchMode = SearchMode.FreeText;
             this.FilterMode = FilterMode.Safe;
+            this.ExtraOptions = new ExtraOptions();
         }
 
         [LinqVisible(false), OriginalFieldName("title"), XAttribute("title")]
@@ -442,7 +443,7 @@ namespace Linq.Flickr
         /// <summary>
         /// Contains the extra options to be fetched from flickr.
         /// </summary>
-        [XChild]
+        [XChild, LinqVisible(false)]
         public ExtraOptions ExtraOptions { get; set; }
 
         private string webUrl = string.Empty;
@@ -459,7 +460,7 @@ namespace Linq.Flickr
         private string[] tags = new string[0];
     }
 
-    [XElement("photos")]
+    [XElement("photos"), LinqVisible(false)]
     public class CommonAttribute : IDisposable
     {
         [XAttribute("page")]

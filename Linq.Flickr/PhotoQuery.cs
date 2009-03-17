@@ -193,7 +193,8 @@ namespace Linq.Flickr
                 if (string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.ID].Value)
                     && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.SEARCHTEXT].Value)
                     && viewMode != ViewMode.Owner 
-                    && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.USER].Value) 
+                    && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.USER].Value)
+                    && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.NSID].Value)
                     && bucket.OrderByClause == null)
                 {
                     fetchRecent = true;
