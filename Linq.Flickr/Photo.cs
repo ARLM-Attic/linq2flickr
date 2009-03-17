@@ -77,181 +77,6 @@ namespace Linq.Flickr
     [Serializable, XElement("photo")]
     public class Photo : QueryObjectBase
     {
-        private string _Url = string.Empty;
-        [LinqVisible(false), OriginalFieldName("title"), XAttribute("title")]
-        public string Title { get; set; }
-        [LinqVisible(false), OriginalFieldName("description")]
-        public string Description { get; set; }
-        [OriginalFieldName("photo_id"), LinqVisible, UniqueIdentifier, XAttribute("id")]
-        public string Id { get; set; }
-
-        private string _webUrl = string.Empty;
-        /// <summary>
-        /// The original url of the photo in flickr page.
-        /// </summary>
-        public string WebUrl
-        {
-            get
-            {
-                _webUrl = string.Format("http://www.flickr.com/photos/{0}/{1}/", NsId, Id);
-                return _webUrl;
-            }
-            internal set
-            {
-                _webUrl = value;   
-            }
-        }
-        [XAttribute("secret")]
-        internal string SecretId { get; set; }
-        [XAttribute("server")]
-        internal string ServerId { get; set; }
-        [XAttribute("farm")]
-        internal string FarmId { get; set; }
-        [XAttribute("dateupload")]
-        internal string DateUploaded { get; set;}
-        /// <summary>
-        /// tied to Extras option
-        /// </summary>
-        [XAttribute("lastupdate")]
-        internal string LastUpdated { get; set; }
-        /// <summary>
-        /// tied to Extras option
-        /// </summary>
-        [XAttribute("datetaken")]
-        internal string DateTaken { get; set; }
-        [XAttribute("ispublic")]
-        internal bool IsPublic { get; set; }
-        [XAttribute("isfriend")]
-        internal bool IsFriend { get; set; }
-        [XAttribute("isfamily")]
-        internal bool IsFamily { get; set; }
-       /// <summary>
-       /// tied to Extras option
-       /// </summary>
-        [XAttribute("license")]
-        public string License { get; internal set; }
-        /// <summary>
-        /// tied to Extras option
-        /// </summary>
-        [XAttribute("views")]
-        public int Views { get; internal set; }
-        /// <summary>
-        /// tied to Extras option
-        /// </summary>
-        [XAttribute("ownername")]
-        public string OwnerName { get; internal set; }
-        /// <summary>
-        /// tied to Extras option
-        /// </summary>
-        [XAttribute("media")]
-        public string Media { get; internal set; }
-        /// <summary>
-        /// tied to Extras option
-        /// </summary>
-        [XAttribute("original_format")]
-        public string OriginalFormat { get; internal set; }
-        /// <summary>
-        /// tied to Extras option Geo
-        /// </summary>
-        [XAttribute("latitude")]
-        public string Latitude { get; internal set; }
-        /// <summary>
-        /// tied to Extras option Geo
-        /// </summary>
-        [XAttribute("longitude")]
-        public string Longitude { get; internal set; }
-        /// <summary>
-        /// tied to Extras option Geo
-        /// </summary>
-        [XAttribute("accuracy")]
-        public string Accuracy { get; internal set; }
-
-        private int _filterMode;
-
-        [OriginalFieldName("safe_search"), LinqVisible]
-        public FilterMode FilterMode
-        {
-            get
-            {
-                return (FilterMode)_filterMode;
-            }
-            internal set
-            {
-                _filterMode = (int)value;
-            }      
-        }
-        private string _uploadFilename = string.Empty;
-
-        [LinqVisible(false), OriginalFieldName("photo")]
-        public string FileName
-        {
-            set
-            {
-                _uploadFilename = value;
-            }
-            get
-            {
-                if (string.IsNullOrEmpty(_uploadFilename))
-                {
-                    _uploadFilename = Guid.NewGuid().ToString();
-                }
-                return _uploadFilename;
-            }
-        }
-
-        public string FilePath { get; set; }
-        public Stream File { get; set; }
-
-        private byte[] _postContent = null;
-
-        [LinqVisible(false)]
-        public byte[] PostContent
-        {
-            get
-            {
-                if (_postContent == null)
-                {
-                    _postContent = GetBytesFromPhysicalFile();
-                }
-                return _postContent;
-            }
-      
-        }
-
-
-        internal byte[] GetBytesFromPhysicalFile()
-        {
-            Stream stream = null;
-       
-            try
-            {
-                if (File != null)
-                {
-                    stream = File;
-                }
-                else
-                {
-                    stream = new FileStream(FilePath, FileMode.Open);
-                }
-
-                using (Bitmap bitmap = new Bitmap(stream))
-                {
-                    //bitmap.v(stream, ImageFormat.Jpeg);
-                }
-
-                byte[] image = new byte[stream.Length];
-
-                stream.Seek(0, SeekOrigin.Begin);
-                stream.Read(image, 0, image.Length);
-
-                return image;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
         public Photo()
         {
             IsPublic = true;
@@ -260,22 +85,110 @@ namespace Linq.Flickr
             this.FilterMode = FilterMode.Safe;
         }
 
-        private int _size = 0;
+        [LinqVisible(false), OriginalFieldName("title"), XAttribute("title")]
+        public string Title { get; set; }
+        [LinqVisible(false), OriginalFieldName("description")]
+        public string Description { get; set; }
+        [OriginalFieldName("photo_id"), LinqVisible, UniqueIdentifier, XAttribute("id")]
+        public string Id { get; set; }
+        /// <summary>
+        ///  text on which to search on flickr.
+        /// </summary>
+        [LinqVisible, OriginalFieldName("text")]
+        public string SearchText { get; internal set; }
+        /// <summary>
+        /// Use to query user in flickr, is filled up only when a photo is get by photoId.
+        /// </summary>
+        [LinqVisible]
+        public string User { get; internal set; }
+        /// <summary>
+        /// This is the unique Id aginst username, availble only when photos are get by Id explictly.
+        /// This can be used in where clause for getting photo by nsId
+        /// </summary>
+        [XAttribute("owner"), OriginalFieldName("user_id"), LinqVisible]
+        public string NsId { get; internal set; }    
+
+        /// <summary>
+        /// The original url of the photo in flickr page.
+        /// </summary>
+        public string WebUrl
+        {
+            get
+            {
+                webUrl = string.Format("http://www.flickr.com/photos/{0}/{1}/", NsId, Id);
+                return webUrl;
+            }
+            internal set
+            {
+                webUrl = value;   
+            }
+        }
+
+        [OriginalFieldName("safe_search"), LinqVisible]
+        public FilterMode FilterMode
+        {
+            get
+            {
+                return (FilterMode)filterMode;
+            }
+            internal set
+            {
+                filterMode = (int)value;
+            }      
+        }
+
+        [LinqVisible(false), OriginalFieldName("photo")]
+        public string FileName
+        {
+            set
+            {
+                uploadFilename = value;
+            }
+            get
+            {
+                if (string.IsNullOrEmpty(uploadFilename))
+                {
+                    uploadFilename = Guid.NewGuid().ToString();
+                }
+                return uploadFilename;
+            }
+        }
+        /// <summary>
+        /// points to physical path where photo is located
+        /// </summary>
+        public string FilePath { get; set; }
+        /// <summary>
+        /// Contains the stream for the photo to be uploaded.
+        /// </summary>
+        public Stream File { get; set; }
+
+        [LinqVisible(false)]
+        public byte[] PhotoContent
+        {
+            get
+            {
+                if (photoContent == null)
+                {
+                    photoContent = GetBytesFromPhysicalFile();
+                }
+                return photoContent;
+            }
+      
+        }
 
         [LinqVisible]
         public PhotoSize PhotoSize
         {
             get
             {
-                return (PhotoSize)_size;
+                return (PhotoSize)size;
             }
             internal set
             {
-                _size = (int)value;
+                size = (int)value;
             }
         }
 
-        private int _tagMode = 0;
         /// <summary>
         /// Defines the tag condition ANY or AND , default is ANY
         /// </summary>
@@ -284,16 +197,13 @@ namespace Linq.Flickr
         {
             get
             {
-                return (TagMode)_tagMode;
+                return (TagMode)tagMode;
             }
-            internal set 
+            internal set
             {
-                _tagMode = (int)value;
+                tagMode = (int)value;
             }
         }
-
-
-        private int _searchMode = 0;
 
         /// <summary>
         /// Defines in which mode you will get the photos , Currenlty supported FreeText or TagsOnly
@@ -303,14 +213,13 @@ namespace Linq.Flickr
         {
             get
             {
-                return (SearchMode)_searchMode;
+                return (SearchMode)searchMode;
             }
             internal set
             {
-                _searchMode = (int)value;
+                searchMode = (int)value;
             }
         }
-        private ExtrasOption _extras = ExtrasOption.None;
 
         /// <summary>
         /// A comma-delimited list of extra information to fetch for each returned record. 
@@ -324,53 +233,50 @@ namespace Linq.Flickr
         {
             get
             {
-                return _extras;
+                return extras;
             }
             set
             {
-                _extras = value;
+                extras = value;
             }
         }
-  
-        int _visibility = 0;
 
         /// <summary>
         /// Defines which type photo you want to get , Private or others, if you want get things from your stream
         /// use ViewMode.Owner.
         /// </summary>
-        [LinqVisible(), OriginalFieldName("privacy_filter")]
+        [LinqVisible, OriginalFieldName("privacy_filter")]
         public ViewMode ViewMode
         {
             get
             {
                 if (!IsPublic)
-                    _visibility = (int)ViewMode.Private;
+                    visibility = (int)ViewMode.Private;
                 else if (IsFriend)
-                    _visibility = (int)ViewMode.Friends;
+                    visibility = (int)ViewMode.Friends;
                 else if (IsFamily)
-                    _visibility = (int)ViewMode.Family;
+                    visibility = (int)ViewMode.Family;
                 else
-                    _visibility = (int)ViewMode.Public;
+                    visibility = (int)ViewMode.Public;
 
-                return (ViewMode)_visibility;
+                return (ViewMode)visibility;
             }
             set
             {
-                _visibility = (int)value;
+                visibility = (int)value;
             }
         }
 
-        private int _sortOrder = 0;
 
         public PhotoOrder SortOrder
         {
             get
             {
-                return (PhotoOrder)_sortOrder;
+                return (PhotoOrder)sortOrder;
             }
             set
             {
-                _sortOrder = (int)value;
+                sortOrder = (int)value;
             }
         }
         /// <summary>
@@ -407,7 +313,6 @@ namespace Linq.Flickr
             }
         }
 
-        private string[] _tags = new string[0];
         /// <summary>
         ///  array of photo tags.
         /// </summary>
@@ -415,11 +320,70 @@ namespace Linq.Flickr
         {
             get
             {
-                return _tags;
+                return tags;
             }
             set
             {
-                _tags = value;
+                tags = value;
+            }
+        }
+
+        [XAttribute("secret")]
+        internal string SecretId { get; set; }
+        [XAttribute("server")]
+        internal string ServerId { get; set; }
+        [XAttribute("farm")]
+        internal string FarmId { get; set; }
+        [XAttribute("dateupload")]
+        internal string DateUploaded { get; set; }
+        /// <summary>
+        /// tied to Extras option
+        /// </summary>
+        [XAttribute("lastupdate")]
+        internal string LastUpdated { get; set; }
+        /// <summary>
+        /// tied to Extras option
+        /// </summary>
+        [XAttribute("datetaken")]
+        internal string DateTaken { get; set; }
+        [XAttribute("ispublic")]
+        internal bool IsPublic { get; set; }
+        [XAttribute("isfriend")]
+        internal bool IsFriend { get; set; }
+        [XAttribute("isfamily")]
+        internal bool IsFamily { get; set; }
+ 
+
+        internal byte[] GetBytesFromPhysicalFile()
+        {
+            Stream stream = null;
+       
+            try
+            {
+                if (File != null)
+                {
+                    stream = File;
+                }
+                else
+                {
+                    stream = new FileStream(FilePath, FileMode.Open);
+                }
+
+                using (Bitmap bitmap = new Bitmap(stream))
+                {
+                    //bitmap.v(stream, ImageFormat.Jpeg);
+                }
+
+                byte[] image = new byte[stream.Length];
+
+                stream.Seek(0, SeekOrigin.Begin);
+                stream.Read(image, 0, image.Length);
+
+                return image;
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -428,26 +392,9 @@ namespace Linq.Flickr
         {
             set
             {
-                _tags = value.Split(new char[] { ',', ';', ' '}, StringSplitOptions.RemoveEmptyEntries);
+                tags = value.Split(new char[] { ',', ';', ' '}, StringSplitOptions.RemoveEmptyEntries);
             }
         }
-
-        /// <summary>
-        ///  text on which to search on flickr.
-        /// </summary>
-        [LinqVisible, OriginalFieldName("text")]
-        public string SearchText { get; internal set; }
-        /// <summary>
-        /// Use to query user in flickr, is filled up only when a photo is get by photoId.
-        /// </summary>
-        [LinqVisible]
-        public string User { get; internal set; }
-        /// <summary>
-        /// This is the unique Id aginst username, availble only when photos are get by Id explictly.
-        /// This can be used in where clause for getting photo by nsId
-        /// </summary>
-        [XAttribute("owner"), OriginalFieldName("user_id"), LinqVisible]
-        public string NsId { get; internal set; }    
 
         private string GetSizePostFix(PhotoSize size)
         {
@@ -477,45 +424,97 @@ namespace Linq.Flickr
         {
             get
             {
-                if (string.IsNullOrEmpty(_Url))
+                if (string.IsNullOrEmpty(url))
                 {
-                    _Url = "http://farm" + FarmId + ".static.flickr.com/" + ServerId + "/" + Id + "_" + SecretId + GetSizePostFix(PhotoSize) + ".jpg?v=0";
+                    url = "http://farm" + FarmId + ".static.flickr.com/" + ServerId + "/" + Id + "_" + SecretId + GetSizePostFix(PhotoSize) + ".jpg?v=0";
                 }
-                return _Url;
+                return url;
             }
             set
             {
-                _Url = value;
+                url = value;
             }
         }
-
-        [XElement("photos")]
-        public class CommonAttribute : IDisposable
-        {
-            [XAttribute("page")]
-            public int Page { get; set; }
-            [XAttribute("pages")]
-            public int Pages { get; set; }
-            [XAttribute("perpage")]
-            public int Perpage { get; set; }
-            [XAttribute("total")]
-            public int Total { get; set; }
-
-            #region IDisposable Members
-
-            void IDisposable.Dispose()
-            {
-                //throw new NotImplementedException();
-            }
-
-            #endregion
-        }
-
         /// <summary>
         /// holds out the common propeties like page , total page count and total item count
         /// </summary>
         public CommonAttribute SharedProperty { get; set; }
+        /// <summary>
+        /// Contains the extra options to be fetched from flickr.
+        /// </summary>
+        [XChild]
+        public ExtraOptions ExtraOptions { get; set; }
+
+        private string webUrl = string.Empty;
+        private string url = string.Empty;
+        private int filterMode;
+        private string uploadFilename = string.Empty;
+        private byte[] photoContent = null;
+        private int size = 0;
+        private int tagMode = 0;
+        private int searchMode = 0;
+        private ExtrasOption extras = ExtrasOption.None;
+        private int visibility = 0;
+        private int sortOrder = 0;
+        private string[] tags = new string[0];
     }
 
-   
+    [XElement("photos")]
+    public class CommonAttribute : IDisposable
+    {
+        [XAttribute("page")]
+        public int Page { get; set; }
+        [XAttribute("pages")]
+        public int Pages { get; set; }
+        [XAttribute("perpage")]
+        public int Perpage { get; set; }
+        [XAttribute("total")]
+        public int Total { get; set; }
+
+        #region IDisposable Members
+
+        void IDisposable.Dispose()
+        {
+            //throw new NotImplementedException();
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// holds extras settings for photo
+    /// </summary>
+    public class ExtraOptions : IDisposable
+    {
+        [XAttribute("license")]
+        public string License { get; internal set; }
+        [XAttribute("views")]
+        public int Views { get; internal set; }
+        [XAttribute("ownername")]
+        public string OwnerName { get; internal set; }
+        [XAttribute("media")]
+        public string Media { get; internal set; }
+        [XAttribute("original_format")]
+        public string OriginalFormat { get; internal set; }
+        [XAttribute("latitude")]
+        public string Latitude { get; internal set; }
+        [XAttribute("longitude")]
+        public string Longitude { get; internal set; }
+        [XAttribute("accuracy")]
+        public string Accuracy { get; internal set; }
+        [XAttribute("machine_tags")]
+        public string MachineTags { get; internal set; }
+        [XAttribute("icon_server")]
+        public string IconServer { get; internal set; }
+        
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            //throw new NotImplementedException();
+        }
+
+        #endregion
+    }
 }

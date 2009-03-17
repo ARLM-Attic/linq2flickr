@@ -161,7 +161,7 @@ namespace Linq.Flickr.Test
 
                 Assert.IsTrue(first.SharedProperty.Perpage == count);
                 Assert.IsTrue(first.Title == "test" && first.Id == "505611561");
-                Assert.IsTrue(first.Views == 8);
+                Assert.IsTrue(first.ExtraOptions.Views == 8);
 
                 Photo last = searchQuery.Last();
 

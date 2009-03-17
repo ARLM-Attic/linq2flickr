@@ -82,7 +82,7 @@ namespace Linq.Flickr
                 if (string.IsNullOrEmpty(fileName))
                     throw new Exception("Please key in the filename for the photo");
 
-                byte[] postContnet = (byte[]) bucket.Items[PhotoColumns.POST_CONTENT].Value;
+                byte[] postContnet = (byte[]) bucket.Items[PhotoColumns.PHOTO_CONTENT].Value;
 
                 if (postContnet == null || postContnet.Length == 0)
                     throw new Exception("Zero photo length detected, please key in a valid photo file");
@@ -155,7 +155,7 @@ namespace Linq.Flickr
             public const string TITLE = "Title";
             public const string DESC = "Description";
             public const string FILENAME = "FileName";
-            public const string POST_CONTENT = "PostContent";
+            public const string PHOTO_CONTENT = "PhotoContent";
             public const string SEARCH_MODE = "SearchMode";
 
             public static string FILTER_MODE

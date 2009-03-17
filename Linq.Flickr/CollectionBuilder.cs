@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 using System.Reflection;
 using Linq.Flickr.Attribute;
@@ -13,10 +14,6 @@ namespace Linq.Flickr
     /// <typeparam name="T">IDisposable</typeparam>
     public class CollectionBuilder<T> : HttpCallBase where T : IDisposable 
     {
-        private readonly T _object;
-        private readonly string _rootElement = string.Empty;
-        readonly IDictionary<string, string> _propertyMap = new Dictionary<string, string>();
-
         public CollectionBuilder()
         {
             _object = Activator.CreateInstance<T>();
@@ -28,7 +25,7 @@ namespace Linq.Flickr
         public CollectionBuilder(string rootElement)
         {
             _object = Activator.CreateInstance<T>();
-            _rootElement = rootElement;
+            this.rootElement = rootElement;
         }
 
         public void FillProperty(T obj, string name, object value)
@@ -37,6 +34,47 @@ namespace Linq.Flickr
             {
                 ProcessMember(name, obj, value);
             }
+        }
+
+        public delegate void ItemChangeHandler (T item);
+      
+        public IEnumerable<T> ToCollection(XmlElement element, ItemChangeHandler OnItemChange)
+        {
+            Type objectInfo = _object.GetType();
+
+            CreatePropertyMap(_object, null);
+
+            IList<T> list = new List<T>();
+
+            IList<XmlElement> elements = element.Descendants(GetProcessingElement(objectInfo));
+
+            foreach (XmlElement e in elements)
+            {
+                T obj = Activator.CreateInstance<T>();
+                // process any attribute from root element.
+                if (!string.IsNullOrEmpty(rootElement))
+                {
+                    XmlElement root = e.FindElement(rootElement);
+                    ProcessAttribute(obj, root);
+                }
+              
+                ProcessNode(obj, e);
+                
+                // raise event so that any change might take place.
+                if (OnItemChange != null)
+                {
+                    OnItemChange(obj);
+                }
+                // finally add to the list.
+                list.Add(obj);
+            }
+            return list;
+        }
+
+        public IEnumerable<T> ToCollection(string requestUrl, ItemChangeHandler OnItemChange)
+        {
+            XmlElement element = base.GetElement(requestUrl);
+            return ToCollection(element, OnItemChange);
         }
 
         private void ProcessMember(string name, object obj, object value)
@@ -48,13 +86,37 @@ namespace Linq.Flickr
 
             if (xmlElements.Length == 1 || xmlAttributes.Length == 1)
             {
-                PropertyInfo pInfo = info.GetProperty(_propertyMap[name],
-                                                      BindingFlags.NonPublic | BindingFlags.Instance |
-                                                      BindingFlags.Public);
+                PropertyInfo pInfo = info.GetProperty(_propertyMap[name].PropertyName,
+                                                         BindingFlags.NonPublic | BindingFlags.Instance |
+                                                         BindingFlags.Public);
 
-                if (pInfo.CanWrite)
+                if (string.Compare(_propertyMap[name].ObjectFullName, info.FullName, true, CultureInfo.InvariantCulture) == 0)
                 {
-                    pInfo.SetValue(obj, GetValue(pInfo.PropertyType, value), null);
+                    if (pInfo.CanWrite)
+                    {
+                        pInfo.SetValue(obj, GetValue(pInfo.PropertyType, value), null);
+                    }
+                }
+                else
+                {
+                    object childObj = pInfo.GetValue(obj, null);
+                    
+                    if (childObj == null)
+                    {
+                        childObj = Activator.CreateInstance(Type.GetType(_propertyMap[name].ObjectFullName));
+                    }
+
+                    PropertyInfo childPInfo = childObj.GetType().GetProperty(_propertyMap[name].InnerPropertyName,
+                                                                             BindingFlags.NonPublic |
+                                                                             BindingFlags.Instance |
+                                                                             BindingFlags.Public);
+
+                    if (childPInfo.CanWrite)
+                    {
+                        childPInfo.SetValue(childObj, GetValue(childPInfo.PropertyType, value), null);
+                    }
+                    /// set the property
+                    pInfo.SetValue(obj, childObj, null);
                 }
             }
 
@@ -81,41 +143,6 @@ namespace Linq.Flickr
                     break;
             }
             return retValue;
-        }
-
-        public delegate void ItemChangeHandler (T item);
-      
-        public IEnumerable<T> ToCollection(XmlElement element, ItemChangeHandler OnItemChange)
-        {
-            Type objectInfo = _object.GetType();
-
-            CreatePropertyMap(objectInfo);
-
-            IList<T> list = new List<T>();
-
-            IList<XmlElement> elements = element.Descendants(GetRootElement(objectInfo));
-
-            foreach (XmlElement e in elements)
-            {
-                T obj = Activator.CreateInstance<T>();
-                // process any attribute from root element.
-                if (!string.IsNullOrEmpty(_rootElement))
-                {
-                    XmlElement root = e.FindElement(_rootElement);
-                    ProcessAttribute(obj, root);
-                }
-              
-                ProcessNode(obj, e);
-                
-                // raise event so that any change might take place.
-                if (OnItemChange != null)
-                {
-                    OnItemChange(obj);
-                }
-                // finally add to the list.
-                list.Add(obj);
-            }
-            return list;
         }
 
         private void ProcessAttribute(T obj, XmlNode element)
@@ -154,28 +181,46 @@ namespace Linq.Flickr
             ProcessAttribute(obj, rootElement);
         }
 
-        public IEnumerable<T> ToCollection(string requestUrl, ItemChangeHandler OnItemChange)
+        private void CreatePropertyMap(object obj, PropertyInfo parentInfo)
         {
-            XmlElement element = base.GetElement(requestUrl);
-            return ToCollection(element, OnItemChange);
-        }
-
-        private void CreatePropertyMap(Type objectInfo)
-        {
-            PropertyInfo[] infos = objectInfo.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            PropertyInfo[] infos = obj.GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
 
             foreach (PropertyInfo info in infos)
             {
                 object[] attr = info.GetCustomAttributes(typeof(XNameAttribute), true);
 
-                if (attr != null && attr.Length == 1)
+                if (attr.Length == 1)
                 {
-                    _propertyMap.Add((attr[0] as XNameAttribute).Name, info.Name);
+                    ObjectWrapper wrapper = new ObjectWrapper() { ObjectFullName = obj.GetType().FullName };
+
+                    if (parentInfo != null)
+                    {
+                        wrapper.InnerPropertyName = info.Name;
+                        wrapper.PropertyName = parentInfo.Name;
+                    }
+                    else
+                    {
+                        wrapper.PropertyName = info.Name;
+                    }
+                   
+                    _propertyMap.Add((attr[0] as XNameAttribute).Name, wrapper);
+                }
+
+                object[] elementAttr = info.GetCustomAttributes(typeof(XChildAttribute), true);
+
+                if (elementAttr.Length == 1)
+                {
+                    object childObject = Activator.CreateInstance(info.PropertyType);
+
+                    if (childObject != null)
+                    {
+                        CreatePropertyMap(childObject, info);
+                    }
                 }
             }
         }
 
-        private string GetRootElement(Type objectInfo)
+        private string GetProcessingElement(Type objectInfo)
         {
             string elementName = objectInfo.Name;
             object[] customAttr = objectInfo.GetCustomAttributes(typeof(XElementAttribute), true);
@@ -185,6 +230,17 @@ namespace Linq.Flickr
                 elementName = (customAttr[0] as XElementAttribute).Name;
             }
             return elementName;
+        }
+
+        private readonly T _object;
+        private readonly string rootElement = string.Empty;
+        readonly IDictionary<string, ObjectWrapper> _propertyMap = new Dictionary<string, ObjectWrapper>();
+
+        internal class ObjectWrapper
+        {
+            public string PropertyName { get; set; }
+            public string InnerPropertyName{ get; set;}
+            public string ObjectFullName { get; set;}
         }
     }
 }

@@ -90,6 +90,13 @@ or
 var query = from people in _context.People
 where people.Id == 'nsId'
 
+Get photos by Nsid
+---------------------
+var query = from photo in _context.Photos
+where photo.NsId == 'user's nsId'
+
+
+
 Query Popular tags by their score , order them by score, title or period duration
 -------------------------------------------------------------------------------- 
 

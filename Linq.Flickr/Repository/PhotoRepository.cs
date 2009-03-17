@@ -229,10 +229,10 @@ namespace Linq.Flickr.Repository
 
             CollectionBuilder<Photo> builder = new CollectionBuilder<Photo>("photos");
 
-            CollectionBuilder<Photo.CommonAttribute> commBuilder =
-            new CollectionBuilder<Photo.CommonAttribute>("photos");
-            Photo.CommonAttribute sharedProperty = commBuilder.ToCollection(doc, null).Single();
-         
+            CollectionBuilder<CommonAttribute> commBuilder =
+            new CollectionBuilder<CommonAttribute>("photos");
+            CommonAttribute sharedProperty = commBuilder.ToCollection(doc, null).Single();
+
             return builder.ToCollection(photosElement, photo =>
              {
                  photo.Url = (this as IPhotoRepository).GetSizedPhotoUrl(photo.Id, size) ?? string.Empty;
