@@ -285,7 +285,7 @@ namespace Linq.Flickr
                             {
                                 ExtrasOption extras = bucket.Items[PhotoColumns.EXTRAS].Value == null ? ExtrasOption.None : (ExtrasOption)bucket.Items[PhotoColumns.EXTRAS].Value;
                                 args[itemIndex] = item.Name;
-                                value = extras.GetExtrasString();
+                                value = extras.ToExtrasString();
                             }
                             else
                             {

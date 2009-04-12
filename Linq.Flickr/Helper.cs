@@ -50,65 +50,63 @@ namespace Linq.Flickr
             return dateTime;
         }
 
-
-        internal static string GetExtrasString(this ExtrasOption extras)
+        /// <summary>
+        /// Converts the ExtrasOptions enum to its equavalent string representation.
+        /// </summary>
+        /// <param name="extras">Enum</param>
+        /// <returns>string</returns>
+        internal static string ToExtrasString(this ExtrasOption extras)
         {
-            StringBuilder builder = new StringBuilder();
+            List<string> list = new List<string>();
 
             if ((extras & ExtrasOption.Date_Taken) == ExtrasOption.Date_Taken)
             {
-                builder.Append(ExtrasOption.Date_Taken.ToString());
+                list.Add(ExtrasOption.Date_Taken.ToString());
             }
             if ((extras & ExtrasOption.Date_Upload) == ExtrasOption.Date_Upload)
             {
-                if (builder.Length > 0) builder.Append(",");
-                builder.Append(ExtrasOption.Date_Upload.ToString());
+                list.Add(ExtrasOption.Date_Upload.ToString());
             }
             if ((extras & ExtrasOption.Icon_Server) == ExtrasOption.Icon_Server)
             {
-                if (builder.Length > 0) builder.Append(",");
-                builder.Append(ExtrasOption.Icon_Server.ToString());
+                list.Add(ExtrasOption.Icon_Server.ToString());
             }
             if ((extras & ExtrasOption.License) == ExtrasOption.License)
             {
-                if (builder.Length > 0) builder.Append(",");
-                builder.Append(ExtrasOption.License.ToString());
+                list.Add(ExtrasOption.License.ToString());
             }
             if ((extras & ExtrasOption.Owner_Name) == ExtrasOption.Owner_Name)
             {
-                if (builder.Length > 0) builder.Append(",");
-                builder.Append(ExtrasOption.Owner_Name.ToString());
+                list.Add(ExtrasOption.Owner_Name.ToString());
             }
             if ((extras & ExtrasOption.Original_Format) == ExtrasOption.Original_Format)
             {
-                if (builder.Length > 0) builder.Append(",");
-                builder.Append(ExtrasOption.Owner_Name.ToString());
+                list.Add(ExtrasOption.Owner_Name.ToString());
             }
-
             if ((extras & ExtrasOption.Last_Update) == ExtrasOption.Last_Update)
             {
-                if (builder.Length > 0) builder.Append(",");
-                builder.Append(ExtrasOption.Last_Update.ToString());
+                list.Add(ExtrasOption.Last_Update.ToString());
             }
-
             if ((extras & ExtrasOption.Tags) == ExtrasOption.Tags)
             {
-                if (builder.Length > 0) builder.Append(",");
-                builder.Append(ExtrasOption.Tags.ToString());
+                list.Add(ExtrasOption.Tags.ToString());
             }
-
             if ((extras & ExtrasOption.Geo) == ExtrasOption.Geo)
             {
-                if (builder.Length > 0) builder.Append(",");
-                builder.Append(ExtrasOption.Geo.ToString());
+                list.Add(ExtrasOption.Geo.ToString());
             }
             if ((extras & ExtrasOption.Views) == ExtrasOption.Views)
             {
-                if (builder.Length > 0) builder.Append(",");
-                builder.Append(ExtrasOption.Views.ToString());
+                list.Add(ExtrasOption.Views.ToString());
             }
-            return builder.ToString().ToLower();
+            if ((extras & ExtrasOption.Media) == ExtrasOption.Media)
+            {
+                list.Add(ExtrasOption.Media.ToString());
+            }
+
+            return string.Join(",", list.ToArray()).ToLower();
         }
+
         internal static void RefreshExternalMethodList(this Type interfaceType)
         {
             // not yet initialized for a particular interface type.

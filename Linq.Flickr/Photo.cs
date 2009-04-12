@@ -83,7 +83,7 @@ namespace Linq.Flickr
             this.SortOrder = PhotoOrder.Date_Posted;
             this.SearchMode = SearchMode.FreeText;
             this.FilterMode = FilterMode.Safe;
-            this.ExtraOptions = new ExtraOptions();
+            this.ExtrasResult = new ExtraOptions();
         }
 
         [LinqVisible(false), OriginalFieldName("title"), XAttribute("title")]
@@ -441,10 +441,10 @@ namespace Linq.Flickr
         /// </summary>
         public CommonAttribute SharedProperty { get; set; }
         /// <summary>
-        /// Contains the extra options to be fetched from flickr.
+        /// Contains the retult for the <c>Extras</c> option set by user.
         /// </summary>
         [XChild, LinqVisible(false)]
-        public ExtraOptions ExtraOptions { get; set; }
+        public ExtraOptions ExtrasResult { get; set; }
 
         private string webUrl = string.Empty;
         private string url = string.Empty;
