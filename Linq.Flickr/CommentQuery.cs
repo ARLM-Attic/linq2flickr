@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using LinqExtender;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
@@ -10,10 +9,10 @@ namespace Linq.Flickr
 {
     public class CommentQuery : Query<Comment>
     {
-        protected override bool AddItem(Bucket bucket)
+        protected override bool AddItem()
         {
-            string photoId = (string)bucket.Items[CommentColumns.PHOTO_ID].Value;
-            string text = (string)bucket.Items[CommentColumns.TEXT].Value;
+            string photoId = (string)Bucket.Instance.For.Item(CommentColumns.PhotoId).Value;
+            string text = (string)Bucket.Instance.For.Item(CommentColumns.Text).Value;
 
             if (string.IsNullOrEmpty(photoId))
             {
@@ -29,16 +28,16 @@ namespace Linq.Flickr
             {
                 string commentId = commentRepositoryRepo.AddComment(photoId, text);
                 // set the id.
-                bucket.Items[CommentColumns.ID].Value = commentId;
+                Bucket.Instance.For.Item(CommentColumns.Id).Value = commentId;
 
                 return (string.IsNullOrEmpty(commentId) == false);
             }
         }
 
-        protected override bool UpdateItem(Bucket bucket)
+        protected override bool UpdateItem()
         {
-            string commentId = (string)bucket.Items[CommentColumns.ID].Value;
-            string text = (string)bucket.Items[CommentColumns.TEXT].Value;
+            string commentId = (string)Bucket.Instance.For.Item(CommentColumns.Id).Value;
+            string text = (string)Bucket.Instance.For.Item(CommentColumns.Text).Value;
 
             if (string.IsNullOrEmpty(commentId))
                 throw new Exception("Invalid comment Id");
@@ -52,9 +51,9 @@ namespace Linq.Flickr
             }
         }
 
-        protected override bool RemoveItem(Bucket bucket)
+        protected override bool RemoveItem()
         {
-            string commentId = (string)bucket.Items[CommentColumns.ID].Value;
+            string commentId = (string)Bucket.Instance.For.Item(CommentColumns.Id).Value;
 
             if (string.IsNullOrEmpty(commentId))
             {
@@ -66,31 +65,31 @@ namespace Linq.Flickr
             }
         }
 
-        private class CommentColumns
+        private static class CommentColumns
         {
-            public const string ID = "Id";
-            public const string PHOTO_ID = "PhotoId";
-            public const string TEXT = "Text";
+            public const string Id = "Id";
+            public const string PhotoId = "PhotoId";
+            public const string Text = "Text";
         }
 
-        protected override void Process(LinqExtender.Interface.IModify<Comment> items, Bucket bucket)
+        protected override void Process(LinqExtender.Interface.IModify<Comment> items)
         {
             using (ICommentRepository commentRepositoryRepo = new CommentRepository())
             {
-                string photoId = (string) bucket.Items[CommentColumns.PHOTO_ID].Value;
-                string commentId = (string)bucket.Items[CommentColumns.ID].Value;
+                string photoId = (string) Bucket.Instance.For.Item(CommentColumns.PhotoId).Value;
+                string commentId = (string)Bucket.Instance.For.Item(CommentColumns.Id).Value;
 
                 if (string.IsNullOrEmpty(photoId))
                 {
                     throw new Exception("Must have a valid photoId");
                 }
 
-                int index = bucket.ItemsToSkip ;
+                int index = Bucket.Instance.Entity.ItemsToSkipFromStart;
                 int itemsToTake = int.MaxValue;
 
-                if (bucket.ItemsToTake != null)
+                if (Bucket.Instance.Entity.ItemsToFetch != null)
                 {
-                    itemsToTake = (int)bucket.ItemsToTake;
+                    itemsToTake = Bucket.Instance.Entity.ItemsToFetch.Value;
                 }
 
                 // get comments

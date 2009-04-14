@@ -4,6 +4,7 @@ using System.Drawing;
 using Linq.Flickr.Attribute;
 using LinqExtender;
 using LinqExtender.Attribute;
+using LinqExtender.Interface;
 
 namespace Linq.Flickr
 {
@@ -75,7 +76,7 @@ namespace Linq.Flickr
     }
 
     [Serializable, XElement("photo")]
-    public class Photo : QueryObjectBase
+    public class Photo : IQueryObject
     {
         public Photo()
         {
@@ -86,27 +87,27 @@ namespace Linq.Flickr
             this.ExtrasResult = new ExtraOptions();
         }
 
-        [LinqVisible(false), OriginalFieldName("title"), XAttribute("title")]
+        [OriginalFieldName("title"), XAttribute("title")]
         public string Title { get; set; }
-        [LinqVisible(false), OriginalFieldName("description")]
+        [OriginalFieldName("description")]
         public string Description { get; set; }
-        [OriginalFieldName("photo_id"), LinqVisible, UniqueIdentifier, XAttribute("id")]
+        [OriginalFieldName("photo_id"), UniqueIdentifier, XAttribute("id")]
         public string Id { get; set; }
         /// <summary>
         ///  text on which to search on flickr.
         /// </summary>
-        [LinqVisible, OriginalFieldName("text")]
+        [OriginalFieldName("text")]
         public string SearchText { get; internal set; }
         /// <summary>
         /// Use to query user in flickr, is filled up only when a photo is get by photoId.
         /// </summary>
-        [LinqVisible]
+        
         public string User { get; internal set; }
         /// <summary>
         /// This is the unique Id aginst username, availble only when photos are get by Id explictly.
         /// This can be used in where clause for getting photo by nsId
         /// </summary>
-        [XAttribute("owner"), OriginalFieldName("user_id"), LinqVisible]
+        [XAttribute("owner"), OriginalFieldName("user_id")]
         public string NsId { get; internal set; }    
 
         /// <summary>
@@ -125,7 +126,7 @@ namespace Linq.Flickr
             }
         }
 
-        [OriginalFieldName("safe_search"), LinqVisible]
+        [OriginalFieldName("safe_search")]
         public FilterMode FilterMode
         {
             get
@@ -138,7 +139,7 @@ namespace Linq.Flickr
             }      
         }
 
-        [LinqVisible(false), OriginalFieldName("photo")]
+        [OriginalFieldName("photo")]
         public string FileName
         {
             set
@@ -163,7 +164,6 @@ namespace Linq.Flickr
         /// </summary>
         public Stream File { get; set; }
 
-        [LinqVisible(false)]
         public byte[] PhotoContent
         {
             get
@@ -177,7 +177,7 @@ namespace Linq.Flickr
       
         }
 
-        [LinqVisible]
+        
         public PhotoSize PhotoSize
         {
             get
@@ -193,7 +193,7 @@ namespace Linq.Flickr
         /// <summary>
         /// Defines the tag condition ANY or AND , default is ANY
         /// </summary>
-        [LinqVisible, OriginalFieldName("tag_mode")]
+        [OriginalFieldName("tag_mode")]
         public TagMode TagMode
         {
             get
@@ -209,7 +209,7 @@ namespace Linq.Flickr
         /// <summary>
         /// Defines in which mode you will get the photos , Currenlty supported FreeText or TagsOnly
         /// </summary>
-        [LinqVisible]
+        
         public SearchMode SearchMode
         {
             get
@@ -229,7 +229,7 @@ namespace Linq.Flickr
         /// Use ExtrasOption enum with  | to set your options. Ex 
         /// p.Extras == (ExtrasOption.Views | ExtrasOption.Date_Taken | ExtrasOption.Date_Upload), dont forget to use parenthesis.
         /// </summary>
-        [LinqVisible, OriginalFieldName("extras")]
+        [OriginalFieldName("extras")]
         public ExtrasOption Extras
         {
             get
@@ -246,7 +246,7 @@ namespace Linq.Flickr
         /// Defines which type photo you want to get , Private or others, if you want get things from your stream
         /// use ViewMode.Owner.
         /// </summary>
-        [LinqVisible, OriginalFieldName("privacy_filter")]
+        [OriginalFieldName("privacy_filter")]
         public ViewMode ViewMode
         {
             get
@@ -443,7 +443,7 @@ namespace Linq.Flickr
         /// <summary>
         /// Contains the retult for the <c>Extras</c> option set by user.
         /// </summary>
-        [XChild, LinqVisible(false)]
+        [XChild, Ignore]
         public ExtraOptions ExtrasResult { get; set; }
 
         private string webUrl = string.Empty;
@@ -460,7 +460,7 @@ namespace Linq.Flickr
         private string[] tags = new string[0];
     }
 
-    [XElement("photos"), LinqVisible(false)]
+    [XElement("photos")]
     public class CommonAttribute : IDisposable
     {
         [XAttribute("page")]

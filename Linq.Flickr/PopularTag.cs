@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using LinqExtender;
-using LinqExtender.Attribute;
+﻿using LinqExtender.Attribute;
 using Linq.Flickr.Attribute;
+using LinqExtender.Interface;
 
 namespace Linq.Flickr
 {
@@ -15,11 +11,11 @@ namespace Linq.Flickr
     }
  
     [XElement("tag")]
-    public class PopularTag : QueryObjectBase
+    public class PopularTag : IQueryObject
     {
-        [LinqVisible(false), XElement("tag")]
+        [Ignore, XElement("tag")]
         public string Title { get; internal set; }
-        [LinqVisible, XAttribute("score")]
+        [XAttribute("score")]
         public int Score { get; internal set; }
         // query params for tag objects.
         [XAttribute("period")]
@@ -40,7 +36,7 @@ namespace Linq.Flickr
 
         TagPeriod _period = TagPeriod.Day;
 
-        [LinqVisible(true), OriginalFieldName("period")]
+        [OriginalFieldName("period")]
         public TagPeriod Period
         {
             get
@@ -53,7 +49,7 @@ namespace Linq.Flickr
             }
         }
 
-        [LinqVisible(true), OriginalFieldName("count"), XAttribute("count")]
+        [OriginalFieldName("count"), XAttribute("count")]
         public int Count { get; set; }
     }
 }

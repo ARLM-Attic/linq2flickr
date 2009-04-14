@@ -10,28 +10,28 @@ namespace Linq.Flickr
 {
     public class PeopleQuery : Query<People>
     {
-        protected override bool AddItem(Bucket item)
+        protected override bool AddItem()
         {
             throw new Exception("Add item not supported for People");
         }
 
-        protected override bool RemoveItem(Bucket item)
+        protected override bool RemoveItem()
         {
             throw new Exception("Remove item not supported for People");
         }
 
-        private class PeopleColumns
+        private static class PeopleColumns
         {
-            public const string ID = "Id";
-            public const string USERNAME = "Username";
+            public const string Id = "Id";
+            public const string Username = "Username";
         }
 
-        protected override void Process(LinqExtender.Interface.IModify<People> items, Bucket bucket)
+        protected override void Process(LinqExtender.Interface.IModify<People> items)
         {
             using (IPeopleRepository peopleRepositoryRepo = new PeopleRepository())
             {
-                string userId = (string)bucket.Items[PeopleColumns.ID].Value;
-                string username = (string)bucket.Items[PeopleColumns.USERNAME].Value;
+                string userId = (string)Bucket.Instance.For.Item(PeopleColumns.Id).Value;
+                string username = (string)Bucket.Instance.For.Item(PeopleColumns.Username).Value;
 
                 People people = null;
 

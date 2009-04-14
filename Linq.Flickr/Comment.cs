@@ -5,6 +5,7 @@ using System.Text;
 using LinqExtender.Attribute;
 using LinqExtender;
 using Linq.Flickr.Attribute;
+using LinqExtender.Interface;
 
 namespace Linq.Flickr
 {
@@ -12,21 +13,21 @@ namespace Linq.Flickr
     ///  Holds comment informaton for a photo.
     /// </summary>
     [Serializable, XElement("comment")]
-    public partial class Comment : QueryObjectBase
+    public partial class Comment : IQueryObject
     {
         public Comment()
         {
         }
 
-        [LinqVisible(), OriginalFieldName("id"), XAttribute("id"), UniqueIdentifier]
+        [OriginalFieldName("id"), XAttribute("id"), UniqueIdentifier]
         public string Id { get; set; }
 
-        [LinqVisible(), OriginalFieldName("photo_id"), XAttribute("photo_id")]
+        [OriginalFieldName("photo_id"), XAttribute("photo_id")]
         public string PhotoId { get; set; }
 
-        [LinqVisible(false), XAttribute("permalink")]
+        [Ignore, XAttribute("permalink")]
         public string PermaLink { get; set; }
-        [LinqVisible(false), XElement("comment")]
+        [XElement("comment")]
         public string Text { get; set; }
 
         [XAttribute("datecreate")]

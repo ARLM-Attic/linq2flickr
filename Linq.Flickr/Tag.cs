@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using LinqExtender.Attribute;
 using LinqExtender;
+using LinqExtender.Interface;
 
 namespace Linq.Flickr
 {
-    public class Tag : QueryObjectBase
+    public class Tag : IQueryObject
     {
-        [LinqVisible(false)]
+        [Ignore]
         public string Title { get; set; }
-        [LinqVisible(false)]
+        [Ignore]
         public string Id { get; set; }
     }
 }

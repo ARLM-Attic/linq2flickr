@@ -86,7 +86,7 @@ namespace Linq.Flickr
         {
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(xml);
-            return doc.DocumentElement as XmlElement;
+            return doc.DocumentElement;
         }
 
         public static XmlElement ValidateResponse(this XmlElement element)
@@ -95,17 +95,13 @@ namespace Linq.Flickr
             {
                 return element;
             }
-            else
-            {
-            
-                var error = (from e  in element.Descendants("err")
-                             select new
-                                        {
-                                            Code =    e.Attribute("code").Value,
-                                            Message = e.Attribute("msg").Value
-                                        }).Single();
-                throw new FlickrException(error.Code, error.Message);
-            }
+            var error = (from e  in element.Descendants("err")
+                         select new
+                                    {
+                                        Code =    e.Attribute("code").Value,
+                                        Message = e.Attribute("msg").Value
+                                    }).Single();
+            throw new FlickrException(error.Code, error.Message);
         }
 
         public static XmlElement FindElement(this XmlElement element, string nodeName)

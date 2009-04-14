@@ -16,15 +16,15 @@ namespace Linq.Flickr.Test
     [TestFixture]
     public class FlickrTest
     {
-        FlickrContext _context = null;
-        private const string RESOURCE_NS = "Linq.Flickr.Test.Responses";
+        FlickrContext context;
+        private const string ResourceNs = "Linq.Flickr.Test.Responses";
        
         [SetUp]
         public void Setup()
         {
-            _context = new FlickrContext();
-            _context.Photos.OnError += new LinqExtender.Query<Photo>.ErrorHandler(Photos_OnError);
-            _context.Photos.Comments.OnError += new LinqExtender.Query<Comment>.ErrorHandler(Comments_OnError);
+            context = new FlickrContext();
+            context.Photos.OnError += Photos_OnError;
+            context.Photos.Comments.OnError += Comments_OnError;
         }
 
         [Test]
@@ -35,10 +35,10 @@ namespace Linq.Flickr.Test
             Stream photoRes = GetResourceStream("Linq.Flickr.Test.blank.gif");
             Photo photo = new Photo { Title = "Flickr logo", FileName = "Test.Mock", File = photoRes, ViewMode = ViewMode.Public };
 
-            using (FakeFlickrRepository<PhotoRepository, Photo> photoAddMock = new FakeFlickrRepository<PhotoRepository, Photo>())
+            using (var photoAddMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
                 photoAddMock.FakeSignatureCall();
-                photoAddMock.FakeElementCall(RESOURCE_NS + ".UploadStatus.xml");
+                photoAddMock.FakeElementCall(ResourceNs + ".UploadStatus.xml");
                 photoAddMock.FakeAuthenticateCall(Permission.Delete, 2);
 
                 byte[] oImage = new byte[photoRes.Length];
@@ -56,12 +56,12 @@ namespace Linq.Flickr.Test
                     fileStream = File.Open(path, FileMode.Truncate);
 
                 photoAddMock.FakeHttpRequestObject(fileStream);
-                photoAddMock.FakeWebResponse_GetResponse();
-                photoAddMock.FakeWebResponseObject(RESOURCE_NS + ".Photo.xml");
+                photoAddMock.FakeWebResponseGetResponse();
+                photoAddMock.FakeWebResponseObject(ResourceNs + ".Photo.xml");
                 
                 // add to the collection.
-                _context.Photos.Add(photo);
-                _context.Photos.SubmitChanges();
+                context.Photos.Add(photo);
+                context.Photos.SubmitChanges();
 
                 fileStream.Dispose();
 
@@ -112,17 +112,15 @@ namespace Linq.Flickr.Test
                 Assert.IsTrue(photo.Id == "1");
             }
 
-            using (FakeFlickrRepository<PhotoRepository, Photo> photoDeleteMock = new FakeFlickrRepository<PhotoRepository, Photo>())
+            using (var photoDeleteMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
                 photoDeleteMock.FakeAuthenticateCall(Permission.Delete, 1);
                 photoDeleteMock.FakeSignatureCall();
-                photoDeleteMock.FakeDoHttpPost(RESOURCE_NS + ".DeletePhoto.xml");
+                photoDeleteMock.FakeDoHttpPost(ResourceNs + ".DeletePhoto.xml");
 
-                _context.Photos.Remove(photo);
-                _context.SubmitChanges();
+                context.Photos.Remove(photo);
+                context.SubmitChanges();
             }
-
-            MockManager.Verify();
         }
 
         internal string GetHash(string inputString)
@@ -145,11 +143,11 @@ namespace Linq.Flickr.Test
         {
             MockManager.Init();
 
-            using (FakeFlickrRepository<PhotoRepository, Photo> photoGetMock = new FakeFlickrRepository<PhotoRepository, Photo>())
+            using (var photoGetMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
                 photoGetMock.FakeElementCall("Linq.Flickr.Test.Responses.Search.xml");
 
-                var searchQuery = (from p in _context.Photos
+                var searchQuery = (from p in context.Photos
                              where p.SearchText == "macbook" && p.FilterMode == FilterMode.Safe 
                              && p.Extras == (ExtrasOption.Views | ExtrasOption.Date_Taken | ExtrasOption.Date_Upload | ExtrasOption.Tags | ExtrasOption.Date_Upload)
                              orderby PhotoOrder.Interestingness ascending
@@ -192,14 +190,14 @@ namespace Linq.Flickr.Test
 
             Photo authPhoto = null;
 
-            using (FakeFlickrRepository<PhotoRepository, Photo> authenticatedMock = new FakeFlickrRepository<PhotoRepository, Photo>())
+            using (var authenticatedMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
                 authenticatedMock.FakeSignatureCall();
                 authenticatedMock.FakeCreateAndStoreNewToken(Permission.Delete);
-                authenticatedMock.FakeGetNSIDByUsername("neetulee");
+                authenticatedMock.FakeGetNsidByUsername("neetulee");
                 authenticatedMock.FakeElementCall("Linq.Flickr.Test.Responses.Owner.xml");
 
-                var authQuery = from photo in _context.Photos
+                var authQuery = from photo in context.Photos
                                 where photo.ViewMode == ViewMode.Owner && photo.User == "neetulee"
                                 select photo;
 
@@ -218,21 +216,25 @@ namespace Linq.Flickr.Test
                 authenticatedMockU.FakeSignatureCall("flickr.photos.setMeta", true, "photo_id", authPhoto.Id, "title", updatedTitle,
                                                      "description", authPhoto.Description ?? " ", "auth_token", "1234");
 
-                authenticatedMockU.FakeDoHttpPostAndReturnStringResult(RESOURCE_NS + ".DeletePhoto.xml");
+                authenticatedMockU.FakeDoHttpPostAndReturnStringResult(ResourceNs + ".DeletePhoto.xml");
 
                 authPhoto.Title = updatedTitle;
                 // will raise a update call.
-                _context.SubmitChanges();
+                context.SubmitChanges();
             }
+        }
 
-            using (FakeFlickrRepository<PhotoRepository, Photo> getDetailPhoto = new FakeFlickrRepository<PhotoRepository, Photo>())
+        [Test]
+        public void TestQueryDetail()
+        {
+            using (var repository = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
-                getDetailPhoto.FakeCreateAndStoreNewToken(Permission.Delete);
-                getDetailPhoto.FakeAuthenticateCall(false, Permission.Delete, 1);
-                getDetailPhoto.FakeSignatureCall();
-                getDetailPhoto.FakeElementCall("Linq.Flickr.Test.Responses.PhotoDetail.xml");
+                repository.FakeCreateAndStoreNewToken(Permission.Delete);
+                repository.FakeAuthenticateCall(false, Permission.Delete, 1);
+                repository.FakeSignatureCall();
+                repository.FakeElementCall("Linq.Flickr.Test.Responses.PhotoDetail.xml");
                
-                var photoDetailQuery = from photo in _context.Photos
+                var photoDetailQuery = from photo in context.Photos
                                        where photo.Id == "xxx" && photo.PhotoSize == PhotoSize.Medium && photo.ViewMode == ViewMode.Owner
                                        select photo;
 
@@ -247,8 +249,6 @@ namespace Linq.Flickr.Test
                 Assert.IsTrue(detailPhoto.NsId == "63497523@N00");
                 Assert.IsTrue(detailPhoto.WebUrl == "http://www.flickr.com/photos/63497523@N00/2428052817/");
             }
-
-            MockManager.Verify();
         }
 
         DateTime GetDate(string timeStamp)
@@ -273,17 +273,17 @@ namespace Linq.Flickr.Test
             Comment comment = new Comment();
 
             #region Add comment
-            using (FakeFlickrRepository<CommentRepository, Comment> commentAddMock = new FakeFlickrRepository<CommentRepository, Comment>())
+            using (var commentAddMock = new FakeFlickrRepository<CommentRepository, Comment>())
             {
                 commentAddMock.FakeAuthenticateCall(Permission.Delete, 1);
                 commentAddMock.FakeSignatureCall();
-                commentAddMock.FakeDoHttpPostAndReturnStringResult(RESOURCE_NS + ".AddComment.xml");
+                commentAddMock.FakeDoHttpPostAndReturnStringResult(ResourceNs + ".AddComment.xml");
 
                 comment.PhotoId = COMMENT_PHOTO_ID;
                 comment.Text = "Testing comment add [LINQ.Flickr]";
 
-                _context.Photos.Comments.Add(comment);
-                _context.SubmitChanges();
+                context.Photos.Comments.Add(comment);
+                context.SubmitChanges();
 
                 Assert.IsTrue(comment.Id == "1");
             }
@@ -293,12 +293,12 @@ namespace Linq.Flickr.Test
 
             Comment commentGet = null;
 
-            using (FakeFlickrRepository<CommentRepository, Comment> commentGetMock = new FakeFlickrRepository<CommentRepository, Comment>())
+            using (var commentGetMock = new FakeFlickrRepository<CommentRepository, Comment>())
             {
                 commentGetMock.FakeSignatureCall();
-                commentGetMock.MockRESTBuilderGetElement(RESOURCE_NS + ".GetComment.xml");
+                commentGetMock.MockRESTBuilderGetElement(ResourceNs + ".GetComment.xml");
 
-                var query = from c in _context.Photos.Comments
+                var query = from c in context.Photos.Comments
                             where c.PhotoId == COMMENT_PHOTO_ID && c.Id == comment.Id
                             select c;
 
@@ -310,34 +310,32 @@ namespace Linq.Flickr.Test
 
 
             #region update comment
-            using (FakeFlickrRepository<CommentRepository, Comment> commentUpdateMock = new FakeFlickrRepository<CommentRepository, Comment>())
+            using (var commentUpdateMock = new FakeFlickrRepository<CommentRepository, Comment>())
             {
-                const string updateText = "#123#";
+                const string updatedText = "#123#";
                 commentUpdateMock.FakeAuthenticateCall(Permission.Delete, 1);
                 // line verfies if the text is passed properly for update.
-                commentUpdateMock.FakeSignatureCall("flickr.photos.comments.editComment", true, "comment_id", "1", "comment_text", updateText, "auth_token", "1234");
-                commentUpdateMock.FakeDoHttpPostAndReturnStringResult(RESOURCE_NS + ".UpdateComment.xml");
+                commentUpdateMock.FakeSignatureCall("flickr.photos.comments.editComment", true, "comment_id", "1", "comment_text", updatedText, "auth_token", "1234");
+                commentUpdateMock.FakeDoHttpPostAndReturnStringResult(ResourceNs + ".UpdateComment.xml");
 
-                commentGet.Text = updateText;
+                commentGet.Text = updatedText;
 
-                _context.SubmitChanges();
+                context.SubmitChanges();
             }
             #endregion
 
             #region Delete added
 
-            using (FakeFlickrRepository<CommentRepository, Comment> commentDeleteMock = new FakeFlickrRepository<CommentRepository, Comment>())
+            using (var commentDeleteMock = new FakeFlickrRepository<CommentRepository, Comment>())
             {
                 commentDeleteMock.FakeAuthenticateCall(Permission.Delete, 1);
                 commentDeleteMock.FakeSignatureCall();
-                commentDeleteMock.FakeDoHttpPostAndReturnStringResult(RESOURCE_NS + ".DeleteComment.xml");
+                commentDeleteMock.FakeDoHttpPostAndReturnStringResult(ResourceNs + ".DeleteComment.xml");
 
-                _context.Photos.Comments.Remove(comment);
-                _context.SubmitChanges();
+                context.Photos.Comments.Remove(commentGet);
+                context.SubmitChanges();
             }
             #endregion
-
-            MockManager.Verify();
         }
 
         [Test]
@@ -347,9 +345,9 @@ namespace Linq.Flickr.Test
 
             Mock restBuilderMock = MockManager.Mock<CollectionBuilder<PopularTag>>(Constructor.NotMocked);
             // set the expectation.
-            restBuilderMock.ExpectAndReturn("GetElement", MockElement(RESOURCE_NS + ".HotTagGetList.xml"));
+            restBuilderMock.ExpectAndReturn("GetElement", MockElement(ResourceNs + ".HotTagGetList.xml"));
 
-            var query = from tag in _context.PopularTags
+            var query = from tag in context.PopularTags
                         where tag.Period == TagPeriod.Day && tag.Count == 6
                         orderby tag.Title ascending
                         select tag;
@@ -384,9 +382,9 @@ namespace Linq.Flickr.Test
             // this also ensures that GetNSID should be called from photo repo only.
             photoMock.ExpectAndReturn("GetNSID", id);
             peopleMock.ExpectAndReturn("GetSignature", "yyyy");
-            restBuilderMock.ExpectAndReturn("GetElement", MockElement(RESOURCE_NS + ".PeopleInfo.xml"));
+            restBuilderMock.ExpectAndReturn("GetElement", MockElement(ResourceNs + ".PeopleInfo.xml"));
 
-            var query = from p in _context.Peoples
+            var query = from p in context.Peoples
                         where p.Username == "bees"
                         select p;
 
@@ -416,7 +414,7 @@ namespace Linq.Flickr.Test
         [TearDown]
         public void TeadDown()
         {
-            _context = null;
+            context = null;
         }
 
         void Photos_OnError(ProviderException ex)

@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using LinqExtender;
-using System.Xml;
-using LinqExtender.Attribute;
+﻿using LinqExtender.Attribute;
 using Linq.Flickr.Attribute;
+using LinqExtender.Interface;
 
 namespace Linq.Flickr
 {
     public class BandWidth
     {
-        public int RemainingKB { get; set; }
-        public int UsedKB { get; set; }
+        public int RemainingKb { get; set; }
+        public int UsedKb { get; set; }
     }
    
     [XElement("person")]
-    public class People : QueryObjectBase
+    public class People : IQueryObject
     {
-        [LinqVisible, XAttribute("nsid"), UniqueIdentifier]
+        [XAttribute("nsid"), UniqueIdentifier]
         public string Id { get; set; }
         [XAttribute("ispro")]
         public bool IsPro { get; set; }
-        [XElement("username"), LinqVisible]
+        [XElement("username")]
         public string Username { get; set; }
         [XElement("realname")]
         public string RealName { get; set; }

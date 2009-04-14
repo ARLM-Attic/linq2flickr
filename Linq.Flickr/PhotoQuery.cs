@@ -1,121 +1,130 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections.Specialized;
 using LinqExtender.Interface;
 using LinqExtender;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
-using System.Drawing;
 
 namespace Linq.Flickr
 {
     public class PhotoQuery : Query<Photo>
     {
-        private People _people = null;
-
-        private CommentQuery _commetQuery = null;
+        private People people;
+        private CommentQuery commentQuery;
 
         // Comments can not stay alone, it is a part of photo.
         public CommentQuery Comments
         {
             get
             {
-                if (_commetQuery == null)
+                if (commentQuery == null)
                 {
-                    _commetQuery = new CommentQuery();
+                    commentQuery = new CommentQuery();
                 }
 
-                return _commetQuery;
+                return commentQuery;
             }
         }
 
-        protected override Photo GetItem(Bucket item)
+        protected override Photo GetItem()
         {
             // default values
-            PhotoSize size = item.Items[PhotoColumns.PHOTOSIZE].Value == null ? PhotoSize.Square : (PhotoSize)item.Items[PhotoColumns.PHOTOSIZE].Value;
-            ViewMode viewMode = item.Items[PhotoColumns.VIEWMODE].Value == null ? ViewMode.Public : (ViewMode)item.Items[PhotoColumns.VIEWMODE].Value;
+            PhotoSize size = Bucket.Instance.For.Item(PhotoColumns.Photosize).Value == null ? PhotoSize.Square : (PhotoSize)Bucket.Instance.For.Item(PhotoColumns.Photosize).Value;
+            ViewMode viewMode = Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value == null ? ViewMode.Public : (ViewMode)Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value;
          
             Photo photo = null;
             using (IPhotoRepository flickr = new PhotoRepository())
             {
                 AuthToken token = GetToken(viewMode, flickr);
            
-                if (item.Items[PhotoColumns.ID].Value != null)
+                if (Bucket.Instance.For.Item(PhotoColumns.ID).Value != null)
                 {
-                    photo = flickr.GetPhotoDetail((string) item.Items[PhotoColumns.ID].Value, size);
+                    photo = flickr.GetPhotoDetail((string) Bucket.Instance.For.Item(PhotoColumns.ID).Value, size);
                     
                 }
             }
             return photo;
         }
 
-        protected override bool AddItem(Bucket bucket)
+        protected override bool AddItem()
         {
             using (IPhotoRepository flickr = new PhotoRepository())
             {
-                if (_people == null)
-                    _people = flickr.GetUploadStatus();
+                if (people == null)
+                    people = flickr.GetUploadStatus();
+              
+                var nvCollection = new NameValueCollection();
 
-                object[] args = new object[bucket.Items.Count + 4];
-
-                ViewMode viewMode = bucket.Items[PhotoColumns.VIEWMODE].Value == null
+                ViewMode viewMode = Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value == null
                                         ? ViewMode.Public
-                                        : (ViewMode) bucket.Items[PhotoColumns.VIEWMODE].Value;
+                                        : (ViewMode) Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value;
 
-                int is_public = viewMode == ViewMode.Public ? 1 : 0;
-                int is_friend = viewMode == ViewMode.Friends || viewMode == ViewMode.FriendsFamily ? 1 : 0;
-                int is_family = viewMode == ViewMode.Family || viewMode == ViewMode.FriendsFamily ? 1 : 0;
-
-                args = new object[]
-                           {
-                               "is_public", is_public,
-                               "is_friend", is_friend,
-                               "is_family", is_family,
-                               bucket.Items[PhotoColumns.TITLE].Name, bucket.Items[PhotoColumns.TITLE].Value,
-                               bucket.Items[PhotoColumns.DESC].Name, bucket.Items[PhotoColumns.DESC].Value
-                           };
+                int isPublic = viewMode == ViewMode.Public ? 1 : 0;
+                int isFriend = viewMode == ViewMode.Friends || viewMode == ViewMode.FriendsFamily ? 1 : 0;
+                int isFamily = viewMode == ViewMode.Family || viewMode == ViewMode.FriendsFamily ? 1 : 0;
 
 
-                string fileName = (string) bucket.Items[PhotoColumns.FILENAME].Value;
+                nvCollection.Add("is_public", isPublic.ToString());
+                nvCollection.Add("is_friend", isFriend.ToString());
+                nvCollection.Add("is_family", isFamily.ToString());
+                nvCollection.Add(Bucket.Instance.For.Item(PhotoColumns.Title).Name, Convert.ToString(Bucket.Instance.For.Item(PhotoColumns.Title).Value));
+                nvCollection.Add(Bucket.Instance.For.Item(PhotoColumns.Desc).Name, Convert.ToString(Bucket.Instance.For.Item(PhotoColumns.Desc).Value));
+                
+                var fileName = (string) Bucket.Instance.For.Item(PhotoColumns.Filename).Value;
 
                 if (string.IsNullOrEmpty(fileName))
                     throw new Exception("Please key in the filename for the photo");
 
-                byte[] postContnet = (byte[]) bucket.Items[PhotoColumns.PHOTO_CONTENT].Value;
+                byte[] postContnet = (byte[]) Bucket.Instance.For.Item(PhotoColumns.PhotoContent).Value;
 
                 if (postContnet == null || postContnet.Length == 0)
                     throw new Exception("Zero photo length detected, please key in a valid photo file");
 
                 // check if the user has any storage.
                 int kbTobUploaded = (int) Math.Ceiling((float) (postContnet.Length/1024f));
-                if (_people.BandWidth != null)
+                if (people.BandWidth != null)
                 {
-                    int currentByte = _people.BandWidth.UsedKB + kbTobUploaded;
-                    if (currentByte >= _people.BandWidth.RemainingKB)
+                    int currentByte = people.BandWidth.UsedKb + kbTobUploaded;
+                    if (currentByte >= people.BandWidth.RemainingKb)
                     {
                         throw new Exception("Storage limit excceded, try pro account!!");
                     }
                 }
-                string photoId = flickr.Upload(args, fileName, postContnet);
+
+                string [] attributes = new string[nvCollection.Count * 2];
+
+
+                int index = 0;
+
+                foreach (string result in nvCollection.AllKeys)
+                {
+                    attributes[index++] = result;
+                    attributes[index++] = nvCollection[result];
+                }
+
+
+                string photoId = flickr.Upload(attributes, fileName, postContnet);
                 // set the id.
-                bucket.Items[PhotoColumns.ID].Value = photoId;
+                Bucket.Instance.For.Item(PhotoColumns.ID).Value = photoId;
 
                 // do the math
-                _people.BandWidth.UsedKB += kbTobUploaded;
-                _people.BandWidth.RemainingKB -= kbTobUploaded;
+                if (people.BandWidth != null)
+                {
+                    people.BandWidth.UsedKb += kbTobUploaded;
+                    people.BandWidth.RemainingKb -= kbTobUploaded;
+                }
 
                 return (string.IsNullOrEmpty(photoId) == false);
             }
         }
 
-        protected override bool RemoveItem(Bucket bucket)
+        protected override bool RemoveItem()
         {
             using (IPhotoRepository flickr = new PhotoRepository())
             {
-                if (!string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.ID].Value))
+                if (!string.IsNullOrEmpty((string)Bucket.Instance.For.Item(PhotoColumns.ID).Value))
                 {
-                    return flickr.Delete((string) bucket.Items[PhotoColumns.ID].Value);
+                    return flickr.Delete((string) Bucket.Instance.For.Item(PhotoColumns.ID).Value);
                 }
                 else
                 {
@@ -123,15 +132,15 @@ namespace Linq.Flickr
                 }
             }
         }
-        protected override bool UpdateItem(Bucket item)
+        protected override bool UpdateItem()
         {
-            string photoId = (string)item.Items[PhotoColumns.ID].Value;
+            string photoId = (string)Bucket.Instance.For.Item(PhotoColumns.ID).Value;
 
             if (string.IsNullOrEmpty(photoId))
                 throw new Exception("Must provide a valid photoId");
 
-            string title = (string)item.Items[PhotoColumns.TITLE].Value;
-            string description = (string)item.Items[PhotoColumns.DESC].Value;
+            string title = (string)Bucket.Instance.For.Item(PhotoColumns.Title).Value;
+            string description = (string)Bucket.Instance.For.Item(PhotoColumns.Desc).Value;
 
             if (string.IsNullOrEmpty(title))
             {
@@ -144,75 +153,85 @@ namespace Linq.Flickr
             }
         }
 
-        private class PhotoColumns
+        private static class PhotoColumns
         {
             public const string ID = "Id";
-            public const string USER = "User";
-            public const string NSID = "NsId";
-            public const string SEARCHTEXT = "SearchText";
-            public const string PHOTOSIZE = "PhotoSize";
-            public const string VIEWMODE = "ViewMode";
-            public const string TITLE = "Title";
-            public const string DESC = "Description";
-            public const string FILENAME = "FileName";
-            public const string PHOTO_CONTENT = "PhotoContent";
-            public const string SEARCH_MODE = "SearchMode";
+            public const string User = "User";
+            public const string Nsid = "NsId";
+            public const string Searchtext = "SearchText";
+            public const string Photosize = "PhotoSize";
+            public const string Viewmode = "ViewMode";
+            public const string Title = "Title";
+            public const string Desc = "Description";
+            public const string Filename = "FileName";
+            public const string PhotoContent = "PhotoContent";
+            public const string SearchMode = "SearchMode";
 
-            public static string FILTER_MODE
-            {
-                get { return "FilterMode"; }
-            }
-
-            public static string EXTRAS
+            public static string Extras
             {
                 get { return "Extras"; }
             }
         }
 
-        protected override void Process(IModify<Photo> items, Bucket bucket)
+        protected override void Process(IModify<Photo> items)
         {
             using (IPhotoRepository flickr = new PhotoRepository())
             {
-                // default values
-                PhotoSize size = bucket.Items[PhotoColumns.PHOTOSIZE].Value == null ? PhotoSize.Square : (PhotoSize)bucket.Items[PhotoColumns.PHOTOSIZE].Value;
-                ViewMode viewMode = bucket.Items[PhotoColumns.VIEWMODE].Value == null ? ViewMode.Public : (ViewMode)bucket.Items[PhotoColumns.VIEWMODE].Value;
+                PhotoSize size = Bucket.Instance.For.Item(PhotoColumns.Photosize).Value == null
+                                     ? PhotoSize.Square
+                                     : (PhotoSize) Bucket.Instance.For.Item(PhotoColumns.Photosize).Value;
+
+                ViewMode viewMode = Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value == null
+                                        ? ViewMode.Public
+                                        : (ViewMode) Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value;
          
-                int index = bucket.ItemsToSkip + 1;
+                int index = Bucket.Instance.Entity.ItemsToSkipFromStart + 1;
                 if (index == 0) index = index + 1;
 
                 int itemsToTake = 100;
 
-                if (bucket.ItemsToTake != null)
+                if (Bucket.Instance.Entity.ItemsToFetch != null)
                 {
-                    itemsToTake = (int)bucket.ItemsToTake;
+                    itemsToTake = Bucket.Instance.Entity.ItemsToFetch.Value;
                 }
                
-                bool fetchRecent = false;
+                bool fetchRecent = true;
 
-                // if there is not tag text, tag or id methioned in search , also want to get my list of images,
-                if (string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.ID].Value)
-                    && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.SEARCHTEXT].Value)
-                    && viewMode != ViewMode.Owner 
-                    && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.USER].Value)
-                    && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.NSID].Value)
-                    && bucket.OrderByClause == null)
+                /// if there is not tag text, tag or id methioned in search , also want to get my list of images,
+                fetchRecent &= string.IsNullOrEmpty((string) Bucket.Instance.For.Item(PhotoColumns.Searchtext).Value);
+                fetchRecent &= viewMode != ViewMode.Owner;
+                fetchRecent &= string.IsNullOrEmpty((string)Bucket.Instance.For.Item(PhotoColumns.User).Value);
+                fetchRecent &= string.IsNullOrEmpty((string)Bucket.Instance.For.Item(PhotoColumns.Nsid).Value);
+
+                bool unique = Bucket.Instance.For.Item(PhotoColumns.ID).Unique &&
+                              !string.IsNullOrEmpty((string) Bucket.Instance.For.Item(PhotoColumns.ID).Value);
+
+                Bucket.Instance.Entity.OrderBy.IfUsed.Process(delegate 
                 {
-                    fetchRecent = true;
-                }
-
+                    fetchRecent = false;
+                });
+              
                 if (fetchRecent)
                 {
                     items.AddRange(flickr.GetMostInteresting(index, itemsToTake, size));
                     //items.AddRange();
                 }
+                else if (unique)
+                {
+                    AuthToken token = GetToken(viewMode, flickr);
+                    Photo photo = flickr.GetPhotoDetail((string)Bucket.Instance.For.Item(PhotoColumns.ID).Value, size);
+
+                    if (photo != null)
+                    {
+                        items.Add(photo);
+                    }
+                }
                 else
                 {
                     AuthToken token = GetToken(viewMode, flickr);
-                    string[] args = BuildSearchQuery(flickr, bucket, viewMode, false);
-                    items.AddRange(flickr.Search(index, itemsToTake, size, token == null ? string.Empty : token.Id, args));
+                    items.AddRange(flickr.Search(index, itemsToTake, size, token == null ? string.Empty : token.Id, ProcessSearchQuery(flickr, viewMode)));
                 }
-      
-            }
+           }
         }
 
         private AuthToken GetToken(ViewMode viewMode, IPhotoRepository flickr)
@@ -227,26 +246,16 @@ namespace Linq.Flickr
             return token;
         }
 
-        private string[] BuildSearchQuery(IPhotoRepository flickr, Bucket bucket, ViewMode viewMode, bool includeNonVisibleItems)
+        private static string[] ProcessSearchQuery(IPhotoRepository flickr, ViewMode viewMode)
         {
-            string query = string.Empty;
-            StringBuilder builder = new StringBuilder();
             string nsId = string.Empty;
-            // build the query string
-            string[] args = new string[bucket.Items.Count + 4];
-           
-            int itemIndex = 0;
+            var args = new NameValueCollection();
 
-            foreach (string key in bucket.Items.Keys)
+            Bucket.Instance.For.EachItem.Process(delegate(BucketItem item)
             {
-                BucketItem item = bucket.Items[key];
-
-                if (string.Compare(item.Name, PhotoColumns.SEARCH_MODE) == 0) continue;
-                if (string.Compare(item.Name, PhotoColumns.PHOTOSIZE) == 0) continue;
-
-                if (item.Name != PhotoColumns.PHOTOSIZE) // PhotoSize is for internal use.
+                if (item.Name != PhotoColumns.Photosize) // PhotoSize is for internal use.
                 {
-                    if (item.Value != null && ((item.QueryVisible) || includeNonVisibleItems))
+                    if (item.Value != null)
                     {
                         string value = Convert.ToString(item.Value);
                         // fix for tagMode 
@@ -258,16 +267,18 @@ namespace Linq.Flickr
 
                         if (!string.IsNullOrEmpty(value))
                         {
-                            if (item.Name == PhotoColumns.USER)
+                            string key = string.Empty;
+
+                            if (item.Name == PhotoColumns.User)
                             {
-                                args[itemIndex] = "user_id";
+                                key = "user_id";
                                 if (value.IsValidEmail())
                                 {
-                                    nsId = flickr.GetNSIDByEmail(value);
+                                    nsId = flickr.GetNsidByEmail(value);
                                 }
                                 else
                                 {
-                                    nsId = flickr.GetNSIDByUsername(value);
+                                    nsId = flickr.GetNsidByUsername(value);
                                 }
                                 // set the new nslid
                                 if (!string.IsNullOrEmpty(nsId))
@@ -277,48 +288,59 @@ namespace Linq.Flickr
                             }
                             else if (string.Compare(item.Name, "text") == 0)
                             {
-                                SearchMode searchMode = bucket.Items[PhotoColumns.SEARCH_MODE].Value == null ? SearchMode.FreeText : (SearchMode)bucket.Items[PhotoColumns.SEARCH_MODE].Value;
-                                args[itemIndex] = searchMode == SearchMode.TagsOnly ? "tags" : item.Name;
+                                SearchMode searchMode = Bucket.Instance.For.Item(PhotoColumns.SearchMode).Value == null ? SearchMode.FreeText : (SearchMode)Bucket.Instance.For.Item(PhotoColumns.SearchMode).Value;
+                                key = searchMode == SearchMode.TagsOnly ? "tags" : item.Name;
                             }
-                            
+
                             else if (string.Compare(item.Name, "extras") == 0)
                             {
-                                ExtrasOption extras = bucket.Items[PhotoColumns.EXTRAS].Value == null ? ExtrasOption.None : (ExtrasOption)bucket.Items[PhotoColumns.EXTRAS].Value;
-                                args[itemIndex] = item.Name;
+                                ExtrasOption extras = Bucket.Instance.For.Item(PhotoColumns.Extras).Value == null ? ExtrasOption.None : (ExtrasOption)Bucket.Instance.For.Item(PhotoColumns.Extras).Value;
+                                key = item.Name;
                                 value = extras.ToExtrasString();
                             }
                             else
                             {
-                                args[itemIndex] = item.Name;
+                                key = item.Name;
                             }
-                            args[itemIndex + 1] = value;
+                            args[key] = value;
                         }
-                        itemIndex += 2;
-                    } // end if (item.Value != null && ((item.QueryVisible) || includeNonVisibleItems))
-                }// end if (item.Name != PhotoColumns.PHOTOSIZE)
+                    } // end if (item.Value != null))
+                }// end if (item.Name != PhotoColumns.Photosize)
+
+            });
+
+            bool sortUsed = false;
+
+            Bucket.Instance.Entity.OrderBy.IfUsed.Process(delegate (string fieldName, bool isAscending)
+            {
+                args["sort"] = GetSortOrder(fieldName, isAscending);
+                sortUsed = true;
+            });
+
+            if (!sortUsed)
+            {
+                /// default is relevance
+                args["sort"] = GetSortOrder(string.Empty, false);
             }
 
-            if (bucket.OrderByClause != null)
+
+            /// not user id is provided and , owner is specified then get my photos.
+            if (viewMode == ViewMode.Owner && string.IsNullOrEmpty((string)Bucket.Instance.For.Item(PhotoColumns.User).Value))
             {
-                args[itemIndex] = "sort";
-                args[itemIndex + 1] = GetSortOrder(bucket.OrderByClause.FieldName, bucket.OrderByClause.IsAscending);
-                itemIndex += 2;
-            }
-            else
-            {
-                // default is relevance
-                args[itemIndex] = "sort";
-                args[itemIndex + 1] = GetSortOrder(string.Empty, false);
-                itemIndex += 2;
-            }
-            // not user id is provided and , owner is specified then get my photos.
-            if (viewMode == ViewMode.Owner && string.IsNullOrEmpty((string)bucket.Items[PhotoColumns.USER].Value))
-            {
-                args[itemIndex] = "user_id";
-                args[itemIndex + 1] = "me";
+                args["user_id"] = "me";
             }
 
-            return args;
+            var results = new string[args.Count * 2];
+
+            int index = 0;
+
+            foreach (string result in  args.AllKeys)
+            {
+                results[index++] = result;
+                results[index++] = args[result];
+            }
+
+            return results;
         }
 
         private static string GetSortOrder(string orderBy, bool asc)

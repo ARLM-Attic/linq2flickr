@@ -48,8 +48,8 @@ namespace Linq.Flickr.Repository
                                      BandWidth = (from b in element.Descendants("bandwidth")
                                                   select new BandWidth
                                                   {
-                                                      RemainingKB =  Convert.ToInt32(b.Attribute("remainingkb").Value),
-                                                      UsedKB = Convert.ToInt32(b.Attribute("usedkb").Value)
+                                                      RemainingKb =  Convert.ToInt32(b.Attribute("remainingkb").Value),
+                                                      UsedKb = Convert.ToInt32(b.Attribute("usedkb").Value)
                                                   }).Single<BandWidth>()
                                  }).Single<People>();
 
@@ -130,13 +130,13 @@ namespace Linq.Flickr.Repository
             return photos;
         }
 
-        string IPhotoRepository.GetNSIDByUsername(string username)
+        string IPhotoRepository.GetNsidByUsername(string username)
         {
             string method = Helper.GetExternalMethodName();
             return base.GetNSID(method, "username", username);
         }
 
-        string IPhotoRepository.GetNSIDByEmail(string email)
+        string IPhotoRepository.GetNsidByEmail(string email)
         {
             string method = Helper.GetExternalMethodName();
             return base.GetNSID(method, "find_email", email);
@@ -148,12 +148,12 @@ namespace Linq.Flickr.Repository
             public string Url { get; set; }
         }
 
-        internal PhotoSize _PhotoSize { get; set; }
-        internal ViewMode _Visibility { get; set; }
+        internal PhotoSize PhotoSize { get; set; }
+        internal ViewMode Visibility { get; set; }
 
         string IPhotoRepository.GetSizedPhotoUrl(string id, PhotoSize size)
         {
-            if (_PhotoSize == PhotoSize.Original)
+            if (PhotoSize == PhotoSize.Original)
             {
                 string method = Helper.GetExternalMethodName();
                 string requestUrl = BuildUrl(method, "photo_id", id);
@@ -181,15 +181,15 @@ namespace Linq.Flickr.Repository
         }
 
         /// <summary>
-        /// calls flickr.photos.search to list of photos.
+        /// Searchs the photos for supplied name value settings.
         /// </summary>
-        /// <param name="index"></param>
-        /// <param name="pageLen"></param>
+        /// <param name="index">Index</param>
+        /// <param name="pageLen">Number of items on each page</param>
         /// <param name="photoSize"></param>
-        /// <param name="token"></param>
-        /// <param name="args"></param>
-        /// <returns>Enumerable of Photos</returns>
-        IEnumerable<Photo> IPhotoRepository.Search(int index, int pageLen, PhotoSize photoSize, string token, params string[] args)
+        /// <param name="token">Authentication token, if logged in</param>
+        /// <param name="args">Search criteria</param>
+        /// <returns>list of photos</returns>
+        IEnumerable<Photo> IPhotoRepository.Search(int index, int pageLen, PhotoSize photoSize, string token, params object[] args)
         {
             string method = Helper.GetExternalMethodName();
 
@@ -251,7 +251,7 @@ namespace Linq.Flickr.Repository
         /// <returns>Detail of photo</returns>
         Photo IPhotoRepository.GetPhotoDetail(string id, PhotoSize size)
         {
-            this._PhotoSize = size;
+            this.PhotoSize = size;
         
             string method = Helper.GetExternalMethodName();
 
@@ -369,6 +369,13 @@ namespace Linq.Flickr.Repository
             }
         }
 
+        /// <summary>
+        /// Uploades a photo file with the fileName and byte[] data provided.
+        /// </summary>
+        /// <param name="args">visibility attributes</param>
+        /// <param name="fileName">name of the file</param>
+        /// <param name="photoData">content</param>
+        /// <returns>photoId</returns>
         string IPhotoRepository.Upload(object[] args, string fileName, byte[] photoData)
         {
             string token = base.Authenticate(Permission.Delete.ToString());

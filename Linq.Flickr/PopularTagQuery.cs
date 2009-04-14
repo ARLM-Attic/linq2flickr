@@ -11,24 +11,24 @@ namespace Linq.Flickr
 {
     public class PopularTagQuery : Query<PopularTag>
     {
-        protected override bool AddItem(Bucket item)
+        protected override bool AddItem()
         {
             return false;
         }
 
-        protected override bool RemoveItem(Bucket item)
+        protected override bool RemoveItem()
         {
             return false;
         }
 
-        protected override void Process(LinqExtender.Interface.IModify<PopularTag> items, Bucket bucket)
+        protected override void Process(LinqExtender.Interface.IModify<PopularTag> items)
         {
-            object tagsPeriod = bucket.Items[TagColums.PERIOD].Value;
+            object tagsPeriod = Bucket.Instance.For.Item(TagColums.Period).Value;
             TagPeriod period =  tagsPeriod == null ? TagPeriod.Day : (TagPeriod)tagsPeriod;
 
-            int score = Convert.ToInt32(bucket.Items[TagColums.SCORE].Value ?? "0");
+            int score = Convert.ToInt32(Bucket.Instance.For.Item(TagColums.Score).Value ?? "0");
 
-            int count = (int)bucket.Items[TagColums.COUNT].Value;
+            int count = (int)Bucket.Instance.For.Item(TagColums.Count).Value;
 
             if (count > 200)
             {
@@ -51,9 +51,9 @@ namespace Linq.Flickr
 
         public class TagColums
         {
-            public const string PERIOD = "Period";
-            public const string COUNT = "Count";
-            public const string SCORE = "Score";
+            public const string Period = "Period";
+            public const string Count = "Count";
+            public const string Score = "Score";
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Linq.Flickr
     /// Used for creating IEnumerable<typeparamref name="T"/> result from REST response.
     /// </summary>
     /// <typeparam name="T">IDisposable</typeparam>
-    public class CollectionBuilder<T> : HttpCallBase where T : IDisposable 
+    public class CollectionBuilder<T> : HttpCallBase
     {
         public CollectionBuilder()
         {

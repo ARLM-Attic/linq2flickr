@@ -25,7 +25,7 @@ namespace Linq.Flickr.Repository
 
             using (IPhotoRepository photoRepository = new PhotoRepository())
             {
-                nsId = photoRepository.GetNSIDByUsername(username);
+                nsId = photoRepository.GetNsidByUsername(username);
 
                 if (!string.IsNullOrEmpty(nsId))
                 {
