@@ -211,12 +211,8 @@ namespace Linq.Flickr
                     fetchRecent = false;
                 });
               
-                if (fetchRecent)
-                {
-                    items.AddRange(flickr.GetMostInteresting(index, itemsToTake, size));
-                    //items.AddRange();
-                }
-                else if (unique)
+                /// unique property has higher precendence over general search query.
+                if (unique)
                 {
                     AuthToken token = GetToken(viewMode, flickr);
                     Photo photo = flickr.GetPhotoDetail((string)Bucket.Instance.For.Item(PhotoColumns.ID).Value, size);
@@ -225,6 +221,11 @@ namespace Linq.Flickr
                     {
                         items.Add(photo);
                     }
+                }
+                else if (fetchRecent)
+                {
+                    items.AddRange(flickr.GetMostInteresting(index, itemsToTake, size));
+                    //items.AddRange();
                 }
                 else
                 {
