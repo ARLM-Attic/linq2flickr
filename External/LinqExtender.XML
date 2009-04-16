@@ -205,6 +205,33 @@
             Represents the relational query operator equavalent.
             </summary>
         </member>
+        <member name="F:LinqExtender.RelationType.Equal">
+            <summary>
+            Eqavalent of "=="
+            </summary>
+        </member>
+        <member name="F:LinqExtender.RelationType.GreaterThan">
+            <summary>
+            Eqavalent of ">"
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:LinqExtender.RelationType.LessThan" -->
+        <member name="F:LinqExtender.RelationType.GreaterThanEqual">
+            <summary>
+            Eqavalent of ">="
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:LinqExtender.RelationType.LessThanEqual" -->
+        <member name="F:LinqExtender.RelationType.NotEqual">
+            <summary>
+            Eqavalent of "!="
+            </summary>
+        </member>
+        <member name="F:LinqExtender.RelationType.NotApplicable">
+            <summary>
+            Default value for first where clause item
+            </summary>
+        </member>
         <member name="T:LinqExtender.Query`1">
             <summary>
              Entry class for LINQ provider. Containter of the virtual methods that will be invoked on select, intsert, update, remove or get calls.
@@ -248,24 +275,24 @@
         </member>
         <member name="M:LinqExtender.Query`1.AddRange(System.Collections.Generic.IEnumerable{`0},System.Boolean)">
             <summary>
-            Add the items to the collection , optionally calls in memory sort. Used in Query<typeparamref name="T"/>.Process
+            Adds list of items to the collection , optionally calls in memory sort. Used in Query<typeparamref name="T"/>.Process
             </summary>
             <param name="items">collection</param>
             <param name="inMemorySort">true/false</param>
         </member>
         <member name="M:LinqExtender.Query`1.AddItem">
             <summary>
-            method is invoked after SubmitChanges(), if there is new item in the colleciton.
+            Invoked after SubmitChanges(), if there is new item in the colleciton.
             </summary>
         </member>
         <member name="M:LinqExtender.Query`1.RemoveItem">
             <summary>
-            method is invoked after SubmitChanges(), if there are delted items in the collection.
+            Invoked after SubmitChanges(), if there are delted items in the collection.
             </summary>
         </member>
         <member name="M:LinqExtender.Query`1.UpdateItem">
             <summary>
-            method is invoked after SubmitChanges(), if any of the object value is altered.
+            Invoked after SubmitChanges(), if any of the object value is altered.
             </summary>
         </member>
         <member name="M:LinqExtender.Query`1.GetItem">
