@@ -130,7 +130,7 @@ namespace Linq.Flickr.Test
 
         public void FakeGetNsidByUsername(string username)
         {
-            mockRepository.ExpectAndReturn("GetNSID", nsId).Args("flickr.people.findByUsername", "username", username);
+            mockRepository.ExpectAndReturn("GetNsid", nsId).Args("flickr.people.findByUsername", "username", username);
         }
 
         private XmlElement MockElement(string resource)

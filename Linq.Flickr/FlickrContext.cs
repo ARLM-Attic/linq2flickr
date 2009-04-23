@@ -57,9 +57,9 @@ namespace Linq.Flickr
         /// <returns>returns true/false</returns>
         public bool IsAuthenticated()
         {
-            using (IPhotoRepository photoRepository = new PhotoRepository())
+            using (IAuthRepository authRepository = new AuthRepository())
             {
-                return photoRepository.IsAuthenticated();
+                return authRepository.IsAuthenticated();
             }
         }
         /// <summary>
@@ -67,9 +67,9 @@ namespace Linq.Flickr
         /// </summary>
         public AuthToken Authenticate()
         {
-            using (IPhotoRepository photoRepository = new PhotoRepository())
+            using (IAuthRepository authRepository = new AuthRepository())
             {
-                return photoRepository.Authenticate(true, Permission.Delete);
+                return authRepository.Authenticate(true, Permission.Delete);
             }
         }
 

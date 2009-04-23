@@ -34,13 +34,6 @@ namespace Linq.Flickr.Interface
         string GetNsidByEmail(string email);
         [FlickrMethod("flickr.people.findByUsername")]
         string GetNsidByUsername(string username);
-        [FlickrMethod("flickr.auth.getToken")]
-        AuthToken GetTokenFromFrob(string frob);
-        [FlickrMethod("flickr.auth.checkToken")]
-        AuthToken CheckToken(string token);
-        [FlickrMethod("flickr.auth.getToken")]
-        AuthToken Authenticate(bool validate, Permission permission);
-        bool IsAuthenticated();
         /// <summary>
         /// Uploades a photo file with the fileName and byte[] data provided.
         /// </summary>

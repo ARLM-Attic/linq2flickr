@@ -44,6 +44,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -54,10 +55,18 @@
     <Compile Include="Attribute\XElementAttribute.cs" />
     <Compile Include="Attribute\FlickrMethodAttribute.cs" />
     <Compile Include="Attribute\XNameAttribute.cs" />
+    <Compile Include="Authentication\AuthenticaitonProvider.cs" />
+    <Compile Include="Authentication\Providers\DesktopProvider.cs" />
+    <Compile Include="Authentication\Providers\WebProvider.cs" />
+    <Compile Include="XmlToObject.cs" />
     <Compile Include="AuthToken.cs" />
+    <Compile Include="Configuration\FlickrProviderElement.cs" />
+    <Compile Include="Configuration\FlickrProviderElementCollection.cs" />
     <Compile Include="FlickrException.cs" />
+    <Compile Include="Interface\IAuthRepository.cs" />
     <Compile Include="Interface\IHttpCallBase.cs" />
     <Compile Include="Interface\IRepositoryBase.cs" />
+    <Compile Include="Repository\AuthRepository.cs" />
     <Compile Include="Repository\HttpCallBase.cs" />
     <Compile Include="CollectionBuilder.cs" />
     <Compile Include="Comment.cs" />

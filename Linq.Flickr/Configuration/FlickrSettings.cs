@@ -38,14 +38,36 @@ namespace Linq.Flickr.Configuration {
             }
         }
 
-        [ConfigurationProperty("cacheDirectory", DefaultValue = "cache")]
-        public string CacheDirectory {
-            get {
-                return (string)this["cacheDirectory"];
+        [ConfigurationProperty("defaultAuthProvider", DefaultValue = "desktop", IsRequired = true)]
+        public string DefaultProviderName
+        {
+            get
+            {
+                return (string)this["defaultAuthProvider"];
             }
-            set {
-                this["cacheDirectory"] = value;
+            set
+            {
+                this["defaultAuthProvider"] = value;
             }
         }
+
+        public FlickrProviderElement DefaultProvider
+        {
+            get
+            {
+                return Providers[this.DefaultProviderName];
+            }
+        }
+
+        [ConfigurationProperty("authProviders")]
+        public FlickrProviderElementCollection Providers
+        {
+            get
+            {
+                return this["authProviders"] as FlickrProviderElementCollection;
+            }
+        }
+
+
     }
 }

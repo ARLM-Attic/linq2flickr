@@ -22,12 +22,6 @@ namespace Linq.Flickr.Repository
     {
         public PhotoRepository() : base(typeof(IPhotoRepository)) { }
        
-        AuthToken IPhotoRepository.CheckToken(string token)
-        {
-            string method = Helper.GetExternalMethodName();
-            return ValidateToken(method, token);
-        }
-
         People IPhotoRepository.GetUploadStatus()
         {
             string token = base.Authenticate(Permission.Delete.ToString());
@@ -83,35 +77,6 @@ namespace Linq.Flickr.Repository
  
         }
 
-
-        AuthToken IPhotoRepository.Authenticate(bool validate, Permission permission)
-        {
-            string method = Helper.GetExternalMethodName();
-            return  (this as IRepositoryBase).GetAuthenticatedToken(permission.ToString().ToLower(), validate);
-        }
-        bool IPhotoRepository.IsAuthenticated()
-        {
-            return IsAuthenticated();
-        }
-
-        AuthToken IPhotoRepository.GetTokenFromFrob(string frob)
-        {
-            string method = Helper.GetExternalMethodName();
-
-            string sig = base.GetSignature(method, true, "frob", frob);
-            string requestUrl = BuildUrl(method, "frob", frob, "api_sig", sig);
-
-            try
-            {
-                XmlElement tokenElement = base.GetElement(requestUrl);
-                return GetAToken(tokenElement);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
         IList<Photo> IPhotoRepository.GetMostInteresting(int index, int itemsPerPage, PhotoSize size)
         {
             string method = Helper.GetExternalMethodName();
@@ -133,13 +98,13 @@ namespace Linq.Flickr.Repository
         string IPhotoRepository.GetNsidByUsername(string username)
         {
             string method = Helper.GetExternalMethodName();
-            return base.GetNSID(method, "username", username);
+            return base.GetNsid(method, "username", username);
         }
 
         string IPhotoRepository.GetNsidByEmail(string email)
         {
             string method = Helper.GetExternalMethodName();
-            return base.GetNSID(method, "find_email", email);
+            return base.GetNsid(method, "find_email", email);
         }
 
         internal class PhotoSizeWrapper
@@ -206,7 +171,7 @@ namespace Linq.Flickr.Repository
             IDictionary<string, string> dicionary = new Dictionary<string, string>();
 
             dicionary.Add(Helper.BASE_URL + "?method", method);
-            dicionary.Add("api_key", FLICKR_API_KEY);
+            dicionary.Add("api_key", flickrApiKey);
 
             ProcessArguments(args, dicionary);
             ProcessArguments( new object [] {"api_sig", sig, "page", index.ToString(), "per_page", pageLen.ToString(), "auth_token", token }, dicionary);
@@ -390,7 +355,7 @@ namespace Linq.Flickr.Repository
            
             StringBuilder builder = new StringBuilder();
 
-            EncodeAndAddItem(boundary, ref builder, new object[] { "api_key", FLICKR_API_KEY, "auth_token", token, "api_sig", sig});
+            EncodeAndAddItem(boundary, ref builder, new object[] { "api_key", flickrApiKey, "auth_token", token, "api_sig", sig});
             EncodeAndAddItem(boundary, ref builder, args);
             EncodeAndAddItem(boundary, ref builder, new object[] { "photo", fileName});
 

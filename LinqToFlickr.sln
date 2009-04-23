@@ -5,18 +5,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq.Flickr", "Linq.Flickr\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq.Flickr.Test", "Linq.Flickr.Test\Linq.Flickr.Test.csproj", "{FBB3FF89-3D42-49D1-8D48-BC7F34FB9618}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{DB97F755-F3A8-43FA-9237-2F81B0B3D02C}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\Authentication.docx = Docs\Authentication.docx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 3
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs04.codeplex.com/
-		SccProjectUniqueName0 = Linq.Flickr\\Linq.Flickr.csproj
-		SccProjectName0 = Linq.Flickr
-		SccLocalPath0 = Linq.Flickr
-		SccProjectUniqueName1 = Linq.Flickr.Test\\Linq.Flickr.Test.csproj
-		SccProjectName1 = Linq.Flickr.Test
-		SccLocalPath1 = Linq.Flickr.Test
-		SccLocalPath2 = .
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Linq.Flickr\\Linq.Flickr.csproj
+		SccProjectName1 = Linq.Flickr
+		SccLocalPath1 = Linq.Flickr
+		SccProjectUniqueName2 = Linq.Flickr.Test\\Linq.Flickr.Test.csproj
+		SccProjectName2 = Linq.Flickr.Test
+		SccLocalPath2 = Linq.Flickr.Test
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

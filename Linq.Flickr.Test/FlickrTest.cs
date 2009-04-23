@@ -379,8 +379,8 @@ namespace Linq.Flickr.Test
             
             Mock restBuilderMock = MockManager.Mock<CollectionBuilder<People>>(Constructor.NotMocked);
 
-            // this also ensures that GetNSID should be called from photo repo only.
-            photoMock.ExpectAndReturn("GetNSID", id);
+            // this also ensures that GetNsid should be called from photo repo only.
+            photoMock.ExpectAndReturn("GetNsid", id);
             peopleMock.ExpectAndReturn("GetSignature", "yyyy");
             restBuilderMock.ExpectAndReturn("GetElement", MockElement(ResourceNs + ".PeopleInfo.xml"));
 

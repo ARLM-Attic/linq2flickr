@@ -33,14 +33,17 @@ namespace Linq.Flickr
             ViewMode viewMode = Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value == null ? ViewMode.Public : (ViewMode)Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value;
          
             Photo photo = null;
-            using (IPhotoRepository flickr = new PhotoRepository())
+            using (IAuthRepository authRepository = new AuthRepository())
             {
-                AuthToken token = GetToken(viewMode, flickr);
+                AuthToken token = GetToken(viewMode, authRepository);
            
                 if (Bucket.Instance.For.Item(PhotoColumns.ID).Value != null)
                 {
-                    photo = flickr.GetPhotoDetail((string) Bucket.Instance.For.Item(PhotoColumns.ID).Value, size);
-                    
+                    using (IPhotoRepository photoRepository = new PhotoRepository())
+                    {
+                        photo = photoRepository.GetPhotoDetail((string)Bucket.Instance.For.Item(PhotoColumns.ID).Value, size);
+                    }
+
                 }
             }
             return photo;
@@ -214,12 +217,16 @@ namespace Linq.Flickr
                 /// unique property has higher precendence over general search query.
                 if (unique)
                 {
-                    AuthToken token = GetToken(viewMode, flickr);
-                    Photo photo = flickr.GetPhotoDetail((string)Bucket.Instance.For.Item(PhotoColumns.ID).Value, size);
-
-                    if (photo != null)
+                    using (IAuthRepository authRepository = new AuthRepository())
                     {
-                        items.Add(photo);
+                        AuthToken token = GetToken(viewMode, authRepository);
+                        Photo photo = flickr.GetPhotoDetail((string) Bucket.Instance.For.Item(PhotoColumns.ID).Value,
+                                                            size);
+
+                        if (photo != null)
+                        {
+                            items.Add(photo);
+                        }
                     }
                 }
                 else if (fetchRecent)
@@ -229,13 +236,17 @@ namespace Linq.Flickr
                 }
                 else
                 {
-                    AuthToken token = GetToken(viewMode, flickr);
-                    items.AddRange(flickr.Search(index, itemsToTake, size, token == null ? string.Empty : token.Id, ProcessSearchQuery(flickr, viewMode)));
+                    using (IAuthRepository authRepository = new AuthRepository())
+                    {
+                        AuthToken token = GetToken(viewMode, authRepository);
+                        items.AddRange(flickr.Search(index, itemsToTake, size, token == null ? string.Empty : token.Id,
+                                                     ProcessSearchQuery(flickr, viewMode)));
+                    }
                 }
            }
         }
 
-        private AuthToken GetToken(ViewMode viewMode, IPhotoRepository flickr)
+        private AuthToken GetToken(ViewMode viewMode, IAuthRepository flickr)
         {
             bool authenticate = false;
             AuthToken token = null;
