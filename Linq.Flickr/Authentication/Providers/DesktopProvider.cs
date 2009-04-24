@@ -15,21 +15,34 @@ namespace Linq.Flickr.Authentication.Providers
         public override bool SaveToken(string permission)
         {
             IRepositoryBase repositoryBase = new BaseRepository();
+            IHttpCallBase httpBase = new HttpCallBase();
 
             try
             {
                 const string method = "flickr.auth.getToken";
                 string frob = repositoryBase.GetFrob();
 
+                string apiKey = FlickrSettings.Current.ApiKey;
+                string authSig = repositoryBase.GetSignature(string.Empty, false, "perms", permission, "frob", frob);
+
+                StringBuilder builder = new StringBuilder(Helper.AUTH_URL + "?api_key=" + apiKey);
+
+                builder.Append("&perms=" + permission);
+                builder.Append("&frob=" + frob);
+                builder.Append("&api_sig=" + authSig);
+
+                DoTokenRequest(builder.ToString());
+
                 string sig = repositoryBase.GetSignature(method, true, "frob", frob);
                 string requestUrl = repositoryBase.BuildUrl(method, "frob", frob, "api_sig", sig);
 
-                DoTokenRequest(permission, frob);
-
-                XmlElement tokenElement = (new HttpCallBase() as IHttpCallBase).GetElement(requestUrl);
-
-                /// save everything to disc.
-                OnAuthenticationComplete(GetAToken(tokenElement));
+                XmlElement tokenElement = httpBase.GetElement(requestUrl);
+               
+                if (tokenElement != null)
+                {
+                    /// save everything to disc.
+                    OnAuthenticationComplete(GetAToken(tokenElement));
+                }
             }
             catch (Exception ex)
             {
@@ -97,11 +110,10 @@ namespace Linq.Flickr.Authentication.Providers
             }
         }
 
-        private void DoTokenRequest(string permission, string frob)
+        private void DoTokenRequest(string authenticateUrl)
         {
             try
             {
-                string authenticateUrl = GetAuthenticationUrl(permission, frob);
                 // do process request and wait till the browser closes.
                 Process p = new Process();
                 p.StartInfo.FileName = "IExplore.exe";
@@ -145,20 +157,6 @@ namespace Linq.Flickr.Authentication.Providers
             }
         }
 
-        private string GetAuthenticationUrl(string permission, string frob)
-        {
-            string apiKey = FlickrSettings.Current.ApiKey;
-            string sig = new BaseRepository().GetSignature(string.Empty, false, "perms", permission, "frob", frob);
-
-            StringBuilder builder = new StringBuilder(Helper.AUTH_URL + "?api_key=" + apiKey);
-
-            builder.Append("&perms=" + permission);
-            builder.Append("&frob=" + frob);
-            builder.Append("&api_sig=" + sig);
-
-            return builder.ToString();
-        }
-  
         private readonly string baseDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
     }
 }

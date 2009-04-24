@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
+using LinqExtender.Attribute;
 using LinqExtender.Interface;
 using LinqExtender;
 using Linq.Flickr.Interface;
@@ -265,7 +266,8 @@ namespace Linq.Flickr
 
             Bucket.Instance.For.EachItem.Process(delegate(BucketItem item)
             {
-                if (item.Name != PhotoColumns.Photosize) // PhotoSize is for internal use.
+                /// must be mapped to flickr.
+                if (item.FindAttribute(typeof(OriginalFieldNameAttribute)) != null)
                 {
                     if (item.Value != null)
                     {

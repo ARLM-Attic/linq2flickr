@@ -27,18 +27,18 @@ namespace Linq.Flickr.Authentication.Providers
 
                 AuthToken token = authRepository.GetTokenFromFrob(frob);
 
-                if (token == null)
+                if (token != null)
                 {
-                    throw new Exception("Invalid token after authentication.");
+                    OnAuthenticationComplete(token);
                 }
-
-                OnAuthenticationComplete(token);
 
                 return true;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-               throw new Exception("Some error occured during authentication process", ex);
+               /// failed
+               System.Diagnostics.Debug.WriteLine(ex.Message);
+               return false;
             }
         }
 
