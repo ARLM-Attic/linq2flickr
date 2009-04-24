@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Linq.Flickr.Configuration;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
 
@@ -55,16 +56,6 @@ namespace Linq.Flickr.Authentication
         public virtual void OnClearToken(AuthToken token)
         {
             
-        }
-
-        protected string GetAuthenticationUrl(string permission, string frob)
-        {
-            IRepositoryBase repositoryBase = new BaseRepository();
-
-            string sig = repositoryBase.GetSignature(string.Empty, false, "perms", permission, "frob", frob);
-            string authenticateUrl = Helper.AUTH_URL + "?api_key=" + flickrApiKey + "&perms=" + permission + "&frob=" + frob + "&api_sig=" + sig;
-
-            return authenticateUrl;
         }
     }
 }

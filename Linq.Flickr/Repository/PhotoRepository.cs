@@ -20,11 +20,14 @@ namespace Linq.Flickr.Repository
     /// </summary>
     public class PhotoRepository : BaseRepository, IPhotoRepository
     {
-        public PhotoRepository() : base(typeof(IPhotoRepository)) { }
+        public PhotoRepository() : base(typeof(IPhotoRepository))
+        {
+            authRepo = new AuthRepository();
+        }
        
         People IPhotoRepository.GetUploadStatus()
         {
-            string token = base.Authenticate(Permission.Delete.ToString());
+            string token = authRepo.Authenticate(Permission.Delete.ToString());
             
             string method = Helper.GetExternalMethodName();
             string sig = base.GetSignature(method, true, "auth_token", token);
@@ -58,7 +61,7 @@ namespace Linq.Flickr.Repository
         bool IPhotoRepository.SetMeta(string photoId, string title, string description)
         {
             string method = Helper.GetExternalMethodName();
-            string token = base.Authenticate(Permission.Delete.ToString());
+            string token = authRepo.Authenticate(Permission.Delete.ToString());
             string sig = base.GetSignature(method, true,"photo_id", photoId, "title", title, "description", description, "auth_token", token);
             string requestUrl = BuildUrl(method, "photo_id", photoId, "title", title, "description", description, "auth_token", token, "api_sig", sig);
 
@@ -220,7 +223,7 @@ namespace Linq.Flickr.Repository
         
             string method = Helper.GetExternalMethodName();
 
-            string token = base.Authenticate(Permission.Delete.ToString(), false);
+            string token = authRepo.Authenticate(Permission.Delete.ToString(), false);
             string sig = base.GetSignature(method, true, "photo_id", id, "auth_token", token);
             string requestUrl = BuildUrl(method, "photo_id", id, "auth_token", token, "api_sig", sig);
 
@@ -314,7 +317,7 @@ namespace Linq.Flickr.Repository
 
         bool IPhotoRepository.Delete(string photoId)
         {
-            string token = base.Authenticate(Permission.Delete.ToString());
+            string token = authRepo.Authenticate(Permission.Delete.ToString());
             string method = Helper.GetExternalMethodName();
 
             string sig = base.GetSignature(method, true, "photo_id", photoId, "auth_token", token);
@@ -343,7 +346,7 @@ namespace Linq.Flickr.Repository
         /// <returns>photoId</returns>
         string IPhotoRepository.Upload(object[] args, string fileName, byte[] photoData)
         {
-            string token = base.Authenticate(Permission.Delete.ToString());
+            string token = authRepo.Authenticate(Permission.Delete.ToString());
 
             const string boundary = "FLICKR_BOUNDARY";
 
@@ -406,5 +409,6 @@ namespace Linq.Flickr.Repository
             return elemnent.Element("photoid").InnerText ?? string.Empty;
         }
 
+        private IAuthRepository authRepo;
     }
 }

@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
+using Linq.Flickr.Configuration;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
 
@@ -20,11 +22,11 @@ namespace Linq.Flickr.Authentication.Providers
                 string frob = repositoryBase.GetFrob();
 
                 string sig = repositoryBase.GetSignature(method, true, "frob", frob);
-                string requestUrl = BuildUrl(method, "frob", frob, "api_sig", sig);
+                string requestUrl = repositoryBase.BuildUrl(method, "frob", frob, "api_sig", sig);
 
                 DoTokenRequest(permission, frob);
 
-                XmlElement tokenElement = GetElement(requestUrl);
+                XmlElement tokenElement = (new HttpCallBase() as IHttpCallBase).GetElement(requestUrl);
 
                 /// save everything to disc.
                 OnAuthenticationComplete(GetAToken(tokenElement));
@@ -142,7 +144,20 @@ namespace Linq.Flickr.Authentication.Providers
                 File.Delete(path);
             }
         }
-        
+
+        private string GetAuthenticationUrl(string permission, string frob)
+        {
+            string apiKey = FlickrSettings.Current.ApiKey;
+            string sig = new BaseRepository().GetSignature(string.Empty, false, "perms", permission, "frob", frob);
+
+            StringBuilder builder = new StringBuilder(Helper.AUTH_URL + "?api_key=" + apiKey);
+
+            builder.Append("&perms=" + permission);
+            builder.Append("&frob=" + frob);
+            builder.Append("&api_sig=" + sig);
+
+            return builder.ToString();
+        }
   
         private readonly string baseDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
     }

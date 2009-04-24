@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Text;
+using System.Threading;
 using System.Web;
+using Linq.Flickr.Configuration;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
 
@@ -12,29 +15,38 @@ namespace Linq.Flickr.Authentication.Providers
             IAuthRepository authRepository = new AuthRepository();
             try
             {
-                string frob = CreateWebFrobIfNecessary();
-                AuthToken token = authRepository.GetTokenFromFrob(frob);
+                bool authenticate = false;
 
-                if (token == null)
+                string frob = CreateWebFrobIfNecessary(out authenticate);
+
+                if (authenticate)
                 {
                     /// initiate the authenticaiton process.
                     HttpContext.Current.Response.Redirect(GetAuthenticationUrl(permission, frob));
                 }
 
+                AuthToken token = authRepository.GetTokenFromFrob(frob);
+
+                if (token == null)
+                {
+                    throw new Exception("Invalid token after authentication.");
+                }
+
                 OnAuthenticationComplete(token);
+
+                return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new Exception("Some error occured during authentication process");
+               throw new Exception("Some error occured during authentication process", ex);
             }
-            return false;
         }
 
         public override void OnAuthenticationComplete(AuthToken token)
         {
             string xml = XmlToObject<AuthToken>.Serialize(token);
             /// create a cookie out of it.
-            HttpCookie authCookie = new HttpCookie("token", xml);
+            var authCookie = new HttpCookie("token", HttpUtility.UrlEncode(xml));
             /// set exipration.
             authCookie.Expires = DateTime.Now.AddDays(30);
             /// put it to response.
@@ -49,7 +61,7 @@ namespace Linq.Flickr.Authentication.Providers
                 {
                     if (HttpContext.Current.Request.Cookies != null)
                     {
-                        string xml = HttpContext.Current.Request.Cookies["token"].Value;
+                        string xml = HttpUtility.UrlDecode(HttpContext.Current.Request.Cookies["token"].Value);
                         if (!string.IsNullOrEmpty(xml))
                         {
                             return XmlToObject<AuthToken>.Deserialize(xml);
@@ -59,7 +71,8 @@ namespace Linq.Flickr.Authentication.Providers
             }
             catch(Exception ex)
             {
-                throw new Exception("There has been some error getting existing token, plear clear your browser cache", ex);
+                /// must do a authentication.
+                return null;
             }
             return null;
         }
@@ -76,11 +89,34 @@ namespace Linq.Flickr.Authentication.Providers
             }
         }
 
-        private string CreateWebFrobIfNecessary()
+        private string CreateWebFrobIfNecessary(out bool authenticated)
         {
             IRepositoryBase repositoryBase = new BaseRepository();
             // if it is a redirect by flickr then take the frob from url.
-            return !string.IsNullOrEmpty(HttpContext.Current.Request["frob"]) ? HttpContext.Current.Request["frob"] : repositoryBase.GetFrob();
+            if (!string.IsNullOrEmpty(HttpContext.Current.Request["frob"]))
+            {
+                authenticated = false;
+                return HttpContext.Current.Request["frob"];
+            }
+            else
+            {
+                authenticated = true;
+                return repositoryBase.GetFrob();
+            }
+        }
+
+        private string GetAuthenticationUrl(string permission, string frob)
+        {
+            string apiKey = FlickrSettings.Current.ApiKey;
+            string sig = new BaseRepository().GetSignature(string.Empty, false, "perms", permission);
+
+            StringBuilder builder = new StringBuilder(Helper.AUTH_URL + "?api_key=" + apiKey);
+
+            builder.Append("&perms=" + permission);
+            builder.Append("&api_sig=" + sig);
+
+            return builder.ToString();
+
         }
     }
 }

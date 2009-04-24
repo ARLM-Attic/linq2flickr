@@ -51,7 +51,7 @@ namespace Linq.Flickr.Configuration {
             }
         }
 
-        public FlickrProviderElement DefaultProvider
+        public AuthProviderElement DefaultProvider
         {
             get
             {
@@ -60,11 +60,11 @@ namespace Linq.Flickr.Configuration {
         }
 
         [ConfigurationProperty("authProviders")]
-        public FlickrProviderElementCollection Providers
+        public AutheProviderElementCollection Providers
         {
             get
             {
-                return this["authProviders"] as FlickrProviderElementCollection;
+                return this["authProviders"] as AutheProviderElementCollection;
             }
         }
 

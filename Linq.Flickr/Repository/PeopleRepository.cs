@@ -7,7 +7,10 @@ namespace Linq.Flickr.Repository
 {
     public class PeopleRepository : BaseRepository, IPeopleRepository
     {
-        public PeopleRepository() : base(typeof(IPeopleRepository)) { }
+        public PeopleRepository() : base(typeof(IPeopleRepository))
+        {
+            authRepo = new AuthRepository();
+        }
 
         #region IPeopleRepository Members
 
@@ -41,7 +44,7 @@ namespace Linq.Flickr.Repository
         AuthToken IPeopleRepository.GetAuthenticatedToken()
         {
             string method = Helper.GetExternalMethodName();
-            return  (this as IRepositoryBase).CreateAuthTokeIfNecessary(Permission.Delete.ToString(), false);
+            return  authRepo.CreateAuthTokenIfNecessary(Permission.Delete.ToString(), false);
         }
 
         #endregion
@@ -59,6 +62,8 @@ namespace Linq.Flickr.Repository
         }
 
         #endregion
+
+        private IAuthRepository authRepo;
 
     }
 }

@@ -10,20 +10,16 @@ namespace Linq.Flickr
     [Serializable]
     public class FlickrContext 
     {
-        private  PhotoQuery _Photos;
-        private PopularTagQuery _hotTags;
-        private PeopleQuery _peopleQuery;
-       
         public PhotoQuery Photos
         {
             get
             {
-                if (_Photos == null)
+                if (photos == null)
                 {
-                    _Photos = new PhotoQuery();
+                    photos = new PhotoQuery();
                 }
 
-                return _Photos;
+                return photos;
             }
         }
 
@@ -31,12 +27,12 @@ namespace Linq.Flickr
         {
             get
             {
-                if (_hotTags == null)
+                if (popularTags == null)
                 {
-                    _hotTags = new PopularTagQuery();
+                    popularTags = new PopularTagQuery();
                 }
 
-                return _hotTags;
+                return popularTags;
             }
         }
 
@@ -44,11 +40,11 @@ namespace Linq.Flickr
         {
             get
             {
-                if (_peopleQuery == null)
+                if (peoples == null)
                 {
-                    _peopleQuery = new PeopleQuery();
+                    peoples = new PeopleQuery();
                 }
-                return _peopleQuery;
+                return peoples;
             }
         }
         /// <summary>
@@ -83,7 +79,7 @@ namespace Linq.Flickr
 
             try
             {
-                IRepositoryBase repository = new BaseRepository();
+                IAuthRepository repository = new AuthRepository();
                 repository.ClearToken();
             }
             catch
@@ -97,10 +93,13 @@ namespace Linq.Flickr
 
         public void SubmitChanges()
         {
-            _Photos.SubmitChanges();
+            photos.SubmitChanges();
             // sync changed comments, if any.
-            _Photos.Comments.SubmitChanges();
+            photos.Comments.SubmitChanges();
         }
 
+        private PhotoQuery photos;
+        private PopularTagQuery popularTags;
+        private PeopleQuery peoples;
     }
 }

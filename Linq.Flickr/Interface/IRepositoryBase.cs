@@ -11,9 +11,7 @@ namespace Linq.Flickr.Interface
         [FlickrMethod("flickr.auth.getFrob")]
         string GetFrob();
         string GetSignature(string methodName, bool includeMethod, params object[] args);
-        [FlickrMethod("flickr.auth.getToken")]
-        AuthToken CreateAuthTokeIfNecessary(string permission, bool validate);
+        string BuildUrl(string functionName, params object[] args);
         string GetNsid(string method, string field, string value);
-        void ClearToken();
     }
 }

@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using Linq.Flickr.Authentication;
 using Linq.Flickr.Interface;
-using System.Web;
 using Linq.Flickr.Configuration;
-using System.Diagnostics;
 
 namespace Linq.Flickr.Repository
 {
@@ -51,7 +48,13 @@ namespace Linq.Flickr.Repository
             sharedSecret = FlickrSettings.Current.SecretKey;
         }
 
-        protected string BuildUrl(string functionName, params object[] args)
+        /// <summary>
+        /// builds the url from passed in parameters.
+        /// </summary>
+        /// <param name="functionName"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public string BuildUrl(string functionName, params object[] args)
         {
             return BuildUrl(functionName, new Dictionary<string, string>(), args);
         }
@@ -129,47 +132,6 @@ namespace Linq.Flickr.Repository
                 throw new Exception(ex.Message);
             }
         }
-
-        AuthToken  IRepositoryBase.CreateAuthTokeIfNecessary (string permission, bool validate)
-        {
-            AuthenticaitonProvider authenticaitonProvider = GetDefaultAuthenticationProvider();
-
-            permission = permission.ToLower();
-
-            AuthToken token = null;
-
-            if (IsAuthenticated())
-                token = authenticaitonProvider.GetToken(permission);
-
-            if (token == null && validate)
-            {
-                authenticaitonProvider.SaveToken(permission);
-            }
-
-            return authenticaitonProvider.GetToken(permission);
-        }
-
-        private AuthenticaitonProvider GetDefaultAuthenticationProvider()
-        {
-            FlickrProviderElement providerElement = FlickrSettings.Current.DefaultProvider;
-
-            return (AuthenticaitonProvider) Activator.CreateInstance(Type.GetType(providerElement.Type), null);
-        }
-
-        protected string Authenticate(string permission, bool validate)
-        {
-            AuthToken token =  (this as IRepositoryBase).CreateAuthTokeIfNecessary(permission, validate);
-            if (token != null)
-            {
-                return token.Id;
-            }
-            return string.Empty;
-        }
-
-        protected string Authenticate(string permission)
-        {
-            return  (this as IRepositoryBase).CreateAuthTokeIfNecessary(permission, true).Id;
-        }
   
         protected static AuthToken GetAToken(XmlElement tokenElement)
         {
@@ -178,7 +140,8 @@ namespace Linq.Flickr.Repository
                                {
                                    Id = tokens.Element("token").InnerText ?? string.Empty,
                                    Perm = tokens.Element("perms").InnerText,
-                                   UserId = tokens.Element("user").Attribute("nsid").Value ?? string.Empty
+                                   UserId = tokens.Element("user").Attribute("nsid").Value ?? string.Empty,
+                                   FullName = tokens.Element("user").Attribute("fullname").Value ?? string.Empty
                                }).Single<AuthToken>();
 
             return token;
@@ -198,18 +161,6 @@ namespace Linq.Flickr.Repository
             {
                 throw new Exception(ex.Message);
             }
-        }
-
-        protected bool IsAuthenticated()
-        {
-            AuthenticaitonProvider authenticaitonProvider = GetDefaultAuthenticationProvider();
-            return authenticaitonProvider.GetToken(Permission.Delete.ToString()) != null;
-        }
-
-        void IRepositoryBase.ClearToken()
-        {
-            AuthenticaitonProvider authenticaitonProvider = GetDefaultAuthenticationProvider();
-            authenticaitonProvider.ClearToken(Permission.Delete.ToString().ToLower());
         }
 
         public string GetSignature(string methodName, bool includeMethod, params object[] args)
@@ -233,7 +184,6 @@ namespace Linq.Flickr.Repository
                         originalArgs = new object[0];
                     }
                 }
-
             }
             return GetSignature(methodName, includeMethod, sortedDic, originalArgs);
         }

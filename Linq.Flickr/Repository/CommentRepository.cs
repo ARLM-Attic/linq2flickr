@@ -7,7 +7,10 @@ namespace Linq.Flickr.Repository
 {
     public class CommentRepository : BaseRepository, ICommentRepository
     {
-        public CommentRepository() : base(typeof(ICommentRepository)){}
+        public CommentRepository() : base(typeof(ICommentRepository))
+        {
+            authRepo = new AuthRepository();
+        }
 
         private IEnumerable<Comment> GetComments(string requestUrl)
         {
@@ -25,7 +28,7 @@ namespace Linq.Flickr.Repository
        
         string ICommentRepository.AddComment(string photoId, string text)
         {
-            string authenitcatedToken =  base.Authenticate(Permission.Delete.ToString());
+            string authenitcatedToken =  authRepo.Authenticate(Permission.Delete.ToString());
 
             string method = Helper.GetExternalMethodName();
 
@@ -40,7 +43,7 @@ namespace Linq.Flickr.Repository
 
         bool ICommentRepository.DeleteComment(string commentId)
         {
-            string authenitcatedToken = base.Authenticate(Permission.Delete.ToString());
+            string authenitcatedToken = authRepo.Authenticate(Permission.Delete.ToString());
             string method = Helper.GetExternalMethodName();
 
             string sig = GetSignature(method, true, "comment_id", commentId, "auth_token", authenitcatedToken);
@@ -61,7 +64,7 @@ namespace Linq.Flickr.Repository
         bool ICommentRepository.EditComment(string commentId, string text)
         {
             string method = Helper.GetExternalMethodName();
-            string authenitcatedToken = base.Authenticate(Permission.Delete.ToString());
+            string authenitcatedToken = authRepo.Authenticate(Permission.Delete.ToString());
 
             string sig = GetSignature(method, true, "comment_id", commentId, "comment_text", text, "auth_token", authenitcatedToken);
             string requestUrl = BuildUrl(method, "comment_id", commentId, "comment_text", text, "auth_token", authenitcatedToken, "api_sig", sig);
@@ -83,5 +86,6 @@ namespace Linq.Flickr.Repository
 
         }
 
+        private IAuthRepository authRepo;
     }
 }

@@ -60,8 +60,8 @@
     <Compile Include="Authentication\Providers\WebProvider.cs" />
     <Compile Include="XmlToObject.cs" />
     <Compile Include="AuthToken.cs" />
-    <Compile Include="Configuration\FlickrProviderElement.cs" />
-    <Compile Include="Configuration\FlickrProviderElementCollection.cs" />
+    <Compile Include="Configuration\AuthProviderElement.cs" />
+    <Compile Include="Configuration\AutheProviderElementCollection.cs" />
     <Compile Include="FlickrException.cs" />
     <Compile Include="Interface\IAuthRepository.cs" />
     <Compile Include="Interface\IHttpCallBase.cs" />
