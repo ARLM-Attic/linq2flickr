@@ -101,7 +101,7 @@ namespace Linq.Flickr
         /// <summary>
         /// Use to query user in flickr, is filled up only when a photo is get by photoId.
         /// </summary>
-        
+        [OriginalFieldName("user")]        
         public string User { get; internal set; }
         /// <summary>
         /// This is the unique Id aginst username, availble only when photos are get by Id explictly.

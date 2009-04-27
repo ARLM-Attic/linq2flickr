@@ -283,7 +283,7 @@ namespace Linq.Flickr
                         {
                             string key = string.Empty;
 
-                            if (item.Name == PhotoColumns.User)
+                            if (string.Compare(item.Name, "user") == 0)
                             {
                                 key = "user_id";
                                 if (value.IsValidEmail())

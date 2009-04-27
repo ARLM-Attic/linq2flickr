@@ -28,7 +28,7 @@ namespace Linq.Flickr.Repository
        
         string ICommentRepository.AddComment(string photoId, string text)
         {
-            string authenitcatedToken =  authRepo.Authenticate(Permission.Delete.ToString());
+            string authenitcatedToken =  authRepo.Authenticate(Permission.Delete);
 
             string method = Helper.GetExternalMethodName();
 
@@ -43,7 +43,7 @@ namespace Linq.Flickr.Repository
 
         bool ICommentRepository.DeleteComment(string commentId)
         {
-            string authenitcatedToken = authRepo.Authenticate(Permission.Delete.ToString());
+            string authenitcatedToken = authRepo.Authenticate(Permission.Delete);
             string method = Helper.GetExternalMethodName();
 
             string sig = GetSignature(method, true, "comment_id", commentId, "auth_token", authenitcatedToken);
@@ -64,7 +64,7 @@ namespace Linq.Flickr.Repository
         bool ICommentRepository.EditComment(string commentId, string text)
         {
             string method = Helper.GetExternalMethodName();
-            string authenitcatedToken = authRepo.Authenticate(Permission.Delete.ToString());
+            string authenitcatedToken = authRepo.Authenticate(Permission.Delete);
 
             string sig = GetSignature(method, true, "comment_id", commentId, "comment_text", text, "auth_token", authenitcatedToken);
             string requestUrl = BuildUrl(method, "comment_id", commentId, "comment_text", text, "auth_token", authenitcatedToken, "api_sig", sig);

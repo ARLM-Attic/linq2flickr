@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using Linq.Flickr.Interface;
 using NUnit.Framework;
 using System.IO;
 using System.Reflection;
@@ -37,10 +38,14 @@ namespace Linq.Flickr.Test
 
             using (var photoAddMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
+                var authRepo = MockManager.MockAll<AuthRepository>(Constructor.Mocked);
+
+                authRepo.ExpectAndReturn("Authenticate","1234", 2).Args(Permission.Delete);
+
+
                 photoAddMock.FakeSignatureCall();
                 photoAddMock.FakeElementCall(ResourceNs + ".UploadStatus.xml");
-                photoAddMock.FakeAuthenticateCall(Permission.Delete, 2);
-
+             
                 byte[] oImage = new byte[photoRes.Length];
 
                 photoRes.Read(oImage, 0, oImage.Length);
@@ -110,16 +115,23 @@ namespace Linq.Flickr.Test
                 // end image verification.
 
                 Assert.IsTrue(photo.Id == "1");
+
+                authRepo.Verify();
             }
 
             using (var photoDeleteMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
-                photoDeleteMock.FakeAuthenticateCall(Permission.Delete, 1);
+                var authRepo = MockManager.MockAll<AuthRepository>(Constructor.Mocked);
+
+                authRepo.ExpectAndReturn("Authenticate", "1234", 1).Args(Permission.Delete);
+
                 photoDeleteMock.FakeSignatureCall();
                 photoDeleteMock.FakeDoHttpPost(ResourceNs + ".DeletePhoto.xml");
 
                 context.Photos.Remove(photo);
                 context.SubmitChanges();
+
+                authRepo.Verify();
             }
         }
 
@@ -190,10 +202,22 @@ namespace Linq.Flickr.Test
 
             Photo authPhoto = null;
 
+          
+
             using (var authenticatedMock = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
-                authenticatedMock.FakeSignatureCall();
-                authenticatedMock.FakeCreateAndStoreNewToken(Permission.Delete);
+                var authRepo = MockManager.MockAll<AuthRepository>(Constructor.NotMocked);
+
+                AuthToken token = new AuthToken
+                {
+                    FullName = "Mehfuz Hossain",
+                    Id = "1",
+                    Perm = "delete",
+                    UserId = "x@y"
+                };
+
+                authRepo.ExpectAndReturn("Authenticate", token, 1).Args(true, Permission.Delete);
+                ///validates user call
                 authenticatedMock.FakeGetNsidByUsername("neetulee");
                 authenticatedMock.FakeElementCall("Linq.Flickr.Test.Responses.Owner.xml");
 
@@ -204,14 +228,17 @@ namespace Linq.Flickr.Test
                 authPhoto = authQuery.Last();
 
                 Assert.IsTrue(authPhoto.ViewMode == ViewMode.Private);
-
+                authRepo.Verify();
             }
 
-            
             using (FakeFlickrRepository<PhotoRepository, Photo> authenticatedMockU = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
+                var authRepo = MockManager.MockAll<AuthRepository>(Constructor.Mocked);
+
+                authRepo.ExpectAndReturn("Authenticate", "1234", 1).Args(Permission.Delete);
+
                 const string updatedTitle = "NewTitle";
-                authenticatedMockU.FakeAuthenticateCall(Permission.Delete, 1);
+           
                 // line verfies if the text is passed properly for update.
                 authenticatedMockU.FakeSignatureCall("flickr.photos.setMeta", true, "photo_id", authPhoto.Id, "title", updatedTitle,
                                                      "description", authPhoto.Description ?? " ", "auth_token", "1234");
@@ -221,17 +248,20 @@ namespace Linq.Flickr.Test
                 authPhoto.Title = updatedTitle;
                 // will raise a update call.
                 context.SubmitChanges();
+
+                authRepo.Verify();
             }
         }
 
         [Test]
         public void TestQueryDetail()
         {
+            var authRepo = MockManager.MockAll<AuthRepository>(Constructor.Mocked);
+
             using (var repository = new FakeFlickrRepository<PhotoRepository, Photo>())
             {
-                repository.FakeCreateAndStoreNewToken(Permission.Delete);
-                repository.FakeAuthenticateCall(false, Permission.Delete, 1);
-                repository.FakeSignatureCall();
+                authRepo.ExpectAndReturn("Authenticate", "1234", 1).Args(true ,Permission.Delete);
+                
                 repository.FakeElementCall("Linq.Flickr.Test.Responses.PhotoDetail.xml");
                
                 var photoDetailQuery = from photo in context.Photos
@@ -249,6 +279,7 @@ namespace Linq.Flickr.Test
                 Assert.IsTrue(detailPhoto.NsId == "63497523@N00");
                 Assert.IsTrue(detailPhoto.WebUrl == "http://www.flickr.com/photos/63497523@N00/2428052817/");
             }
+            authRepo.Verify();
         }
 
         DateTime GetDate(string timeStamp)
@@ -272,11 +303,14 @@ namespace Linq.Flickr.Test
 
             Comment comment = new Comment();
 
+       
             #region Add comment
+
+            var addRepo = MockManager.MockAll<AuthRepository>(Constructor.Mocked);
+            addRepo.ExpectAndReturn("Authenticate", "1234", 1).Args(Permission.Delete);
+
             using (var commentAddMock = new FakeFlickrRepository<CommentRepository, Comment>())
             {
-                commentAddMock.FakeAuthenticateCall(Permission.Delete, 1);
-                commentAddMock.FakeSignatureCall();
                 commentAddMock.FakeDoHttpPostAndReturnStringResult(ResourceNs + ".AddComment.xml");
 
                 comment.PhotoId = COMMENT_PHOTO_ID;
@@ -287,9 +321,13 @@ namespace Linq.Flickr.Test
 
                 Assert.IsTrue(comment.Id == "1");
             }
+
+            addRepo.Verify();
             #endregion
 
             #region Get added comment
+
+
 
             Comment commentGet = null;
 
@@ -306,14 +344,19 @@ namespace Linq.Flickr.Test
 
                 Assert.IsTrue(commentGet.Author == "11" && commentGet.PhotoId == COMMENT_PHOTO_ID && commentGet.AuthorName == "John Doe");
             }
+
             #endregion
 
 
             #region update comment
+
+            var updateRepo = MockManager.MockAll<AuthRepository>(Constructor.Mocked);
+            updateRepo.ExpectAndReturn("Authenticate", "1234", 1).Args(Permission.Delete);
+
+
             using (var commentUpdateMock = new FakeFlickrRepository<CommentRepository, Comment>())
             {
                 const string updatedText = "#123#";
-                commentUpdateMock.FakeAuthenticateCall(Permission.Delete, 1);
                 // line verfies if the text is passed properly for update.
                 commentUpdateMock.FakeSignatureCall("flickr.photos.comments.editComment", true, "comment_id", "1", "comment_text", updatedText, "auth_token", "1234");
                 commentUpdateMock.FakeDoHttpPostAndReturnStringResult(ResourceNs + ".UpdateComment.xml");
@@ -322,19 +365,28 @@ namespace Linq.Flickr.Test
 
                 context.SubmitChanges();
             }
+
+            updateRepo.Verify();
+         
             #endregion
 
             #region Delete added
 
+
+            var deleteRepo = MockManager.MockAll<AuthRepository>(Constructor.Mocked);
+            deleteRepo.ExpectAndReturn("Authenticate", "1234", 1).Args(Permission.Delete);
+
+
             using (var commentDeleteMock = new FakeFlickrRepository<CommentRepository, Comment>())
             {
-                commentDeleteMock.FakeAuthenticateCall(Permission.Delete, 1);
                 commentDeleteMock.FakeSignatureCall();
                 commentDeleteMock.FakeDoHttpPostAndReturnStringResult(ResourceNs + ".DeleteComment.xml");
 
                 context.Photos.Comments.Remove(commentGet);
                 context.SubmitChanges();
             }
+
+            deleteRepo.Verify();
             #endregion
         }
 

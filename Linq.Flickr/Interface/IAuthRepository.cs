@@ -23,7 +23,7 @@ namespace Linq.Flickr.Interface
         /// Tries a authentication for a given permission.
         /// </summary>
         /// <param name="permission"></param>
-        string Authenticate(string permission);
+        string Authenticate(Permission permission);
         /// <summary>
         /// Tries a authentication for given permission, if there is a existing 
         /// token it takes it. Otherwise, tries for a new one from flickr.

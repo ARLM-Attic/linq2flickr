@@ -122,12 +122,6 @@ namespace Linq.Flickr.Test
         {
             mockRepository.ExpectAndReturn(method, ret, timesToRun).Args(args);
         }
-
-        public void FakeCreateAndStoreNewToken(Permission permission)
-        {
-            mockRepository.ExpectAndReturn("CreateAndStoreNewToken", new AuthToken { Id = "xxx", Perm = "write", UserId = "x@y" }).Args("flickr.auth.getToken", permission.ToString().ToLower());
-        }
-
         public void FakeGetNsidByUsername(string username)
         {
             mockRepository.ExpectAndReturn("GetNsid", nsId).Args("flickr.people.findByUsername", "username", username);

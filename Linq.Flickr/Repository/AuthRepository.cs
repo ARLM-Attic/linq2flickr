@@ -44,9 +44,9 @@ namespace Linq.Flickr.Repository
             return string.Empty;
         }
 
-        public string Authenticate(string permission)
+        public string Authenticate(Permission permission)
         {
-            return (this as IAuthRepository).CreateAuthTokenIfNecessary(permission, true).Id;
+            return (this as IAuthRepository).CreateAuthTokenIfNecessary(permission.ToString(), true).Id;
         }
 
         bool IAuthRepository.IsAuthenticated()
