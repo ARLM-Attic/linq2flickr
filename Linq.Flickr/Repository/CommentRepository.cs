@@ -21,8 +21,16 @@ namespace Linq.Flickr.Repository
         IEnumerable<Comment> ICommentRepository.GetComments(string photoId)
         {
             string method = Helper.GetExternalMethodName();
-            string sig = GetSignature(method, true, "photo_id", photoId);
-            string requestUrl = BuildUrl(method, "photo_id", photoId, "api_sig", sig);
+            AuthToken token = authRepo.Authenticate(false, Permission.Delete);
+
+            string authenitcatedToken = string.Empty;
+
+            if (token != null)
+            {
+                authenitcatedToken = token.Id;
+            }
+            string sig = GetSignature(method, true, "photo_id", photoId, "auth_token", authenitcatedToken);
+            string requestUrl = BuildUrl(method, "photo_id", photoId, "api_sig", sig, "auth_token", authenitcatedToken);
             return GetComments(requestUrl);
         }
        
