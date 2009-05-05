@@ -9,47 +9,20 @@ namespace Linq.Flickr
         Day,
         Week
     }
- 
-    [XElement("tag")]
-    public class PopularTag : IQueryObject
+
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlRootAttribute(ElementName = "tag", Namespace = "", IsNullable = false)]
+    public class PopularTag
     {
-        [Ignore, XElement("tag")]
-        public string Title { get; internal set; }
-        [XAttribute("score")]
-        public int Score { get; internal set; }
-        // query params for tag objects.
-        [XAttribute("period")]
-        internal string pPeriod
-        {
-            set
-            {
-                if (value == "week")
-                {
-                    _period = TagPeriod.Week;
-                }
-                else
-                {
-                    _period = TagPeriod.Day;
-                }
-            }
-        }
+        [System.Xml.Serialization.XmlText]
+        public string Text { get; set; }
+           
 
-        TagPeriod _period = TagPeriod.Day;
+        [Ignore]
+        [System.Xml.Serialization.XmlAttribute(AttributeName = "score", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public int Score { get; set; }
 
-        [OriginalFieldName("period")]
-        public TagPeriod Period
-        {
-            get
-            {
-                return _period;
-            }
-            set
-            {
-                _period = value;
-            }
-        }
-
-        [OriginalFieldName("count"), XAttribute("count")]
         public int Count { get; set; }
+        public TagPeriod Period { get;set; }
     }
 }

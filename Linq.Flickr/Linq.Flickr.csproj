@@ -58,6 +58,7 @@
     <Compile Include="Authentication\AuthenticaitonProvider.cs" />
     <Compile Include="Authentication\Providers\DesktopProvider.cs" />
     <Compile Include="Authentication\Providers\WebProvider.cs" />
+    <Compile Include="ITagText.cs" />
     <Compile Include="XmlToObject.cs" />
     <Compile Include="AuthToken.cs" />
     <Compile Include="Configuration\AuthProviderElement.cs" />
@@ -91,7 +92,7 @@
     <Compile Include="RestExtension.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="People.cs" />
-    <Compile Include="PopularTagQuery.cs" />
+    <Compile Include="TagQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />

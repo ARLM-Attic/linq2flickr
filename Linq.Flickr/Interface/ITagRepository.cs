@@ -10,6 +10,12 @@ namespace Linq.Flickr.Interface
     {
         // comment 
         [FlickrMethod("flickr.tags.getHotList")]
-        IEnumerable<PopularTag> GetPopularTags(TagPeriod period, int count);
+        IEnumerable<Tag> GetPopularTags(TagPeriod period, int count);
+        [FlickrMethod("flickr.tags.getListPhoto")]
+        IEnumerable<Tag> GetTagsForPhoto(string photoId);
+        [FlickrMethod("flickr.photos.removeTag")]
+        bool RemovTag(string tagId);
+        [FlickrMethod("flickr.photos.addTags")]
+        bool AddTags(string photoId, string tags);
     }
 }

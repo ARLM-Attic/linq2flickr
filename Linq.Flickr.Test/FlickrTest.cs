@@ -399,9 +399,9 @@ namespace Linq.Flickr.Test
             // set the expectation.
             restBuilderMock.ExpectAndReturn("GetElement", MockElement(ResourceNs + ".HotTagGetList.xml"));
 
-            var query = from tag in context.PopularTags
+            var query = from tag in context.Tags
                         where tag.Period == TagPeriod.Day && tag.Count == 6
-                        orderby tag.Title ascending
+                        orderby tag.Text ascending
                         select tag;
 
             int count = query.Count();

@@ -23,16 +23,16 @@ namespace Linq.Flickr
             }
         }
 
-        public PopularTagQuery PopularTags
+        public TagQuery Tags
         {
             get
             {
-                if (popularTags == null)
+                if (tags == null)
                 {
-                    popularTags = new PopularTagQuery();
+                    tags = new TagQuery();
                 }
 
-                return popularTags;
+                return tags;
             }
         }
 
@@ -99,7 +99,7 @@ namespace Linq.Flickr
         }
 
         private PhotoQuery photos;
-        private PopularTagQuery popularTags;
+        private TagQuery tags;
         private PeopleQuery peoples;
     }
 }

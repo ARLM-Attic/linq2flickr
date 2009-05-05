@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml;
 using Linq.Flickr.Interface;
 
 namespace Linq.Flickr.Repository
@@ -7,20 +9,100 @@ namespace Linq.Flickr.Repository
     {
         public TagRepository() : base(typeof(ITagRepository)) { }
 
+        public TagRepository(IAuthRepository authRepository)
+            : base(typeof(ITagRepository))
+        {
+            this.authRepository = authRepository;
+        }
 
         #region ITagRepository Members
 
-        IEnumerable<PopularTag> ITagRepository.GetPopularTags(TagPeriod period, int count)
+        IEnumerable<Tag> ITagRepository.GetPopularTags(TagPeriod period, int count)
         {
+            IList<Tag> list = new List<Tag>();
+
             string method = Helper.GetExternalMethodName();
             string requestUrl = BuildUrl(method, "period", period.ToString().ToLower(), "count", count.ToString());
-           
-            CollectionBuilder<PopularTag> builder = new CollectionBuilder<PopularTag>("hottags");
 
-            return builder.ToCollection(requestUrl, null);
+            XmlElement element = base.GetElement(requestUrl);
+
+            foreach (var xmlElement in element.Descendants("tag"))
+            {
+                Tag tag = new Tag(XmlToObject<PopularTag>.Deserialize(xmlElement.OuterXml));
+
+                tag.Period = period;
+                tag.Count = count;
+                
+                list.Add(tag);
+            }
+            return list;
+        }
+
+        IEnumerable<Tag> ITagRepository.GetTagsForPhoto(string photoId)
+        {
+            IList<Tag> list =new List<Tag>();
+
+            string method = Helper.GetExternalMethodName();
+            string requestUrl = BuildUrl(method, "photo_id", photoId);
+           
+            XmlElement element = base.GetElement(requestUrl);
+
+            foreach (var xmlElement in element.Descendants("tag"))
+            {
+                Tag tag = XmlToObject<Tag>.Deserialize(xmlElement.OuterXml);
+
+                tag.PhotoId = photoId;
+                tag.ListMode = TagListMode.PhotoSpecific;
+
+                list.Add(tag);   
+            }
+
+            return list;
+        }
+
+        bool ITagRepository.RemovTag(string tagId)
+        {
+            string authenitcatedToken = authRepository.Authenticate(Permission.Delete);
+            string method = Helper.GetExternalMethodName();
+
+            string sig = GetSignature(method, true, "tag_id", tagId, "auth_token", authenitcatedToken);
+            string requestUrl = BuildUrl(method, "tag_id", tagId, "auth_token", authenitcatedToken, "api_sig", sig);
+
+            try
+            {
+                string responseFromServer = DoHTTPPost(requestUrl);
+                ParseElement(responseFromServer);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        bool ITagRepository.AddTags(string photoId, string tags)
+        {
+            string authenitcatedToken = authRepository.Authenticate(Permission.Delete);
+            string method = Helper.GetExternalMethodName();
+
+            string sig = GetSignature(method, true, "photo_id", photoId, "tags", tags, "auth_token", authenitcatedToken);
+            string requestUrl = BuildUrl(method, "photo_id", photoId, "tags", tags, "auth_token", authenitcatedToken, "api_sig", sig);
+
+            try
+            {
+                string responseFromServer = DoHTTPPost(requestUrl);
+                ParseElement(responseFromServer);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         #endregion
+
+        private IAuthRepository authRepository;
 
         #region IDisposable Members
 
