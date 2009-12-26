@@ -4,22 +4,46 @@ using System.Linq;
 using System.Xml;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Configuration;
+using Linq.Flickr.Authentication;
 
 namespace Linq.Flickr.Repository
 {
     public class BaseRepository : HttpCallBase, IRepositoryBase
     {
+
+        private IFlickrSettingsProvider flickrSettingsProvider;
+
         public BaseRepository()
         {
+            flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
             LoadBase();
+        }
+
+        public BaseRepository(AuthenticationInformation authenticationInformation)
+        {
+            flickrSettingsProvider = new AuthenticationInformationFlickrSettingsProvider(authenticationInformation);
+            LoadBase();
+        }
+
+        public BaseRepository(Type intefaceType)
+        {
+            flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
+            LoadBaseAndAttemptToRefreshExternalMethodList(intefaceType);
+        }
+
+        public BaseRepository(AuthenticationInformation authenticationInformation, Type interfaceType)
+        {
+            flickrSettingsProvider = new AuthenticationInformationFlickrSettingsProvider(authenticationInformation);
+            LoadBaseAndAttemptToRefreshExternalMethodList(interfaceType);
         }
 
         private void LoadBase()
         {
             try
             {
+
                 LoadFromConfig();
-                Type myInterfaceType = typeof (IRepositoryBase);
+                Type myInterfaceType = typeof(IRepositoryBase);
                 myInterfaceType.RefreshExternalMethodList();
             }
             catch (Exception ex)
@@ -28,7 +52,7 @@ namespace Linq.Flickr.Repository
             }
         }
 
-        public BaseRepository(Type intefaceType)
+        private void LoadBaseAndAttemptToRefreshExternalMethodList(Type intefaceType)
         {
             try
             {
@@ -41,11 +65,13 @@ namespace Linq.Flickr.Repository
             }
         }
 
+
         private void LoadFromConfig()
         {
             // load the keys.
-            flickrApiKey = FlickrSettings.Current.ApiKey;
-            sharedSecret = FlickrSettings.Current.SecretKey;
+            var flickrSettings = flickrSettingsProvider.GetCurrentFlickrSettings();
+            flickrApiKey = flickrSettings.ApiKey;
+            sharedSecret = flickrSettings.SecretKey;
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
+using Linq.Flickr.Authentication;
 
 namespace Linq.Flickr
 {
@@ -10,15 +11,27 @@ namespace Linq.Flickr
     [Serializable]
     public class FlickrContext 
     {
+        private readonly AuthenticationInformation authenticationInformation;
+        private readonly IQueryFactory queryFactory;
+
+        public FlickrContext()
+        {
+            authenticationInformation = null;
+            queryFactory = new DefaultQueryFactory();
+        }
+
+        public FlickrContext(AuthenticationInformation authenticationInformation)
+        {
+            this.authenticationInformation = authenticationInformation;
+            queryFactory = new AuthenticationInformationQueryFactory(authenticationInformation);
+        }
+
         public PhotoQuery Photos
         {
             get
             {
                 if (photos == null)
-                {
-                    photos = new PhotoQuery();
-                }
-
+                    photos = queryFactory.CreatePhotoQuery();
                 return photos;
             }
         }
@@ -29,7 +42,7 @@ namespace Linq.Flickr
             {
                 if (tags == null)
                 {
-                    tags = new TagQuery();
+                    tags = queryFactory.CreateTagQuery();
                 }
 
                 return tags;
@@ -42,7 +55,7 @@ namespace Linq.Flickr
             {
                 if (peoples == null)
                 {
-                    peoples = new PeopleQuery();
+                    peoples = queryFactory.CreatePeopleQuery();
                 }
                 return peoples;
             }
@@ -53,17 +66,18 @@ namespace Linq.Flickr
         /// <returns>returns true/false</returns>
         public bool IsAuthenticated()
         {
-            using (IAuthRepository authRepository = new AuthRepository())
+            using (IAuthRepository authRepository = CreateNewAuthRepository())
             {
                 return authRepository.IsAuthenticated();
             }
         }
+
         /// <summary>
         /// does a manual authentication.
         /// </summary>
         public AuthToken Authenticate()
         {
-            using (IAuthRepository authRepository = new AuthRepository())
+            using (IAuthRepository authRepository = CreateNewAuthRepository())
             {
                 return authRepository.Authenticate(true, Permission.Delete);
             }
@@ -79,7 +93,7 @@ namespace Linq.Flickr
 
             try
             {
-                IAuthRepository repository = new AuthRepository();
+                IAuthRepository repository = CreateNewAuthRepository();
                 repository.ClearToken();
             }
             catch
@@ -101,5 +115,20 @@ namespace Linq.Flickr
         private PhotoQuery photos;
         private TagQuery tags;
         private PeopleQuery peoples;
+
+        private IAuthRepository CreateNewAuthRepository()
+        {
+            IAuthRepository authRepository;
+            if (authenticationInformation != null)
+                authRepository = CreateAuthRepositoryWithProvidedAuthenticationInformation();
+            else
+                authRepository = new AuthRepository();
+            return authRepository;
+        }
+
+        private AuthRepository CreateAuthRepositoryWithProvidedAuthenticationInformation()
+        {
+            return new AuthRepository(authenticationInformation);
+        }
     }
 }

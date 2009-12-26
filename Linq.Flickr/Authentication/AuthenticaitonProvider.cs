@@ -11,6 +11,16 @@ namespace Linq.Flickr.Authentication
 {
     public abstract  class  AuthenticaitonProvider : BaseRepository
     {
+
+        public AuthenticaitonProvider()
+        {
+        }
+
+        public AuthenticaitonProvider(AuthenticationInformation authenticationInformation)
+            : base (authenticationInformation)
+        {
+        }
+
         /// <summary>
         /// Saves a token to the disc,if not already saved and initiates flickr 
         /// authentication call.

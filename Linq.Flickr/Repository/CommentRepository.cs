@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 using Linq.Flickr.Interface;
+using Linq.Flickr.Authentication;
 
 namespace Linq.Flickr.Repository
 {
@@ -10,6 +11,12 @@ namespace Linq.Flickr.Repository
         public CommentRepository() : base(typeof(ICommentRepository))
         {
             authRepo = new AuthRepository();
+        }
+
+        public CommentRepository(AuthenticationInformation authenticationInformation)
+            : base (authenticationInformation, typeof(ICommentRepository))
+        {
+            authRepo = new AuthRepository(authenticationInformation);
         }
 
         private IEnumerable<Comment> GetComments(string requestUrl)

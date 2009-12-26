@@ -6,6 +6,7 @@ using System.Xml;
 using System.IO;
 using System.Net;
 using Linq.Flickr.Interface;
+using Linq.Flickr.Authentication;
 
 namespace Linq.Flickr.Repository
 {
@@ -24,7 +25,13 @@ namespace Linq.Flickr.Repository
         {
             authRepo = new AuthRepository();
         }
-       
+
+        public PhotoRepository(AuthenticationInformation authenticationInformation) 
+            : base (authenticationInformation, typeof(IPhotoRepository))
+        {
+            authRepo = new AuthRepository(authenticationInformation);
+        }
+
         People IPhotoRepository.GetUploadStatus()
         {
             string token = authRepo.Authenticate(Permission.Delete);

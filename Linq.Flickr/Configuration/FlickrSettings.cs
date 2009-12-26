@@ -8,16 +8,6 @@ namespace Linq.Flickr.Configuration {
 
     public class FlickrSettings: ConfigurationSection {
 
-        #region Current Section
-
-        public static FlickrSettings Current {
-            get {
-                return (FlickrSettings)ConfigurationManager.GetSection("flickr");
-            }
-        }
-
-        #endregion
-
         [ConfigurationProperty("apiKey",DefaultValue="#yourKey#")]
         public string ApiKey {
             get {

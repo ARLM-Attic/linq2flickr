@@ -12,6 +12,14 @@ namespace Linq.Flickr.Authentication.Providers
 {
     public class DesktopProvider : AuthenticaitonProvider
     {
+
+        private IFlickrSettingsProvider flickrSettingsProvider;
+
+        public DesktopProvider()
+        {
+            flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
+        }
+
         public override bool SaveToken(string permission)
         {
             IRepositoryBase repositoryBase = new BaseRepository();
@@ -22,7 +30,7 @@ namespace Linq.Flickr.Authentication.Providers
                 const string method = "flickr.auth.getToken";
                 string frob = repositoryBase.GetFrob();
 
-                string apiKey = FlickrSettings.Current.ApiKey;
+                string apiKey = flickrSettingsProvider.GetCurrentFlickrSettings().ApiKey;
                 string authSig = repositoryBase.GetSignature(string.Empty, false, "perms", permission, "frob", frob);
 
                 StringBuilder builder = new StringBuilder(Helper.AUTH_URL + "?api_key=" + apiKey);

@@ -6,12 +6,27 @@ using System.Xml;
 using Linq.Flickr.Authentication;
 using Linq.Flickr.Configuration;
 using Linq.Flickr.Interface;
+using Linq.Flickr.Authentication.Providers;
 
 namespace Linq.Flickr.Repository
 {
     public class AuthRepository : BaseRepository, IAuthRepository
     {
-        public AuthRepository() : base(typeof(IAuthRepository)) { }
+
+        private IFlickrSettingsProvider flickrSettingsProvider;
+        private AuthenticationInformation authenticationInformation;
+
+        public AuthRepository() : base(typeof(IAuthRepository))
+        {
+            flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
+        }
+
+        public AuthRepository(AuthenticationInformation authenticationInformation)
+            : base(authenticationInformation)
+        {
+            flickrSettingsProvider = new AuthenticationInformationFlickrSettingsProvider(authenticationInformation);
+            this.authenticationInformation = authenticationInformation;
+        }
 
         public AuthToken Authenticate(bool validate, Permission permission)
         {
@@ -20,6 +35,7 @@ namespace Linq.Flickr.Repository
 
         public AuthToken CreateAuthTokenIfNecessary(string permission, bool validate)
         {
+
             AuthenticaitonProvider authenticaitonProvider = GetDefaultAuthenticationProvider();
 
             permission = permission.ToLower();
@@ -82,9 +98,10 @@ namespace Linq.Flickr.Repository
 
         private AuthenticaitonProvider GetDefaultAuthenticationProvider()
         {
-            AuthProviderElement providerElement = FlickrSettings.Current.DefaultProvider;
+            if (AuthenticationInformationWasProvidedManually())
+                return new MemoryProvider(authenticationInformation);
 
-            return (AuthenticaitonProvider)Activator.CreateInstance(Type.GetType(providerElement.Type), null);
+            return GetTheDefaultProviderFromCurrentFlickrSettings();
         }
 
         void IAuthRepository.ClearToken()
@@ -97,5 +114,19 @@ namespace Linq.Flickr.Repository
         {
             
         }
+
+        private AuthenticaitonProvider GetTheDefaultProviderFromCurrentFlickrSettings()
+        {
+            AuthProviderElement providerElement = flickrSettingsProvider.GetCurrentFlickrSettings().DefaultProvider;
+
+            return (AuthenticaitonProvider)Activator.CreateInstance(Type.GetType(providerElement.Type), null);
+        }
+
+        private bool AuthenticationInformationWasProvidedManually()
+        {
+            return authenticationInformation != null;
+        }
+
+
     }
 }

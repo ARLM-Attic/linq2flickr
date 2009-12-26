@@ -5,13 +5,26 @@ using LinqExtender.Interface;
 using LinqExtender;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
+using Linq.Flickr.Authentication;
 
 namespace Linq.Flickr
 {
     public class PhotoQuery : Query<Photo>
     {
+        private IRepositoryFactory repositoryFactory;
+
         private People people;
         private CommentQuery commentQuery;
+
+        public PhotoQuery()
+        {
+            repositoryFactory = new DefaultRepositoryFactory();
+        }
+
+        public PhotoQuery(AuthenticationInformation authenticationInformation)
+        {
+            repositoryFactory = new AuthenticationInformationRepositoryFactory(authenticationInformation);
+        }
 
         // Comments can not stay alone, it is a part of photo.
         public CommentQuery Comments
@@ -34,13 +47,13 @@ namespace Linq.Flickr
             ViewMode viewMode = Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value == null ? ViewMode.Public : (ViewMode)Bucket.Instance.For.Item(PhotoColumns.Viewmode).Value;
          
             Photo photo = null;
-            using (IAuthRepository authRepository = new AuthRepository())
+            using (IAuthRepository authRepository = repositoryFactory.CreateAuthRepository())
             {
                 AuthToken token = GetToken(viewMode, authRepository);
            
                 if (Bucket.Instance.For.Item(PhotoColumns.ID).Value != null)
                 {
-                    using (IPhotoRepository photoRepository = new PhotoRepository())
+                    using (IPhotoRepository photoRepository = repositoryFactory.CreatePhotoRepository())
                     {
                         photo = photoRepository.GetPhotoDetail((string)Bucket.Instance.For.Item(PhotoColumns.ID).Value, size);
                     }
@@ -52,7 +65,7 @@ namespace Linq.Flickr
 
         protected override bool AddItem()
         {
-            using (IPhotoRepository flickr = new PhotoRepository())
+            using (IPhotoRepository flickr = repositoryFactory.CreatePhotoRepository())
             {
                 if (people == null)
                     people = flickr.GetUploadStatus();
@@ -124,7 +137,7 @@ namespace Linq.Flickr
 
         protected override bool RemoveItem()
         {
-            using (IPhotoRepository flickr = new PhotoRepository())
+            using (IPhotoRepository flickr = repositoryFactory.CreatePhotoRepository())
             {
                 if (!string.IsNullOrEmpty((string)Bucket.Instance.For.Item(PhotoColumns.ID).Value))
                 {
@@ -151,7 +164,7 @@ namespace Linq.Flickr
                 throw new Exception("photo title can not be empty");
             }
 
-            using (IPhotoRepository photo = new PhotoRepository())
+            using (IPhotoRepository photo = repositoryFactory.CreatePhotoRepository())
             {
                 return photo.SetMeta(photoId, title, string.IsNullOrEmpty(description) ? " " : description);
             }
@@ -179,7 +192,7 @@ namespace Linq.Flickr
 
         protected override void Process(IModify<Photo> items)
         {
-            using (IPhotoRepository flickr = new PhotoRepository())
+            using (IPhotoRepository flickr = repositoryFactory.CreatePhotoRepository())
             {
                 PhotoSize size = Bucket.Instance.For.Item(PhotoColumns.Photosize).Value == null
                                      ? PhotoSize.Square
@@ -218,7 +231,7 @@ namespace Linq.Flickr
                 /// unique property has higher precendence over general search query.
                 if (unique)
                 {
-                    using (IAuthRepository authRepository = new AuthRepository())
+                    using (IAuthRepository authRepository = repositoryFactory.CreateAuthRepository())
                     {
                         AuthToken token = GetToken(viewMode, authRepository);
                         Photo photo = flickr.GetPhotoDetail((string) Bucket.Instance.For.Item(PhotoColumns.ID).Value,
@@ -237,7 +250,7 @@ namespace Linq.Flickr
                 }
                 else
                 {
-                    using (IAuthRepository authRepository = new AuthRepository())
+                    using (IAuthRepository authRepository = repositoryFactory.CreateAuthRepository())
                     {
                         AuthToken token = GetToken(viewMode, authRepository);
                         items.AddRange(flickr.Search(index, itemsToTake, size, token == null ? string.Empty : token.Id,

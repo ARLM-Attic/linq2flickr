@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Linq.Flickr.Authentication;
 using LinqExtender;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
@@ -14,6 +15,18 @@ namespace Linq.Flickr
     /// </summary>
     public class TagQuery : Query<Tag>
     {
+        private IRepositoryFactory repositoryFactory;
+
+        public TagQuery()
+        {
+            repositoryFactory = new DefaultRepositoryFactory();
+        }
+
+        public TagQuery(AuthenticationInformation authenticationInformation)
+        {
+            repositoryFactory = new AuthenticationInformationRepositoryFactory(authenticationInformation);
+        }
+
         protected override bool AddItem()
         {
             var photoId = (string)Bucket.Instance.For.Item(TagColums.PhotoId).Value;
@@ -28,7 +41,7 @@ namespace Linq.Flickr
             if (string.IsNullOrEmpty(tags))
                 return false;
 
-            using (ITagRepository repository = new TagRepository(new AuthRepository()))
+            using (ITagRepository repository = repositoryFactory.CreateTagRepository())
             {
                 return repository.AddTags(photoId, tags);
             }
@@ -43,7 +56,7 @@ namespace Linq.Flickr
                 throw  new Exception("Must provide a valid tag id");
             }
 
-            using (ITagRepository repository = new TagRepository(new AuthRepository()))
+            using (ITagRepository repository = repositoryFactory.CreateTagRepository())
             {
                 return repository.RemovTag(tagId);
             }
@@ -69,7 +82,7 @@ namespace Linq.Flickr
                     throw new Exception("Tag count should be less than 200");
                 }
 
-                using (ITagRepository tagRepositoryRepo = new TagRepository())
+                using (ITagRepository tagRepositoryRepo = repositoryFactory.CreateTagRepository())
                 {
                     IEnumerable<Tag> tags = tagRepositoryRepo.GetPopularTags(period, count);
                     // do the filter on score.
@@ -89,7 +102,7 @@ namespace Linq.Flickr
                 if (photoId == null)
                     throw new Exception("Must provide a valid photoId");
 
-                using (ITagRepository tagRepositoryRepo = new TagRepository())
+                using (ITagRepository tagRepositoryRepo = repositoryFactory.CreateTagRepository())
                 {
                     items.AddRange(tagRepositoryRepo.GetTagsForPhoto((string)photoId));   
                 }

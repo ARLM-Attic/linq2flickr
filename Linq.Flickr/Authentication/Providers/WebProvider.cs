@@ -10,6 +10,14 @@ namespace Linq.Flickr.Authentication.Providers
 {
     public class WebProvider : AuthenticaitonProvider
     {
+
+        private IFlickrSettingsProvider flickrSettingsProvider;
+
+        public WebProvider()
+        {
+            flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
+        }
+
         public override bool SaveToken(string permission)
         {
             IAuthRepository authRepository = new AuthRepository();
@@ -107,7 +115,7 @@ namespace Linq.Flickr.Authentication.Providers
 
         private string GetAuthenticationUrl(string permission, string frob)
         {
-            string apiKey = FlickrSettings.Current.ApiKey;
+            string apiKey = flickrSettingsProvider.GetCurrentFlickrSettings().ApiKey;
             string sig = new BaseRepository().GetSignature(string.Empty, false, "perms", permission);
 
             StringBuilder builder = new StringBuilder(Helper.AUTH_URL + "?api_key=" + apiKey);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 using Linq.Flickr.Interface;
+using Linq.Flickr.Authentication;
 
 namespace Linq.Flickr.Repository
 {
@@ -9,8 +10,8 @@ namespace Linq.Flickr.Repository
     {
         public TagRepository() : base(typeof(ITagRepository)) { }
 
-        public TagRepository(IAuthRepository authRepository)
-            : base(typeof(ITagRepository))
+        public TagRepository(AuthenticationInformation authenticationInformation, IAuthRepository authRepository)
+            : base(authenticationInformation, typeof(ITagRepository))
         {
             this.authRepository = authRepository;
         }

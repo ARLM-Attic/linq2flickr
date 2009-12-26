@@ -12,10 +12,14 @@
     <AssemblyName>Linq.Flickr</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -55,10 +59,21 @@
     <Compile Include="Attribute\XElementAttribute.cs" />
     <Compile Include="Attribute\FlickrMethodAttribute.cs" />
     <Compile Include="Attribute\XNameAttribute.cs" />
+    <Compile Include="AuthenticationInformationQueryFactory.cs" />
     <Compile Include="Authentication\AuthenticaitonProvider.cs" />
+    <Compile Include="Authentication\AuthenticationInformation.cs" />
     <Compile Include="Authentication\Providers\DesktopProvider.cs" />
+    <Compile Include="Authentication\Providers\MemoryProvider.cs" />
     <Compile Include="Authentication\Providers\WebProvider.cs" />
+    <Compile Include="Configuration\AuthenticationInformationFlickrSettingsProvider.cs" />
+    <Compile Include="Configuration\ConfigurationFileFlickrSettingsProvider.cs" />
+    <Compile Include="Configuration\IFlickrSettingsProvider.cs" />
+    <Compile Include="DefaultQueryFactory.cs" />
+    <Compile Include="Interface\IRepositoryFactory.cs" />
+    <Compile Include="IQueryFactory.cs" />
     <Compile Include="ITagText.cs" />
+    <Compile Include="Repository\AuthenticationInformationRepositoryFactory.cs" />
+    <Compile Include="Repository\DefaultRepositoryFactory.cs" />
     <Compile Include="XmlToObject.cs" />
     <Compile Include="AuthToken.cs" />
     <Compile Include="Configuration\AuthProviderElement.cs" />

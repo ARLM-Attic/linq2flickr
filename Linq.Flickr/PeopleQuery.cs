@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Linq.Flickr.Authentication;
 using LinqExtender;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
@@ -10,6 +11,19 @@ namespace Linq.Flickr
 {
     public class PeopleQuery : Query<People>
     {
+
+        private readonly IRepositoryFactory repositoryFactory;
+
+        public PeopleQuery()
+        {
+            repositoryFactory = new DefaultRepositoryFactory();
+        }
+
+        public PeopleQuery(AuthenticationInformation authenticationInformation)
+        {
+            repositoryFactory = new AuthenticationInformationRepositoryFactory(authenticationInformation);
+        }
+
         protected override bool AddItem()
         {
             throw new Exception("Add item not supported for People");
@@ -28,7 +42,7 @@ namespace Linq.Flickr
 
         protected override void Process(LinqExtender.Interface.IModify<People> items)
         {
-            using (IPeopleRepository peopleRepositoryRepo = new PeopleRepository())
+            using (IPeopleRepository peopleRepositoryRepo = repositoryFactory.CreatePeopleRepository())
             {
                 string userId = (string)Bucket.Instance.For.Item(PeopleColumns.Id).Value;
                 string username = (string)Bucket.Instance.For.Item(PeopleColumns.Username).Value;

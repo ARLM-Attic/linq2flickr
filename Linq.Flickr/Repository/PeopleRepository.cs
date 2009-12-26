@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Linq.Flickr.Interface;
+using Linq.Flickr.Authentication;
 
 namespace Linq.Flickr.Repository
 {
@@ -10,6 +11,12 @@ namespace Linq.Flickr.Repository
         public PeopleRepository() : base(typeof(IPeopleRepository))
         {
             authRepo = new AuthRepository();
+        }
+
+        public PeopleRepository(AuthenticationInformation authenticationInformation)
+            : base(authenticationInformation, typeof(IPeopleRepository))
+        {
+            authRepo = new AuthRepository(authenticationInformation);
         }
 
         #region IPeopleRepository Members
