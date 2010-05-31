@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Authentication;
+using Linq.Flickr.Abstraction;
 
 namespace Linq.Flickr.Repository
 {
@@ -21,14 +22,18 @@ namespace Linq.Flickr.Repository
     /// </summary>
     public class PhotoRepository : BaseRepository, IPhotoRepository
     {
-        public PhotoRepository() : base(typeof(IPhotoRepository))
+        private IHttpRequest httpRequest;
+
+        public PhotoRepository(IHttpRequest httpRequest) : base(typeof(IPhotoRepository))
         {
             authRepo = new AuthRepository();
+            this.httpRequest = httpRequest;
         }
 
-        public PhotoRepository(AuthenticationInformation authenticationInformation) 
+        public PhotoRepository(IHttpRequest httpRequest, AuthenticationInformation authenticationInformation) 
             : base (authenticationInformation, typeof(IPhotoRepository))
         {
+            this.httpRequest = httpRequest;
             authRepo = new AuthRepository(authenticationInformation);
         }
 
@@ -74,7 +79,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = DoHTTPPost(requestUrl);
+                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
                 XmlElement element = RestExtension.Parse(responseFromServer);
                 element.ValidateResponse();
 
@@ -332,7 +337,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = DoHTTPPost(requestUrl);
+                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
                 XmlElement element = RestExtension.Parse(responseFromServer);
                 element.ValidateResponse();
 

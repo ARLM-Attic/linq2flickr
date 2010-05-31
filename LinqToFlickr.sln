@@ -1,17 +1,32 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq.Flickr", "Linq.Flickr\Linq.Flickr.csproj", "{716F1EDD-B85E-45FB-B757-BFFC8CB2A011}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{DB97F755-F3A8-43FA-9237-2F81B0B3D02C}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\Authentication.docx = Docs\Authentication.docx
 		Docs\Tagging Photos.docx = Docs\Tagging Photos.docx
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq.Flickr", "Linq.Flickr\Linq.Flickr.csproj", "{716F1EDD-B85E-45FB-B757-BFFC8CB2A011}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq.Flickr.Test", "Linq.Flickr.Test\Linq.Flickr.Test.csproj", "{FBB3FF89-3D42-49D1-8D48-BC7F34FB9618}"
 EndProject
 Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs04.codeplex.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Linq.Flickr\\Linq.Flickr.csproj
+		SccProjectName1 = Linq.Flickr
+		SccLocalPath1 = Linq.Flickr
+		SccProjectUniqueName2 = Linq.Flickr.Test\\Linq.Flickr.Test.csproj
+		SccProjectName2 = Linq.Flickr.Test
+		SccLocalPath2 = Linq.Flickr.Test
+		SccProjectUniqueName3 = Linq.Flickr.Console\\Linq.Flickr.Console.csproj
+		SccProjectName3 = Linq.Flickr.Console
+		SccLocalPath3 = Linq.Flickr.Console
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -28,20 +43,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs04.codeplex.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Linq.Flickr\\Linq.Flickr.csproj
-		SccProjectName1 = Linq.Flickr
-		SccLocalPath1 = Linq.Flickr
-		SccProjectUniqueName2 = Linq.Flickr.Test\\Linq.Flickr.Test.csproj
-		SccProjectName2 = Linq.Flickr.Test
-		SccLocalPath2 = Linq.Flickr.Test
-		SccProjectUniqueName3 = Linq.Flickr.Console\\Linq.Flickr.Console.csproj
-		SccProjectName3 = Linq.Flickr.Console
-		SccLocalPath3 = Linq.Flickr.Console
 	EndGlobalSection
 EndGlobal

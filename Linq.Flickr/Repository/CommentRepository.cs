@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Xml;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Authentication;
+using Linq.Flickr.Abstraction;
 
 namespace Linq.Flickr.Repository
 {
     public class CommentRepository : BaseRepository, ICommentRepository
     {
-        public CommentRepository() : base(typeof(ICommentRepository))
+        public CommentRepository(IHttpRequest httpRequest) : base(typeof(ICommentRepository))
         {
+            this.httpRequest = httpRequest;
             authRepo = new AuthRepository();
         }
 
-        public CommentRepository(AuthenticationInformation authenticationInformation)
+        public CommentRepository(IHttpRequest httpRequest, AuthenticationInformation authenticationInformation)
             : base (authenticationInformation, typeof(ICommentRepository))
         {
+            this.httpRequest = httpRequest;
             authRepo = new AuthRepository(authenticationInformation);
         }
 
@@ -50,7 +53,7 @@ namespace Linq.Flickr.Repository
             string sig = GetSignature(method, true, "photo_id", photoId, "auth_token", authenitcatedToken, "comment_text", text);
             string requestUrl = BuildUrl(method, "photo_id", photoId, "comment_text", text, "auth_token", authenitcatedToken, "api_sig", sig);
 
-            string reposnse = DoHTTPPost(requestUrl);
+            string reposnse = httpRequest.DoHttpPost(requestUrl);
             // get the photo id.
             XmlElement element = ParseElement(reposnse);
             return element.Element("comment").Attribute("id").Value ?? string.Empty;
@@ -66,7 +69,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = DoHTTPPost(requestUrl);
+                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
                 XmlElement element = ParseElement(responseFromServer);
                 return true;
             }
@@ -86,7 +89,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = DoHTTPPost(requestUrl);
+                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
                 XmlElement element = ParseElement(responseFromServer);
                 return true;
             }
@@ -102,5 +105,6 @@ namespace Linq.Flickr.Repository
         }
 
         private IAuthRepository authRepo;
+        private IHttpRequest httpRequest;
     }
 }

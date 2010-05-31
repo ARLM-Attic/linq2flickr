@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Xml;
 using System.Reflection;
 using Linq.Flickr.Attribute;
-using Linq.Flickr.Repository;
+using Linq.Flickr.Proxies;
 
 namespace Linq.Flickr
 {
@@ -12,7 +12,7 @@ namespace Linq.Flickr
     /// Used for creating IEnumerable<typeparamref name="T"/> result from REST response.
     /// </summary>
     /// <typeparam name="T">IDisposable</typeparam>
-    public class CollectionBuilder<T> : HttpCallBase
+    public class CollectionBuilder<T> : XmlElementProxy
     {
         public CollectionBuilder()
         {

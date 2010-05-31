@@ -6,6 +6,8 @@ using LinqExtender;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
 using Linq.Flickr.Authentication;
+using Linq.Flickr.Abstraction;
+using Linq.Flickr.Proxies;
 
 namespace Linq.Flickr
 {
@@ -31,9 +33,11 @@ namespace Linq.Flickr
         {
             get
             {
+                IWebRequest webRequest = new WebRequestProxy();
+
                 if (commentQuery == null)
                 {
-                    commentQuery = new CommentQuery();
+                    commentQuery = new CommentQuery(new HttpRequestProxy(webRequest));
                 }
 
                 return commentQuery;

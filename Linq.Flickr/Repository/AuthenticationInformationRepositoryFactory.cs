@@ -1,11 +1,19 @@
-﻿using Linq.Flickr.Authentication;
+﻿using Linq.Flickr;
+using Linq.Flickr.Authentication;
 using Linq.Flickr.Interface;
+using Linq.Flickr.Proxies;
 
 namespace Linq.Flickr.Repository
 {
     public class AuthenticationInformationRepositoryFactory : IRepositoryFactory
     {
         private readonly AuthenticationInformation authenticationInformation;
+        private HttpRequestProxy httpRequest;
+
+        public AuthenticationInformationRepositoryFactory()
+        {
+            this.httpRequest = new HttpRequestProxy(new WebRequestProxy());
+        }
 
         public AuthenticationInformationRepositoryFactory(AuthenticationInformation authenticationInformation)
         {
@@ -19,7 +27,7 @@ namespace Linq.Flickr.Repository
 
         public ICommentRepository CreateCommentRepository()
         {
-            return new CommentRepository(authenticationInformation);
+            return new CommentRepository(this.httpRequest, authenticationInformation);
         }
 
         public IPeopleRepository CreatePeopleRepository()
@@ -29,12 +37,12 @@ namespace Linq.Flickr.Repository
 
         public ITagRepository CreateTagRepository()
         {
-            return new TagRepository(authenticationInformation, CreateAuthRepository());
+            return new TagRepository(authenticationInformation, CreateAuthRepository(), httpRequest);
         }
 
         public IPhotoRepository CreatePhotoRepository()
         {
-            return new PhotoRepository(authenticationInformation);
+            return new PhotoRepository(this.httpRequest, authenticationInformation);
         }
     }
 }

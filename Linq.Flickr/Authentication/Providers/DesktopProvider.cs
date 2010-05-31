@@ -7,12 +7,16 @@ using System.Xml;
 using Linq.Flickr.Configuration;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
+using Linq.Flickr.Abstraction;
+using Linq.Flickr.Proxies;
 
 namespace Linq.Flickr.Authentication.Providers
 {
+    /// <summary>
+    /// Provides authentication methods for desktop based apps.
+    /// </summary>
     public class DesktopProvider : AuthenticaitonProvider
     {
-
         private IFlickrSettingsProvider flickrSettingsProvider;
 
         public DesktopProvider()
@@ -23,7 +27,7 @@ namespace Linq.Flickr.Authentication.Providers
         public override bool SaveToken(string permission)
         {
             IRepositoryBase repositoryBase = new BaseRepository();
-            IHttpCallBase httpBase = new HttpCallBase();
+            IXmlElement httpBase = new XmlElementProxy();
 
             try
             {

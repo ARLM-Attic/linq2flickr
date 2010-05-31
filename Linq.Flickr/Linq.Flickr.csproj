@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -20,6 +20,25 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +48,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,6 +57,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LinqExtender, Version=1.2.2927.1233, Culture=neutral, processorArchitecture=MSIL">
@@ -54,6 +75,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstraction\IHttpRequest.cs" />
+    <Compile Include="Abstraction\IWebRequest.cs" />
     <Compile Include="Attribute\XAttributeAttribute.cs" />
     <Compile Include="Attribute\XChildAttribute.cs" />
     <Compile Include="Attribute\XElementAttribute.cs" />
@@ -69,21 +92,23 @@
     <Compile Include="Configuration\ConfigurationFileFlickrSettingsProvider.cs" />
     <Compile Include="Configuration\IFlickrSettingsProvider.cs" />
     <Compile Include="DefaultQueryFactory.cs" />
+    <Compile Include="HttpRequestProxy.cs" />
     <Compile Include="Interface\IRepositoryFactory.cs" />
     <Compile Include="IQueryFactory.cs" />
     <Compile Include="ITagText.cs" />
     <Compile Include="Repository\AuthenticationInformationRepositoryFactory.cs" />
     <Compile Include="Repository\DefaultRepositoryFactory.cs" />
+    <Compile Include="Proxies\WebRequestProxy.cs" />
     <Compile Include="XmlToObject.cs" />
     <Compile Include="AuthToken.cs" />
     <Compile Include="Configuration\AuthProviderElement.cs" />
     <Compile Include="Configuration\AutheProviderElementCollection.cs" />
     <Compile Include="FlickrException.cs" />
     <Compile Include="Interface\IAuthRepository.cs" />
-    <Compile Include="Interface\IHttpCallBase.cs" />
+    <Compile Include="Abstraction\IXmlElement.cs" />
     <Compile Include="Interface\IRepositoryBase.cs" />
     <Compile Include="Repository\AuthRepository.cs" />
-    <Compile Include="Repository\HttpCallBase.cs" />
+    <Compile Include="Proxies\XmlElementProxy.cs" />
     <Compile Include="CollectionBuilder.cs" />
     <Compile Include="Comment.cs" />
     <Compile Include="CommentQuery.cs" />
@@ -111,6 +136,23 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -5,10 +5,11 @@ using System.Xml;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Configuration;
 using Linq.Flickr.Authentication;
+using Linq.Flickr.Proxies;
 
 namespace Linq.Flickr.Repository
 {
-    public class BaseRepository : HttpCallBase, IRepositoryBase
+    public class BaseRepository : XmlElementProxy, IRepositoryBase
     {
 
         private IFlickrSettingsProvider flickrSettingsProvider;

@@ -4,11 +4,17 @@ using System.Linq;
 using LinqExtender;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
+using Linq.Flickr.Abstraction;
 
 namespace Linq.Flickr
 {
     public class CommentQuery : Query<Comment>
     {
+        public CommentQuery(IHttpRequest httpRequest)
+        {
+            this.httpRequest = httpRequest;
+        }
+
         protected override bool AddItem()
         {
             string photoId = (string)Bucket.Instance.For.Item(CommentColumns.PhotoId).Value;
@@ -24,7 +30,7 @@ namespace Linq.Flickr
                 throw new Exception("Must have some text for the comment");
             }
 
-            using (ICommentRepository commentRepositoryRepo = new CommentRepository())
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository(httpRequest))
             {
                 string commentId = commentRepositoryRepo.AddComment(photoId, text);
                 // set the id.
@@ -45,7 +51,7 @@ namespace Linq.Flickr
             if (string.IsNullOrEmpty(text))
                 throw new Exception("Blank comment is not allowed");
 
-            using (ICommentRepository commentRepositoryRepo = new CommentRepository())
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository(httpRequest))
             {
                 return commentRepositoryRepo.EditComment(commentId, text); 
             }
@@ -59,7 +65,7 @@ namespace Linq.Flickr
             {
                 throw new Exception("Must provide a comment_id");
             }
-            using (ICommentRepository commentRepositoryRepo = new CommentRepository())
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository(httpRequest))
             {
                 return commentRepositoryRepo.DeleteComment(commentId);
             }
@@ -74,7 +80,7 @@ namespace Linq.Flickr
 
         protected override void Process(LinqExtender.Interface.IModify<Comment> items)
         {
-            using (ICommentRepository commentRepositoryRepo = new CommentRepository())
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository(httpRequest))
             {
                 string photoId = (string) Bucket.Instance.For.Item(CommentColumns.PhotoId).Value;
                 string commentId = (string)Bucket.Instance.For.Item(CommentColumns.Id).Value;
@@ -111,5 +117,7 @@ namespace Linq.Flickr
                 items.AddRange(comments, true);
             }
         }
+
+        private IHttpRequest httpRequest;
     }
 }

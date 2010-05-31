@@ -1,18 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Authentication;
+using Linq.Flickr.Abstraction;
 
 namespace Linq.Flickr.Repository
 {
     public class TagRepository : BaseRepository, ITagRepository
     {
-        public TagRepository() : base(typeof(ITagRepository)) { }
+        public TagRepository(IHttpRequest httpRequest) : base(typeof(ITagRepository)) 
+        {
+            this.httpRequest = httpRequest;
+        }
 
-        public TagRepository(AuthenticationInformation authenticationInformation, IAuthRepository authRepository)
+        public TagRepository(AuthenticationInformation authenticationInformation, IAuthRepository authRepository, IHttpRequest httpRequest)
             : base(authenticationInformation, typeof(ITagRepository))
         {
+            this.httpRequest = httpRequest;
             this.authRepository = authRepository;
         }
 
@@ -71,7 +75,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = DoHTTPPost(requestUrl);
+                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
                 ParseElement(responseFromServer);
                 return true;
             }
@@ -91,7 +95,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = DoHTTPPost(requestUrl);
+                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
                 ParseElement(responseFromServer);
                 return true;
             }
@@ -111,7 +115,8 @@ namespace Linq.Flickr.Repository
         {
             // nothing here.
         }
-
         #endregion
+
+        private IHttpRequest httpRequest;
     }
 }

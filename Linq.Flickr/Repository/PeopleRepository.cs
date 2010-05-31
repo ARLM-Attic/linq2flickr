@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Linq.Flickr.Interface;
 using Linq.Flickr.Authentication;
+using Linq.Flickr.Proxies;
 
 namespace Linq.Flickr.Repository
 {
@@ -33,7 +34,7 @@ namespace Linq.Flickr.Repository
         {
             string nsId = string.Empty;
 
-            using (IPhotoRepository photoRepository = new PhotoRepository())
+            using (IPhotoRepository photoRepository = new PhotoRepository(new HttpRequestProxy(new WebRequestProxy())))
             {
                 nsId = photoRepository.GetNsidByUsername(username);
 
