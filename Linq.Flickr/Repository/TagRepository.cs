@@ -1,22 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
-using Linq.Flickr.Interface;
 using Linq.Flickr.Authentication;
-using Linq.Flickr.Abstraction;
+using Linq.Flickr.Repository.Abstraction;
 
 namespace Linq.Flickr.Repository
 {
-    public class TagRepository : BaseRepository, ITagRepository
+    public class TagRepository : CommonRepository, ITagRepository
     {
-        public TagRepository(IHttpRequest httpRequest) : base(typeof(ITagRepository)) 
+        public TagRepository(IFlickrElement elementProxy) : base(elementProxy, typeof(ITagRepository)) 
         {
-            this.httpRequest = httpRequest;
+            this.elementProxy = elementProxy;
         }
 
-        public TagRepository(AuthenticationInformation authenticationInformation, IAuthRepository authRepository, IHttpRequest httpRequest)
-            : base(authenticationInformation, typeof(ITagRepository))
+        public TagRepository(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation, IAuthRepository authRepository)
+            : base(elementProxy, authenticationInformation, typeof(ITagRepository))
         {
-            this.httpRequest = httpRequest;
+            this.elementProxy = elementProxy;
             this.authRepository = authRepository;
         }
 
@@ -29,7 +28,7 @@ namespace Linq.Flickr.Repository
             string method = Helper.GetExternalMethodName();
             string requestUrl = BuildUrl(method, "period", period.ToString().ToLower(), "count", count.ToString());
 
-            XmlElement element = base.GetElement(requestUrl);
+            XmlElement element = elementProxy.GetResponseElement(requestUrl);
 
             foreach (var xmlElement in element.Descendants("tag"))
             {
@@ -50,7 +49,7 @@ namespace Linq.Flickr.Repository
             string method = Helper.GetExternalMethodName();
             string requestUrl = BuildUrl(method, "photo_id", photoId);
            
-            XmlElement element = base.GetElement(requestUrl);
+            XmlElement element = elementProxy.GetResponseElement(requestUrl);
 
             foreach (var xmlElement in element.Descendants("tag"))
             {
@@ -75,8 +74,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
-                ParseElement(responseFromServer);
+                elementProxy.SendPostRequest(requestUrl);
                 return true;
             }
             catch
@@ -95,8 +93,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
-                ParseElement(responseFromServer);
+                elementProxy.SendPostRequest(requestUrl);
                 return true;
             }
             catch
@@ -117,6 +114,6 @@ namespace Linq.Flickr.Repository
         }
         #endregion
 
-        private IHttpRequest httpRequest;
+        private IFlickrElement elementProxy;
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 using Linq.Flickr.Attribute;
 using Linq.Flickr.Repository;
 
-namespace Linq.Flickr.Interface
+namespace Linq.Flickr.Repository.Abstraction
 {
     public interface IPhotoRepository : IDisposable
     {

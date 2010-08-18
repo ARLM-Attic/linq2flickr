@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Linq.Flickr.Interface;
+using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Authentication;
-using Linq.Flickr.Proxies;
 
 namespace Linq.Flickr.Repository
 {
-    public class PeopleRepository : BaseRepository, IPeopleRepository
+    public class PeopleRepository : CommonRepository, IPeopleRepository
     {
-        public PeopleRepository() : base(typeof(IPeopleRepository))
+        public PeopleRepository(IFlickrElement elementProxy)
+            : base(elementProxy, typeof(IPeopleRepository))
         {
-            authRepo = new AuthRepository();
+            this.elementProxy = elementProxy;
+            authRepo = new AuthRepository(elementProxy);
         }
 
-        public PeopleRepository(AuthenticationInformation authenticationInformation)
-            : base(authenticationInformation, typeof(IPeopleRepository))
+        public PeopleRepository(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+            : base(elementProxy, authenticationInformation, typeof(IPeopleRepository))
         {
-            authRepo = new AuthRepository(authenticationInformation);
+            this.elementProxy = elementProxy;
+            authRepo = new AuthRepository(elementProxy, authenticationInformation);
         }
 
         #region IPeopleRepository Members
@@ -34,7 +36,7 @@ namespace Linq.Flickr.Repository
         {
             string nsId = string.Empty;
 
-            using (IPhotoRepository photoRepository = new PhotoRepository(new HttpRequestProxy(new WebRequestProxy())))
+            using (IPhotoRepository photoRepository = new PhotoRepository(elementProxy))
             {
                 nsId = photoRepository.GetNsidByUsername(username);
 
@@ -51,7 +53,6 @@ namespace Linq.Flickr.Repository
 
         AuthToken IPeopleRepository.GetAuthenticatedToken()
         {
-            string method = Helper.GetExternalMethodName();
             return  authRepo.CreateAuthTokenIfNecessary(Permission.Delete.ToString(), false);
         }
 
@@ -72,6 +73,7 @@ namespace Linq.Flickr.Repository
         #endregion
 
         private IAuthRepository authRepo;
+        private IFlickrElement elementProxy;
 
     }
 }

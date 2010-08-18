@@ -1,26 +1,24 @@
 ﻿using System;
 using System.Text;
-using System.Threading;
 using System.Web;
 using Linq.Flickr.Configuration;
-using Linq.Flickr.Interface;
+using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Repository;
 
 namespace Linq.Flickr.Authentication.Providers
 {
     public class WebProvider : AuthenticaitonProvider
     {
-
-        private IFlickrSettingsProvider flickrSettingsProvider;
-
-        public WebProvider()
+        public WebProvider(IFlickrElement elementProxy)
+            : base(elementProxy)
         {
+            this.elementProxy = elementProxy;
             flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
         }
 
         public override bool SaveToken(string permission)
         {
-            IAuthRepository authRepository = new AuthRepository();
+            IAuthRepository authRepository = new AuthRepository(elementProxy);
             try
             {
                 bool authenticate = false;
@@ -30,7 +28,7 @@ namespace Linq.Flickr.Authentication.Providers
                 if (authenticate)
                 {
                     /// initiate the authenticaiton process.
-                    HttpContext.Current.Response.Redirect(GetAuthenticationUrl(permission, frob));
+                    HttpContext.Current.Response.Redirect(GetAuthenticationUrl(permission));
                 }
 
                 AuthToken token = authRepository.GetTokenFromFrob(frob);
@@ -99,7 +97,7 @@ namespace Linq.Flickr.Authentication.Providers
 
         private string CreateWebFrobIfNecessary(out bool authenticated)
         {
-            IRepositoryBase repositoryBase = new BaseRepository();
+            IRepositoryBase repositoryBase = new CommonRepository(elementProxy);
             // if it is a redirect by flickr then take the frob from url.
             if (!string.IsNullOrEmpty(HttpContext.Current.Request["frob"]))
             {
@@ -113,10 +111,10 @@ namespace Linq.Flickr.Authentication.Providers
             }
         }
 
-        private string GetAuthenticationUrl(string permission, string frob)
+        private string GetAuthenticationUrl(string permission)
         {
             string apiKey = flickrSettingsProvider.GetCurrentFlickrSettings().ApiKey;
-            string sig = new BaseRepository().GetSignature(string.Empty, false, "perms", permission);
+            string sig = new CommonRepository(elementProxy).GetSignature(string.Empty, false, "perms", permission);
 
             StringBuilder builder = new StringBuilder(Helper.AUTH_URL + "?api_key=" + apiKey);
 
@@ -126,5 +124,8 @@ namespace Linq.Flickr.Authentication.Providers
             return builder.ToString();
 
         }
+
+        private IFlickrSettingsProvider flickrSettingsProvider;
+        private IFlickrElement elementProxy;
     }
 }

@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml;
-using Linq.Flickr.Interface;
 using Linq.Flickr.Authentication;
-using Linq.Flickr.Abstraction;
+using Linq.Flickr.Repository.Abstraction;
 
 namespace Linq.Flickr.Repository
 {
-    public class CommentRepository : BaseRepository, ICommentRepository
+    public class CommentRepository : CommonRepository, ICommentRepository
     {
-        public CommentRepository(IHttpRequest httpRequest) : base(typeof(ICommentRepository))
+        public CommentRepository(IFlickrElement elementProxy) : base(elementProxy, typeof(ICommentRepository))
         {
-            this.httpRequest = httpRequest;
-            authRepo = new AuthRepository();
+            this.elementProxy = elementProxy;
+            authRepo = new AuthRepository(elementProxy);
         }
 
-        public CommentRepository(IHttpRequest httpRequest, AuthenticationInformation authenticationInformation)
-            : base (authenticationInformation, typeof(ICommentRepository))
+        public CommentRepository(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+            : base (elementProxy, authenticationInformation, typeof(ICommentRepository))
         {
-            this.httpRequest = httpRequest;
-            authRepo = new AuthRepository(authenticationInformation);
+            this.elementProxy = elementProxy;
+            authRepo = new AuthRepository(elementProxy, authenticationInformation);
         }
 
         private IEnumerable<Comment> GetComments(string requestUrl)
@@ -53,9 +51,7 @@ namespace Linq.Flickr.Repository
             string sig = GetSignature(method, true, "photo_id", photoId, "auth_token", authenitcatedToken, "comment_text", text);
             string requestUrl = BuildUrl(method, "photo_id", photoId, "comment_text", text, "auth_token", authenitcatedToken, "api_sig", sig);
 
-            string reposnse = httpRequest.DoHttpPost(requestUrl);
-            // get the photo id.
-            XmlElement element = ParseElement(reposnse);
+            var element = elementProxy.SendPostRequest(requestUrl);
             return element.Element("comment").Attribute("id").Value ?? string.Empty;
         }
 
@@ -69,8 +65,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
-                XmlElement element = ParseElement(responseFromServer);
+                elementProxy.SendPostRequest(requestUrl);
                 return true;
             }
             catch
@@ -89,8 +84,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
-                XmlElement element = ParseElement(responseFromServer);
+                elementProxy.SendPostRequest(requestUrl);
                 return true;
             }
             catch
@@ -105,6 +99,6 @@ namespace Linq.Flickr.Repository
         }
 
         private IAuthRepository authRepo;
-        private IHttpRequest httpRequest;
+        private IFlickrElement elementProxy;
     }
 }

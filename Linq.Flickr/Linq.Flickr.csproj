@@ -39,6 +39,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -75,14 +76,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Abstraction\IHttpRequest.cs" />
     <Compile Include="Abstraction\IWebRequest.cs" />
     <Compile Include="Attribute\XAttributeAttribute.cs" />
     <Compile Include="Attribute\XChildAttribute.cs" />
     <Compile Include="Attribute\XElementAttribute.cs" />
     <Compile Include="Attribute\FlickrMethodAttribute.cs" />
     <Compile Include="Attribute\XNameAttribute.cs" />
-    <Compile Include="AuthenticationInformationQueryFactory.cs" />
+    <Compile Include="AuthQueryFactory.cs" />
     <Compile Include="Authentication\AuthenticaitonProvider.cs" />
     <Compile Include="Authentication\AuthenticationInformation.cs" />
     <Compile Include="Authentication\Providers\DesktopProvider.cs" />
@@ -92,47 +92,47 @@
     <Compile Include="Configuration\ConfigurationFileFlickrSettingsProvider.cs" />
     <Compile Include="Configuration\IFlickrSettingsProvider.cs" />
     <Compile Include="DefaultQueryFactory.cs" />
-    <Compile Include="HttpRequestProxy.cs" />
-    <Compile Include="Interface\IRepositoryFactory.cs" />
+    <Compile Include="Repository\Abstraction\IRepositoryFactory.cs" />
     <Compile Include="IQueryFactory.cs" />
     <Compile Include="ITagText.cs" />
-    <Compile Include="Repository\AuthenticationInformationRepositoryFactory.cs" />
+    <Compile Include="Repository\AuthInfoRepository.cs" />
     <Compile Include="Repository\DefaultRepositoryFactory.cs" />
     <Compile Include="Proxies\WebRequestProxy.cs" />
+    <Compile Include="Repository\Permission.cs" />
     <Compile Include="XmlToObject.cs" />
     <Compile Include="AuthToken.cs" />
     <Compile Include="Configuration\AuthProviderElement.cs" />
     <Compile Include="Configuration\AutheProviderElementCollection.cs" />
     <Compile Include="FlickrException.cs" />
-    <Compile Include="Interface\IAuthRepository.cs" />
-    <Compile Include="Abstraction\IXmlElement.cs" />
-    <Compile Include="Interface\IRepositoryBase.cs" />
+    <Compile Include="Repository\Abstraction\IAuthRepository.cs" />
+    <Compile Include="Abstraction\IFlickrElement.cs" />
+    <Compile Include="Repository\Abstraction\IRepositoryBase.cs" />
     <Compile Include="Repository\AuthRepository.cs" />
-    <Compile Include="Proxies\XmlElementProxy.cs" />
+    <Compile Include="Proxies\FlickrElementProxy.cs" />
     <Compile Include="CollectionBuilder.cs" />
     <Compile Include="Comment.cs" />
-    <Compile Include="CommentQuery.cs" />
+    <Compile Include="CommentCollection.cs" />
     <Compile Include="Configuration\FlickrSettings.cs" />
     <Compile Include="PopularTag.cs" />
-    <Compile Include="Interface\ICommentRepository.cs" />
-    <Compile Include="Interface\IPeopleRepository.cs" />
-    <Compile Include="Interface\ITagRepository.cs" />
-    <Compile Include="PeopleQuery.cs" />
-    <Compile Include="Repository\BaseRepository.cs" />
+    <Compile Include="Repository\Abstraction\ICommentRepository.cs" />
+    <Compile Include="Repository\Abstraction\IPeopleRepository.cs" />
+    <Compile Include="Repository\Abstraction\ITagRepository.cs" />
+    <Compile Include="PeopleCollection.cs" />
+    <Compile Include="Repository\CommonRepository.cs" />
     <Compile Include="Repository\CommentRepository.cs" />
     <Compile Include="Repository\PeopleRepository.cs" />
     <Compile Include="Repository\PhotoRepository.cs" />
     <Compile Include="FlickrContext.cs" />
-    <Compile Include="PhotoQuery.cs" />
+    <Compile Include="PhotoCollection.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="Interface\IPhotoRepository.cs" />
+    <Compile Include="Repository\Abstraction\IPhotoRepository.cs" />
     <Compile Include="Photo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\TagRepository.cs" />
     <Compile Include="RestExtension.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="People.cs" />
-    <Compile Include="TagQuery.cs" />
+    <Compile Include="TagCollection.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />

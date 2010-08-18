@@ -5,36 +5,27 @@ using System.Text;
 using System.Xml;
 using System.IO;
 using System.Net;
-using Linq.Flickr.Interface;
 using Linq.Flickr.Authentication;
-using Linq.Flickr.Abstraction;
+using Linq.Flickr.Repository.Abstraction;
 
 namespace Linq.Flickr.Repository
 {
-    public enum Permission
-    {
-        Read = 0,
-        Write,
-        Delete
-    }
     /// <summary>
     /// Covers flickr.photo namespace for processing photo items.
     /// </summary>
-    public class PhotoRepository : BaseRepository, IPhotoRepository
+    public class PhotoRepository : CommonRepository, IPhotoRepository
     {
-        private IHttpRequest httpRequest;
-
-        public PhotoRepository(IHttpRequest httpRequest) : base(typeof(IPhotoRepository))
+        public PhotoRepository(IFlickrElement elementProxy) : base(elementProxy, typeof(IPhotoRepository))
         {
-            authRepo = new AuthRepository();
-            this.httpRequest = httpRequest;
+            authRepo = new AuthRepository(elementProxy);
+            this.elementProxy = elementProxy;
         }
 
-        public PhotoRepository(IHttpRequest httpRequest, AuthenticationInformation authenticationInformation) 
-            : base (authenticationInformation, typeof(IPhotoRepository))
+        public PhotoRepository(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation) 
+            : base (elementProxy, authenticationInformation, typeof(IPhotoRepository))
         {
-            this.httpRequest = httpRequest;
-            authRepo = new AuthRepository(authenticationInformation);
+            this.elementProxy = elementProxy;
+            authRepo = new AuthRepository(elementProxy, authenticationInformation);
         }
 
         People IPhotoRepository.GetUploadStatus()
@@ -47,7 +38,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                XmlElement element = base.GetElement(requestUrl);
+                XmlElement element = elementProxy.GetResponseElement(requestUrl);
 
                 People people = (from p in element.Descendants("user")
                                  select new People
@@ -55,11 +46,11 @@ namespace Linq.Flickr.Repository
                                      Id = p.Attribute("id").Value ?? string.Empty,
                                      IsPro = Convert.ToInt32(p.Attribute("ispro").Value) == 0 ? false : true,
                                      BandWidth = (from b in element.Descendants("bandwidth")
-                                                  select new BandWidth
-                                                  {
-                                                      RemainingKb =  Convert.ToInt32(b.Attribute("remainingkb").Value),
-                                                      UsedKb = Convert.ToInt32(b.Attribute("usedkb").Value)
-                                                  }).Single<BandWidth>()
+                                        select new BandWidth
+                                        {
+                                            RemainingKb =  Convert.ToInt32(b.Attribute("remainingkb").Value),
+                                            UsedKb = Convert.ToInt32(b.Attribute("usedkb").Value)
+                                        }).Single<BandWidth>()
                                  }).Single<People>();
 
                 return people;
@@ -79,10 +70,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
-                XmlElement element = RestExtension.Parse(responseFromServer);
-                element.ValidateResponse();
-
+                elementProxy.SendPostRequest(requestUrl);
                 return true;
             }
             catch
@@ -138,7 +126,7 @@ namespace Linq.Flickr.Repository
                 string method = Helper.GetExternalMethodName();
                 string requestUrl = BuildUrl(method, "photo_id", id);
 
-                XmlElement doc = base.GetElement(requestUrl);
+                XmlElement doc = elementProxy.GetResponseElement(requestUrl);
 
                 var query = from sizes in doc.Descendants("size")
                             select new PhotoSizeWrapper
@@ -204,7 +192,7 @@ namespace Linq.Flickr.Repository
         #region PhotoGetBlock
         private IEnumerable<Photo> GetPhotos(string requestUrl, PhotoSize size)
         {
-            XmlElement doc = base.GetElement(requestUrl);
+            XmlElement doc = elementProxy.GetResponseElement(requestUrl);
             XmlElement photosElement = doc.Element("photos");
 
             CollectionBuilder<Photo> builder = new CollectionBuilder<Photo>("photos");
@@ -239,7 +227,7 @@ namespace Linq.Flickr.Repository
             string sig = base.GetSignature(method, true, "photo_id", id, "auth_token", token);
             string requestUrl = BuildUrl(method, "photo_id", id, "auth_token", token, "api_sig", sig);
 
-            XmlElement doc = base.GetElement(requestUrl);
+            XmlElement doc = elementProxy.GetResponseElement(requestUrl);
 
             var query = from photo in doc.Descendants("photo")
                         select new Photo
@@ -337,10 +325,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                string responseFromServer = httpRequest.DoHttpPost(requestUrl);
-                XmlElement element = RestExtension.Parse(responseFromServer);
-                element.ValidateResponse();
-
+                elementProxy.SendPostRequest(requestUrl);
                 return true;
             }
             catch
@@ -417,10 +402,12 @@ namespace Linq.Flickr.Repository
             reader.Close();
             
             // get the photo id.
-            XmlElement elemnent = ParseElement(responseFromServer);
+            XmlElement elemnent = elementProxy.GetElementFromResponse(responseFromServer);
             return elemnent.Element("photoid").InnerText ?? string.Empty;
         }
 
         private IAuthRepository authRepo;
+        private IFlickrElement elementProxy;
+
     }
 }

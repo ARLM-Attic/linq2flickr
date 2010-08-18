@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using Linq.Flickr.Configuration;
-using Linq.Flickr.Interface;
+﻿using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Repository;
 
 namespace Linq.Flickr.Authentication
 {
-    public abstract  class  AuthenticaitonProvider : BaseRepository
+    public abstract  class  AuthenticaitonProvider : CommonRepository
     {
-
-        public AuthenticaitonProvider()
+        public AuthenticaitonProvider(IFlickrElement elementProxy) : base(elementProxy)
         {
         }
 
-        public AuthenticaitonProvider(AuthenticationInformation authenticationInformation)
-            : base (authenticationInformation)
+        public AuthenticaitonProvider(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+            : base (elementProxy, authenticationInformation)
         {
         }
 

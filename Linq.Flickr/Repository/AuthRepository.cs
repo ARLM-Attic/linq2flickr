@@ -1,29 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml;
 using Linq.Flickr.Authentication;
 using Linq.Flickr.Configuration;
-using Linq.Flickr.Interface;
+using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Authentication.Providers;
 
 namespace Linq.Flickr.Repository
 {
-    public class AuthRepository : BaseRepository, IAuthRepository
+    public class AuthRepository : CommonRepository, IAuthRepository
     {
-
-        private IFlickrSettingsProvider flickrSettingsProvider;
-        private AuthenticationInformation authenticationInformation;
-
-        public AuthRepository() : base(typeof(IAuthRepository))
+        public AuthRepository(IFlickrElement elementProxy) : base(elementProxy, typeof(IAuthRepository))
         {
+            this.elementProxy = elementProxy;
             flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
         }
 
-        public AuthRepository(AuthenticationInformation authenticationInformation)
-            : base(authenticationInformation)
+        public AuthRepository(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+            : base(elementProxy, authenticationInformation)
         {
+            this.elementProxy = elementProxy;
             flickrSettingsProvider = new AuthenticationInformationFlickrSettingsProvider(authenticationInformation);
             this.authenticationInformation = authenticationInformation;
         }
@@ -80,7 +75,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                XmlElement tokenElement = GetElement(requestUrl);
+                XmlElement tokenElement = elementProxy.GetResponseElement(requestUrl);
                 return GetAToken(tokenElement);
             }
             catch (Exception ex)
@@ -99,7 +94,7 @@ namespace Linq.Flickr.Repository
         private AuthenticaitonProvider GetDefaultAuthenticationProvider()
         {
             if (AuthenticationInformationWasProvidedManually())
-                return new MemoryProvider(authenticationInformation);
+                return new MemoryProvider(elementProxy, authenticationInformation);
 
             return GetTheDefaultProviderFromCurrentFlickrSettings();
         }
@@ -127,6 +122,8 @@ namespace Linq.Flickr.Repository
             return authenticationInformation != null;
         }
 
-
+        private IFlickrSettingsProvider flickrSettingsProvider;
+        private AuthenticationInformation authenticationInformation;
+        private IFlickrElement elementProxy;
     }
 }

@@ -2,70 +2,57 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using Linq.Flickr.Interface;
+using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Configuration;
 using Linq.Flickr.Authentication;
-using Linq.Flickr.Proxies;
 
 namespace Linq.Flickr.Repository
 {
-    public class BaseRepository : XmlElementProxy, IRepositoryBase
+    public class CommonRepository : IRepositoryBase
     {
-
-        private IFlickrSettingsProvider flickrSettingsProvider;
-
-        public BaseRepository()
+        /// <summary>
+        /// Initailizes a new instance of <see cref="BaseRepository"/> class.
+        /// </summary>
+        /// <param name="xmlElement"></param>
+        public CommonRepository(IFlickrElement xmlElement)
         {
+            this.xmlElement = xmlElement;
             flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
-            LoadBase();
+            Initailize(typeof(IRepositoryBase));
         }
 
-        public BaseRepository(AuthenticationInformation authenticationInformation)
+        public CommonRepository(IFlickrElement xmlElement, 
+            AuthenticationInformation authenticationInformation) 
+            : this(xmlElement)
         {
             flickrSettingsProvider = new AuthenticationInformationFlickrSettingsProvider(authenticationInformation);
-            LoadBase();
         }
 
-        public BaseRepository(Type intefaceType)
+        public CommonRepository(IFlickrElement xmlElement, Type intefaceType) : this(xmlElement)
         {
-            flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
-            LoadBaseAndAttemptToRefreshExternalMethodList(intefaceType);
+            Initailize(intefaceType);
         }
 
-        public BaseRepository(AuthenticationInformation authenticationInformation, Type interfaceType)
+        public CommonRepository(IFlickrElement xmlElement, 
+            AuthenticationInformation authenticationInformation, 
+            Type interfaceType) : this (xmlElement)
         {
             flickrSettingsProvider = new AuthenticationInformationFlickrSettingsProvider(authenticationInformation);
-            LoadBaseAndAttemptToRefreshExternalMethodList(interfaceType);
+            Initailize(interfaceType);
         }
 
-        private void LoadBase()
+        private void Initailize(Type @interface)
         {
             try
             {
-
                 LoadFromConfig();
-                Type myInterfaceType = typeof(IRepositoryBase);
-                myInterfaceType.RefreshExternalMethodList();
+                @interface.UpdateEndpointNames();
             }
             catch (Exception ex)
             {
                 throw new Exception("Error initializing Base", ex);
             }
         }
-
-        private void LoadBaseAndAttemptToRefreshExternalMethodList(Type intefaceType)
-        {
-            try
-            {
-                LoadBase();
-                intefaceType.RefreshExternalMethodList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
 
         private void LoadFromConfig()
         {
@@ -150,7 +137,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                var element = GetElement(requestUrl);
+                var element = xmlElement.GetResponseElement(requestUrl);
                 frob = element.Element("frob").InnerText ?? string.Empty;
                 return frob;
             }
@@ -180,7 +167,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                XmlElement tokenElement = GetElement(requestUrl);
+                XmlElement tokenElement =  xmlElement.GetResponseElement(requestUrl);
 
                 return GetAToken(tokenElement);
             }
@@ -265,7 +252,7 @@ namespace Linq.Flickr.Repository
 
             try
             {
-                XmlElement element = GetElement(requestUrl);
+                XmlElement element = xmlElement.GetResponseElement(requestUrl);
                 nsId = element.Element("user").Attribute("nsid").Value;
             }
             catch (Exception ex)
@@ -283,6 +270,8 @@ namespace Linq.Flickr.Repository
 
         protected string flickrApiKey = string.Empty;
         protected string sharedSecret = string.Empty;
- 
+
+        private IFlickrElement xmlElement;
+        private IFlickrSettingsProvider flickrSettingsProvider;
     }
 }

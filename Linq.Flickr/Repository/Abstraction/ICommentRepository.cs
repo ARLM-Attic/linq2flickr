@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using Linq.Flickr.Attribute;
 
-namespace Linq.Flickr.Interface
+namespace Linq.Flickr.Repository.Abstraction
 {
-    public interface IComment : IDisposable
+    public interface ICommentRepository : IDisposable
     {
         // comment 
         [FlickrMethod("flickr.photos.comments.getList")]
@@ -15,6 +15,8 @@ namespace Linq.Flickr.Interface
         string AddComment(string photoId, string text);
         [FlickrMethod("flickr.photos.comments.deleteComment")]
         bool DeleteComment(string commentId);
+        [FlickrMethod("flickr.photos.comments.editComment")]
+        bool EditComment(string photoId, string text);
         
     }
 }

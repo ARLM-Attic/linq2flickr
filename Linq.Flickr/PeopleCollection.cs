@@ -4,24 +4,23 @@ using System.Linq;
 using System.Text;
 using Linq.Flickr.Authentication;
 using LinqExtender;
-using Linq.Flickr.Interface;
+using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Repository;
 
 namespace Linq.Flickr
 {
-    public class PeopleQuery : Query<People>
+    public class PeopleCollection : Query<People>
     {
-
         private readonly IRepositoryFactory repositoryFactory;
 
-        public PeopleQuery()
+        public PeopleCollection()
         {
             repositoryFactory = new DefaultRepositoryFactory();
         }
 
-        public PeopleQuery(AuthenticationInformation authenticationInformation)
+        public PeopleCollection(AuthenticationInformation authenticationInformation)
         {
-            repositoryFactory = new AuthenticationInformationRepositoryFactory(authenticationInformation);
+            repositoryFactory = new AuthInfoRepository(authenticationInformation);
         }
 
         protected override bool AddItem()

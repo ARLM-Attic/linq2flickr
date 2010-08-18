@@ -5,6 +5,7 @@ using System.Xml;
 using System.Reflection;
 using Linq.Flickr.Attribute;
 using Linq.Flickr.Proxies;
+using Linq.Flickr.Repository.Abstraction;
 
 namespace Linq.Flickr
 {
@@ -12,11 +13,12 @@ namespace Linq.Flickr
     /// Used for creating IEnumerable<typeparamref name="T"/> result from REST response.
     /// </summary>
     /// <typeparam name="T">IDisposable</typeparam>
-    public class CollectionBuilder<T> : XmlElementProxy
+    public class CollectionBuilder<T>
     {
         public CollectionBuilder()
         {
             _object = Activator.CreateInstance<T>();
+            elementProxy = new FlickrElementProxy(new WebRequestProxy());
         }
         /// <summary>
         /// takes a root element , used if any attribute values need to be copied into all decendant nodes.
@@ -73,7 +75,7 @@ namespace Linq.Flickr
 
         public IEnumerable<T> ToCollection(string requestUrl, ItemChangeHandler OnItemChange)
         {
-            XmlElement element = base.GetElement(requestUrl);
+            XmlElement element = elementProxy.GetResponseElement(requestUrl);
             return ToCollection(element, OnItemChange);
         }
 
@@ -242,5 +244,7 @@ namespace Linq.Flickr
             public string InnerPropertyName{ get; set;}
             public string ObjectFullName { get; set;}
         }
+
+        private IFlickrElement elementProxy;
     }
 }

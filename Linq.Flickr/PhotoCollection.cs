@@ -3,44 +3,37 @@ using System.Collections.Specialized;
 using LinqExtender.Attribute;
 using LinqExtender.Interface;
 using LinqExtender;
-using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
 using Linq.Flickr.Authentication;
-using Linq.Flickr.Abstraction;
-using Linq.Flickr.Proxies;
+using Linq.Flickr.Repository.Abstraction;
 
 namespace Linq.Flickr
 {
-    public class PhotoQuery : Query<Photo>
+    public class PhotoCollection : Query<Photo>
     {
-        private IRepositoryFactory repositoryFactory;
-
-        private People people;
-        private CommentQuery commentQuery;
-
-        public PhotoQuery()
+        public PhotoCollection(IFlickrElement elementProxy)
         {
+            this.elementProxy = elementProxy;
             repositoryFactory = new DefaultRepositoryFactory();
         }
 
-        public PhotoQuery(AuthenticationInformation authenticationInformation)
+        public PhotoCollection(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+            :this(elementProxy)
         {
-            repositoryFactory = new AuthenticationInformationRepositoryFactory(authenticationInformation);
+            repositoryFactory = new AuthInfoRepository(authenticationInformation);
         }
 
         // Comments can not stay alone, it is a part of photo.
-        public CommentQuery Comments
+        public CommentCollection Comments
         {
             get
             {
-                IWebRequest webRequest = new WebRequestProxy();
-
-                if (commentQuery == null)
+                if (commentCollection == null)
                 {
-                    commentQuery = new CommentQuery(new HttpRequestProxy(webRequest));
+                    commentCollection = new CommentCollection(elementProxy);
                 }
 
-                return commentQuery;
+                return commentCollection;
             }
         }
 
@@ -53,7 +46,7 @@ namespace Linq.Flickr
             Photo photo = null;
             using (IAuthRepository authRepository = repositoryFactory.CreateAuthRepository())
             {
-                AuthToken token = GetToken(viewMode, authRepository);
+                GenerateToken(viewMode, authRepository);
            
                 if (Bucket.Instance.For.Item(PhotoColumns.ID).Value != null)
                 {
@@ -102,7 +95,7 @@ namespace Linq.Flickr
                     throw new Exception("Zero photo length detected, please key in a valid photo file");
 
                 // check if the user has any storage.
-                int kbTobUploaded = (int) Math.Ceiling((float) (postContnet.Length/1024f));
+                int kbTobUploaded = (int) Math.Ceiling((postContnet.Length/1024f));
                 if (people.BandWidth != null)
                 {
                     int currentByte = people.BandWidth.UsedKb + kbTobUploaded;
@@ -237,7 +230,7 @@ namespace Linq.Flickr
                 {
                     using (IAuthRepository authRepository = repositoryFactory.CreateAuthRepository())
                     {
-                        AuthToken token = GetToken(viewMode, authRepository);
+                        GenerateToken(viewMode, authRepository);
                         Photo photo = flickr.GetPhotoDetail((string) Bucket.Instance.For.Item(PhotoColumns.ID).Value,
                                                             size);
 
@@ -256,7 +249,7 @@ namespace Linq.Flickr
                 {
                     using (IAuthRepository authRepository = repositoryFactory.CreateAuthRepository())
                     {
-                        AuthToken token = GetToken(viewMode, authRepository);
+                        AuthToken token = GenerateToken(viewMode, authRepository);
                         items.AddRange(flickr.Search(index, itemsToTake, size, token == null ? string.Empty : token.Id,
                                                      ProcessSearchQuery(flickr, viewMode)));
                     }
@@ -264,7 +257,7 @@ namespace Linq.Flickr
            }
         }
 
-        private AuthToken GetToken(ViewMode viewMode, IAuthRepository flickr)
+        private AuthToken GenerateToken(ViewMode viewMode, IAuthRepository flickr)
         {
             bool authenticate = false;
             AuthToken token = null;
@@ -394,6 +387,12 @@ namespace Linq.Flickr
             }
             return "relevance";
         }
+
+        private IRepositoryFactory repositoryFactory;
+
+        private People people;
+        private CommentCollection commentCollection;
+        private IFlickrElement elementProxy;
     }
  }
 

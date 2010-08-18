@@ -1,22 +1,45 @@
-using System;
+using Linq.Flickr.Repository.Abstraction;
 
 namespace Linq.Flickr
 {
     public class DefaultQueryFactory : IQueryFactory
     {
-        public TagQuery CreateTagQuery()
+        /// <summary>
+        /// Initializes a new instance of  <see cref="DefaultQueryFactory"/> class.
+        /// </summary>
+        /// <param name="elementProxy"></param>
+        public DefaultQueryFactory(IFlickrElement elementProxy)
         {
-            return new TagQuery();
+            this.elementProxy = elementProxy;
         }
 
-        public PeopleQuery CreatePeopleQuery()
+        /// <summary>
+        /// Creates the tag query entry point.
+        /// </summary>
+        /// <returns></returns>
+        public TagCollection CreateTagQuery()
         {
-            return new PeopleQuery();
+            return new TagCollection();
         }
 
-        public PhotoQuery CreatePhotoQuery()
+        /// <summary>
+        /// Creates people query entry point
+        /// </summary>
+        /// <returns></returns>
+        public PeopleCollection CreatePeopleQuery()
         {
-            return new PhotoQuery();
+            return new PeopleCollection();
         }
+
+        /// <summary>
+        /// Creates photo query entry point.
+        /// </summary>
+        /// <returns></returns>
+        public PhotoCollection CreatePhotoQuery()
+        {
+            return new PhotoCollection(elementProxy);
+        }
+
+        private IFlickrElement elementProxy;
     }
 }

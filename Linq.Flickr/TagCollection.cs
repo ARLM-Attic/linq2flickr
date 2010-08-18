@@ -1,30 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Linq.Flickr.Authentication;
 using LinqExtender;
-using Linq.Flickr.Interface;
+using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Repository;
-using System.Collections;
 
 namespace Linq.Flickr
 {
     /// <summary>
     /// Depends on photo or gets list of popular tags.
     /// </summary>
-    public class TagQuery : Query<Tag>
+    public class TagCollection : Query<Tag>
     {
         private IRepositoryFactory repositoryFactory;
 
-        public TagQuery()
+        public TagCollection()
         {
             repositoryFactory = new DefaultRepositoryFactory();
         }
 
-        public TagQuery(AuthenticationInformation authenticationInformation)
+        public TagCollection(AuthenticationInformation authenticationInformation)
         {
-            repositoryFactory = new AuthenticationInformationRepositoryFactory(authenticationInformation);
+            repositoryFactory = new AuthInfoRepository(authenticationInformation);
         }
 
         protected override bool AddItem()

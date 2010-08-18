@@ -2,10 +2,10 @@ namespace Linq.Flickr
 {
     public interface IQueryFactory
     {
-        TagQuery CreateTagQuery();
+        TagCollection CreateTagQuery();
 
-        PeopleQuery CreatePeopleQuery();
+        PeopleCollection CreatePeopleQuery();
 
-        PhotoQuery CreatePhotoQuery();
+        PhotoCollection CreatePhotoQuery();
     }
 }

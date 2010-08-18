@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using LinqExtender;
-using Linq.Flickr.Interface;
 using Linq.Flickr.Repository;
-using Linq.Flickr.Abstraction;
+using Linq.Flickr.Repository.Abstraction;
 
 namespace Linq.Flickr
 {
-    public class CommentQuery : Query<Comment>
+    public class CommentCollection : Query<Comment>
     {
-        public CommentQuery(IHttpRequest httpRequest)
+        public CommentCollection(IFlickrElement elementProxy)
         {
-            this.httpRequest = httpRequest;
+            this.elementProxy = elementProxy;
         }
 
         protected override bool AddItem()
@@ -30,7 +29,7 @@ namespace Linq.Flickr
                 throw new Exception("Must have some text for the comment");
             }
 
-            using (ICommentRepository commentRepositoryRepo = new CommentRepository(httpRequest))
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository(elementProxy))
             {
                 string commentId = commentRepositoryRepo.AddComment(photoId, text);
                 // set the id.
@@ -51,7 +50,7 @@ namespace Linq.Flickr
             if (string.IsNullOrEmpty(text))
                 throw new Exception("Blank comment is not allowed");
 
-            using (ICommentRepository commentRepositoryRepo = new CommentRepository(httpRequest))
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository(elementProxy))
             {
                 return commentRepositoryRepo.EditComment(commentId, text); 
             }
@@ -65,7 +64,7 @@ namespace Linq.Flickr
             {
                 throw new Exception("Must provide a comment_id");
             }
-            using (ICommentRepository commentRepositoryRepo = new CommentRepository(httpRequest))
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository(elementProxy))
             {
                 return commentRepositoryRepo.DeleteComment(commentId);
             }
@@ -80,7 +79,7 @@ namespace Linq.Flickr
 
         protected override void Process(LinqExtender.Interface.IModify<Comment> items)
         {
-            using (ICommentRepository commentRepositoryRepo = new CommentRepository(httpRequest))
+            using (ICommentRepository commentRepositoryRepo = new CommentRepository(elementProxy))
             {
                 string photoId = (string) Bucket.Instance.For.Item(CommentColumns.PhotoId).Value;
                 string commentId = (string)Bucket.Instance.For.Item(CommentColumns.Id).Value;
@@ -118,6 +117,6 @@ namespace Linq.Flickr
             }
         }
 
-        private IHttpRequest httpRequest;
+        private IFlickrElement elementProxy;
     }
 }

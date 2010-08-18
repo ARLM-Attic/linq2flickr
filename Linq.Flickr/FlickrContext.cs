@@ -1,7 +1,8 @@
 ﻿using System;
-using Linq.Flickr.Interface;
+using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Repository;
 using Linq.Flickr.Authentication;
+using Linq.Flickr.Proxies;
 
 namespace Linq.Flickr
 {
@@ -13,20 +14,24 @@ namespace Linq.Flickr
     {
         private readonly AuthenticationInformation authenticationInformation;
         private readonly IQueryFactory queryFactory;
+        private IFlickrElement elementProxy;
 
         public FlickrContext()
         {
             authenticationInformation = null;
-            queryFactory = new DefaultQueryFactory();
+            elementProxy = new FlickrElementProxy(new WebRequestProxy());
+            
+            // creates the query entry point.
+            queryFactory = new DefaultQueryFactory(elementProxy);
         }
 
         public FlickrContext(AuthenticationInformation authenticationInformation)
         {
             this.authenticationInformation = authenticationInformation;
-            queryFactory = new AuthenticationInformationQueryFactory(authenticationInformation);
+            queryFactory = new AuthQueryFactory(elementProxy, authenticationInformation);
         }
 
-        public PhotoQuery Photos
+        public PhotoCollection Photos
         {
             get
             {
@@ -36,7 +41,7 @@ namespace Linq.Flickr
             }
         }
 
-        public TagQuery Tags
+        public TagCollection Tags
         {
             get
             {
@@ -49,7 +54,7 @@ namespace Linq.Flickr
             }
         }
 
-        public PeopleQuery Peoples
+        public PeopleCollection Peoples
         {
             get
             {
@@ -112,23 +117,24 @@ namespace Linq.Flickr
             photos.Comments.SubmitChanges();
         }
 
-        private PhotoQuery photos;
-        private TagQuery tags;
-        private PeopleQuery peoples;
-
         private IAuthRepository CreateNewAuthRepository()
         {
             IAuthRepository authRepository;
             if (authenticationInformation != null)
                 authRepository = CreateAuthRepositoryWithProvidedAuthenticationInformation();
             else
-                authRepository = new AuthRepository();
+                authRepository = new AuthRepository(elementProxy);
             return authRepository;
         }
 
         private AuthRepository CreateAuthRepositoryWithProvidedAuthenticationInformation()
         {
-            return new AuthRepository(authenticationInformation);
+            return new AuthRepository(elementProxy, authenticationInformation);
         }
+
+
+        private PhotoCollection photos;
+        private TagCollection tags;
+        private PeopleCollection peoples;
     }
 }

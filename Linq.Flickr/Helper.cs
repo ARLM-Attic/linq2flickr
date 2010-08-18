@@ -107,7 +107,7 @@ namespace Linq.Flickr
             return string.Join(",", list.ToArray()).ToLower();
         }
 
-        internal static void RefreshExternalMethodList(this Type interfaceType)
+        internal static void UpdateEndpointNames(this Type interfaceType)
         {
             // not yet initialized for a particular interface type.
             if (!_interfaceList.ContainsKey(interfaceType.FullName))

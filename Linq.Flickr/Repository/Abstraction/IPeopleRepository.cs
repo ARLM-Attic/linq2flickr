@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Linq.Flickr.Attribute;
 
-namespace Linq.Flickr.Interface
+namespace Linq.Flickr.Repository.Abstraction
 {
     public interface IPeopleRepository : IDisposable
     {

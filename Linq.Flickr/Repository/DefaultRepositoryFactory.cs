@@ -1,44 +1,44 @@
-﻿using Linq.Flickr;
-using Linq.Flickr.Interface;
+﻿using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Proxies;
+using Linq.Flickr.Repository.Abstraction;
 
 namespace Linq.Flickr.Repository
 {
     public class DefaultRepositoryFactory : IRepositoryFactory
     {
-        private HttpRequestProxy httpRequest;
+        private IFlickrElement elementProxy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultRepositoryFactory"/> class.
         /// </summary>
         public DefaultRepositoryFactory()
         {
-            this.httpRequest = new HttpRequestProxy(new WebRequestProxy());
+            this.elementProxy = new FlickrElementProxy(new WebRequestProxy());
         }
 
         public IAuthRepository CreateAuthRepository()
         {
-            return new AuthRepository();
+            return new AuthRepository(elementProxy);
         }
 
         public ICommentRepository CreateCommentRepository()
         {
-            return new CommentRepository(this.httpRequest);
+            return new CommentRepository(this.elementProxy);
         }
 
         public IPeopleRepository CreatePeopleRepository()
         {
-            return new PeopleRepository();
+            return new PeopleRepository(elementProxy);
         }
 
         public ITagRepository CreateTagRepository()
         {
-            return new TagRepository(this.httpRequest);
+            return new TagRepository(elementProxy);
         }
 
         public IPhotoRepository CreatePhotoRepository()
         {
-            return new PhotoRepository(this.httpRequest);
+            return new PhotoRepository(elementProxy);
         }
     }
 }
