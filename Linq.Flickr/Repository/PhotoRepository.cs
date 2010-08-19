@@ -121,7 +121,7 @@ namespace Linq.Flickr.Repository
 
         string IPhotoRepository.GetSizedPhotoUrl(string id, PhotoSize size)
         {
-            if (PhotoSize == PhotoSize.Original)
+            if (size == PhotoSize.Original)
             {
                 string method = Helper.GetExternalMethodName();
                 string requestUrl = BuildUrl(method, "photo_id", id);
@@ -190,6 +190,7 @@ namespace Linq.Flickr.Repository
         }
  
         #region PhotoGetBlock
+        
         private IEnumerable<Photo> GetPhotos(string requestUrl, PhotoSize size)
         {
             XmlElement doc = elementProxy.GetResponseElement(requestUrl);
