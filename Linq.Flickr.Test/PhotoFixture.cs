@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using Linq.Flickr.Repository.Abstraction;
 using Linq.Flickr.Repository;
-using Telerik.JustMock;
+using Moq;
 using System.Xml;
 using System.Reflection;
 using System.Collections.Generic;
@@ -18,37 +18,35 @@ namespace Linq.Flickr.Test
             string targetUrl = string.Format(flickrUrl, "flickr.interestingness.getList", "abc");
             targetUrl += "&page=0&per_page=10";
 
-            var proxy = Mock.Create<IFlickrElement>();
+            var proxyMock = new Mock<IFlickrElement>();
 
-            Mock.Arrange(() => proxy.GetResponseElement(targetUrl))
-                .Returns((string url) => ReadResource(url))
-                .MustBeCalled();
-
-            IPhotoRepository repository = new PhotoRepository(proxy);
+            proxyMock.Setup(x => x.GetResponseElement(targetUrl))
+                .Returns((string url) => ReadResource(url)).Verifiable();
+                
+            IPhotoRepository repository = new PhotoRepository(proxyMock.Object);
 
             // act
             repository.GetMostInteresting(0, 10, PhotoSize.Medium);
 
-            Mock.Assert(proxy);
+            proxyMock.VerifyAll();
         }
 
         [Test]
         public void ShouldAssertGetSizesWhenOriginalSizeIsSpecifiedForPhotoGet()
         {
-            var proxy = Mock.Create<IFlickrElement>();
+            var proxyMock = new Mock<IFlickrElement>();
 
-            Mock.Arrange(() => proxy.GetResponseElement(Arg.AnyString))
-                .Returns((string url) => ReadResource(url));
+            proxyMock.Setup(x => x.GetResponseElement(It.IsAny<string>())).Returns(
+                (string url) => ReadResource(url));
 
-            IPhotoRepository repository = new PhotoRepository(proxy);
+            IPhotoRepository repository = new PhotoRepository(proxyMock.Object);
 
             // act
             var photos = repository.GetMostInteresting(0, 10, PhotoSize.Original);
 
             Assert.AreEqual(4, photos.Count);
 
-            // according to xml data.
-            Mock.Assert(() => proxy.GetResponseElement(Arg.AnyString), Occurs.Exactly(5));
+            proxyMock.Verify(x => x.GetResponseElement(It.IsAny<string>()), Times.Exactly(5));
         }
 
 
@@ -56,7 +54,6 @@ namespace Linq.Flickr.Test
         {
             if (!string.IsNullOrEmpty(url))
             {
-
                 string @namespace = this.GetType().Namespace;
 
                 string methodName = url.Split('?')[1].Split('&')[0].Split('=')[1];
@@ -69,7 +66,6 @@ namespace Linq.Flickr.Test
                     {
                         cache[fileName] = new StreamReader(stream).ReadToEnd();
                     }
-
                 }
 
                 XmlDocument doc = new XmlDocument();
