@@ -183,7 +183,7 @@ namespace Linq.Flickr.Repository
 
             if (index < 1 || index > 500)
             {
-                throw new Exception("Index must be between 1 and 500");
+                throw new FlickrException("Index must be between 1 and 500");
             }
 
             return GetPhotos(requestUrl, photoSize);

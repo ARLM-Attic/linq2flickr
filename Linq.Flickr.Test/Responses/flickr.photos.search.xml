@@ -1,0 +1,15 @@
+﻿
+<rsp stat="ok">
+  <photos page="1" pages="39" perpage="10" total="387">
+    <photo id="5098977234" owner="38748066@N02" secret="739237c389" server="1064" farm="2" title="Lady at work" ispublic="1" isfriend="0" isfamily="0" tags="camera macbook" views="33" dateupload="1287554141" datetaken="2010-10-10 20:21:51" datetakengranularity="0" />
+    <photo id="5093300836" owner="89965251@N00" secret="7b33f57673" server="4130" farm="5" title="Macbook Pro" ispublic="1" isfriend="0" isfamily="0" tags="apple mbp macbookpro mackbook" views="38" dateupload="1287404011" datetaken="2010-10-18 20:30:24" datetakengranularity="0" />
+    <photo id="5092857184" owner="7191700@N04" secret="f60d07f7be" server="4112" farm="5" title="The Power of the Book." ispublic="1" isfriend="0" isfamily="0" tags="edgeradio cbaa2010 cbloggers" views="2" dateupload="1287388028" datetaken="2010-10-18 18:31:25" datetakengranularity="0" />
+    <photo id="5067931328" owner="52434915@N08" secret="c2a5f0ec02" server="4152" farm="5" title="Mackbook-pro" ispublic="1" isfriend="0" isfamily="0" tags="" views="0" dateupload="1286718762" datetaken="2010-10-05 08:49:30" datetakengranularity="0" />
+    <photo id="5058795060" owner="25555287@N04" secret="873e0854b7" server="4089" farm="5" title="2:30am" ispublic="1" isfriend="0" isfamily="0" tags="apple headphones colorsplash auriculares iphone mackbook" views="374" dateupload="1286413957" datetaken="2010-10-07 03:11:32" datetakengranularity="0" />
+    <photo id="5051642052" owner="26704878@N07" secret="b57fdb3658" server="4113" farm="5" title="colorwarepc mackbook colour selection" ispublic="1" isfriend="0" isfamily="0" tags="" views="0" dateupload="1286210033" datetaken="2010-10-04 09:33:53" datetakengranularity="0" />
+    <photo id="5051642680" owner="26704878@N07" secret="af8de15459" server="4091" farm="5" title="colorwarepc mackbook color list" ispublic="1" isfriend="0" isfamily="0" tags="" views="0" dateupload="1286210045" datetaken="2010-10-04 09:34:05" datetakengranularity="0" />
+    <photo id="5042321803" owner="40046087@N08" secret="96eaa824b5" server="4107" farm="5" title="Favorite Pastime" ispublic="1" isfriend="0" isfamily="0" tags="music favorite coffee photo flickr turkish pastime 35mmf18 mackbook nikond40" views="44" dateupload="1285971001" datetaken="2010-10-01 13:56:08" datetakengranularity="0" />
+    <photo id="5036850911" owner="53434288@N06" secret="1ef396a454" server="4127" farm="5" title="ModelosMacbook" ispublic="1" isfriend="0" isfamily="0" tags="apple laptop mackbook" views="20" dateupload="1285795672" datetaken="2010-09-29 16:27:52" datetakengranularity="0" />
+    <photo id="5023902467" owner="54286964@N06" secret="c177cc74ef" server="4146" farm="5" title="escritorio mackero" ispublic="1" isfriend="0" isfamily="0" tags="blaupunkt" views="404" dateupload="1285457306" datetaken="2010-09-25 19:57:07" datetakengranularity="0" />
+  </photos>
+</rsp>

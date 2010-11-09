@@ -353,7 +353,8 @@ namespace Linq.Flickr
         internal bool IsFriend { get; set; }
         [XAttribute("isfamily")]
         internal bool IsFamily { get; set; }
- 
+        [XAttribute("views")]
+        public int Views { get; internal set; }
 
         internal byte[] GetBytesFromPhysicalFile()
         {
@@ -489,8 +490,6 @@ namespace Linq.Flickr
     {
         [XAttribute("license")]
         public string License { get; internal set; }
-        [XAttribute("views")]
-        public int Views { get; internal set; }
         [XAttribute("ownername")]
         public string OwnerName { get; internal set; }
         [XAttribute("media")]

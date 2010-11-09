@@ -12,6 +12,12 @@ namespace Linq.Flickr
     {
         public FlickrException(string code, string message) :
             base("Error code: " + code + " Message: " + message)
-        { }
+        { 
+        }
+
+        public FlickrException(string message) : base(message)
+        {
+            //intentionally left blank.
+        }
     }
 }

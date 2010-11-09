@@ -36,3 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.4.2.1")]
 [assembly: AssemblyFileVersion("1.4.2.1")]
 [assembly: CLSCompliant(true)]
+[assembly:InternalsVisibleTo("Linq.Flickr.Test")]
