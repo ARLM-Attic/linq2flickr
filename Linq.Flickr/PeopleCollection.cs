@@ -18,7 +18,7 @@ namespace Linq.Flickr
             repositoryFactory = new DefaultRepositoryFactory();
         }
 
-        public PeopleCollection(AuthenticationInformation authenticationInformation)
+        public PeopleCollection(AuthInfo authenticationInformation)
         {
             repositoryFactory = new AuthInfoRepository(authenticationInformation);
         }

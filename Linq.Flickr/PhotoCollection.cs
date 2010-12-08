@@ -17,7 +17,7 @@ namespace Linq.Flickr
             repositoryFactory = new DefaultRepositoryFactory();
         }
 
-        public PhotoCollection(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+        public PhotoCollection(IFlickrElement elementProxy, AuthInfo authenticationInformation)
             :this(elementProxy)
         {
             repositoryFactory = new AuthInfoRepository(authenticationInformation);

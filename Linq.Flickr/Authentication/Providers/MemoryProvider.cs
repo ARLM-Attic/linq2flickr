@@ -3,9 +3,9 @@ namespace Linq.Flickr.Authentication.Providers
 {
     public class MemoryProvider : AuthenticaitonProvider
     {
-        private readonly AuthenticationInformation authenticationInformation;
+        private readonly AuthInfo authenticationInformation;
 
-        public MemoryProvider(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+        public MemoryProvider(IFlickrElement elementProxy, AuthInfo authenticationInformation)
             : base(elementProxy, authenticationInformation)
         {
             this.authenticationInformation = authenticationInformation;

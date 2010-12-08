@@ -6,7 +6,14 @@ namespace Linq.Flickr.Configuration
     {
         public FlickrSettings GetCurrentFlickrSettings()
         {
-            return (FlickrSettings)ConfigurationManager.GetSection("flickr");
+            if (settings == null)
+            {
+                settings = (FlickrSettings)ConfigurationManager.GetSection("flickr");
+            }
+
+            return settings;
         }
+
+        private FlickrSettings settings;
     }
 }

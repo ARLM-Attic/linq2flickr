@@ -18,8 +18,8 @@ namespace Linq.Flickr.Authentication.Providers
         public DesktopProvider(IFlickrElement elementProxy) : base(elementProxy)
         {
             this.elementProxy = elementProxy;
-            flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
         }
+
         public override bool SaveToken(string permission)
         {
             IRepositoryBase repositoryBase = new CommonRepository(elementProxy);
@@ -28,11 +28,11 @@ namespace Linq.Flickr.Authentication.Providers
             {
                 const string method = "flickr.auth.getToken";
                 string frob = repositoryBase.GetFrob();
+                string apiKey = Provider.GetCurrentFlickrSettings().ApiKey;
 
-                string apiKey = flickrSettingsProvider.GetCurrentFlickrSettings().ApiKey;
                 string authSig = repositoryBase.GetSignature(string.Empty, false, "perms", permission, "frob", frob);
 
-                StringBuilder builder = new StringBuilder(Helper.AUTH_URL + "?api_key=" + apiKey);
+                StringBuilder builder = new StringBuilder(String.Format("{0}?api_key={1}", Helper.AUTH_URL, apiKey));
 
                 builder.Append("&perms=" + permission);
                 builder.Append("&frob=" + frob);
@@ -165,7 +165,6 @@ namespace Linq.Flickr.Authentication.Providers
         }
 
         private readonly string baseDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
-        private IFlickrSettingsProvider flickrSettingsProvider;
         private IFlickrElement elementProxy;
 
     }

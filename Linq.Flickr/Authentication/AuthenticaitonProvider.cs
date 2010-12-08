@@ -9,7 +9,7 @@ namespace Linq.Flickr.Authentication
         {
         }
 
-        public AuthenticaitonProvider(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+        public AuthenticaitonProvider(IFlickrElement elementProxy, AuthInfo authenticationInformation)
             : base (elementProxy, authenticationInformation)
         {
         }

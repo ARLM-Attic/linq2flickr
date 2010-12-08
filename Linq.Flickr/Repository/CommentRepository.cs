@@ -13,7 +13,7 @@ namespace Linq.Flickr.Repository
             authRepo = new AuthRepository(elementProxy);
         }
 
-        public CommentRepository(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+        public CommentRepository(IFlickrElement elementProxy, AuthInfo authenticationInformation)
             : base (elementProxy, authenticationInformation, typeof(ICommentRepository))
         {
             this.elementProxy = elementProxy;

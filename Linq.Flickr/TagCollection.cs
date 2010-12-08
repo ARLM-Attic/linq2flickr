@@ -20,7 +20,7 @@ namespace Linq.Flickr
             repositoryFactory = new DefaultRepositoryFactory();
         }
 
-        public TagCollection(AuthenticationInformation authenticationInformation)
+        public TagCollection(AuthInfo authenticationInformation)
         {
             repositoryFactory = new AuthInfoRepository(authenticationInformation);
         }

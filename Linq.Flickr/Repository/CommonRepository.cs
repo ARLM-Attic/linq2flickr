@@ -11,57 +11,82 @@ namespace Linq.Flickr.Repository
     public class CommonRepository : IRepositoryBase
     {
         /// <summary>
-        /// Initailizes a new instance of <see cref="BaseRepository"/> class.
+        /// Initailizes a new instance of <see cref="CommonRepository"/> class.
         /// </summary>
-        /// <param name="xmlElement"></param>
-        public CommonRepository(IFlickrElement xmlElement)
+        public CommonRepository(IFlickrSettingsProvider provider)
+        {
+            this.flickrProvider = provider;
+            var settings = provider.GetCurrentFlickrSettings();
+
+            this.apiKey = settings.ApiKey;
+            this.sharedSecret = settings.SecretKey;
+        }
+
+        /// <summary>
+        /// Initailizes a new instance of <see cref="CommonRepository"/> class.
+        /// </summary>
+        public CommonRepository(IFlickrElement xmlElement): this(new ConfigurationFileFlickrSettingsProvider())
         {
             this.xmlElement = xmlElement;
-            flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
-            Initailize(typeof(IRepositoryBase));
+            typeof(IRepositoryBase).UpdateEndpointNames();
         }
 
-        public CommonRepository(IFlickrElement xmlElement, 
-            AuthenticationInformation authenticationInformation) 
-            : this(xmlElement)
+        /// <summary>
+        /// Initailizes a new instance of <see cref="CommonRepository"/> class.
+        /// </summary>
+        public CommonRepository(IFlickrElement xmlElement, IFlickrSettingsProvider authInfo) : this(authInfo)
         {
-            flickrSettingsProvider = new AuthenticationInformationFlickrSettingsProvider(authenticationInformation);
+            this.xmlElement = xmlElement;
+            typeof(IRepositoryBase).UpdateEndpointNames();
         }
 
-        public CommonRepository(IFlickrElement xmlElement, Type intefaceType) : this(xmlElement)
+        /// <summary>
+        /// Initailizes a new instance of <see cref="CommonRepository"/> class.
+        /// </summary>
+        public CommonRepository(IFlickrElement xmlElement, Type intefaceType, IFlickrSettingsProvider provider) : this(xmlElement, provider)
         {
-            Initailize(intefaceType);
+            intefaceType.UpdateEndpointNames();
         }
 
-        public CommonRepository(IFlickrElement xmlElement, 
-            AuthenticationInformation authenticationInformation, 
-            Type interfaceType) : this (xmlElement)
+        /// <summary>
+        /// Initailizes a new instance of <see cref="CommonRepository"/> class.
+        /// </summary>
+        public CommonRepository(IFlickrElement xmlElement, AuthInfo authInfo)
+            : this(xmlElement, new AuthenticationInformationFlickrSettingsProvider(authInfo))
         {
-            flickrSettingsProvider = new AuthenticationInformationFlickrSettingsProvider(authenticationInformation);
-            Initailize(interfaceType);
+            //intentionally left blank
         }
 
-        private void Initailize(Type @interface)
+        /// <summary>
+        /// Initailizes a new instance of <see cref="CommonRepository"/> class.
+        /// </summary>
+        public CommonRepository(IFlickrElement xmlElement, Type interfaceType)
+            : this(xmlElement, interfaceType, new ConfigurationFileFlickrSettingsProvider())
         {
-            try
+            //intentionally left blank
+        }
+
+        /// <summary>
+        /// Initailizes a new instance of <see cref="CommonRepository"/> class.
+        /// </summary>
+        public CommonRepository(IFlickrElement xmlElement, AuthInfo authInfo, Type interfaceType) 
+            : this (xmlElement, interfaceType, new AuthenticationInformationFlickrSettingsProvider(authInfo))
+        {
+            //intentionally left blank
+        }
+
+
+        /// <summary>
+        /// Gets the current provider.
+        /// </summary>
+        public IFlickrSettingsProvider Provider
+        {
+            get
             {
-                LoadFromConfig();
-                @interface.UpdateEndpointNames();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error initializing Base", ex);
+                return flickrProvider;
             }
         }
-
-        private void LoadFromConfig()
-        {
-            // load the keys.
-            var flickrSettings = flickrSettingsProvider.GetCurrentFlickrSettings();
-            flickrApiKey = flickrSettings.ApiKey;
-            sharedSecret = flickrSettings.SecretKey;
-        }
-
+ 
         /// <summary>
         /// builds the url from passed in parameters.
         /// </summary>
@@ -76,7 +101,7 @@ namespace Linq.Flickr.Repository
         protected string BuildUrl(string functionName, IDictionary<string, string> dic, params object[] args)
         {
             dic.Add(Helper.BASE_URL + "?method", functionName);
-            dic.Add("api_key", flickrApiKey);
+            dic.Add("api_key", apiKey);
 
             ProcessArguments(args, dic);
 
@@ -86,7 +111,7 @@ namespace Linq.Flickr.Repository
         protected void AddHeader(string method, IDictionary<string, string> dictionary)
         {
             dictionary.Add(Helper.BASE_URL + "?method", method);
-            dictionary.Add("api_key", flickrApiKey);
+            dictionary.Add("api_key", apiKey);
         }
 
         protected static string GetUrl(IDictionary<string, string> urlDic)
@@ -212,7 +237,7 @@ namespace Linq.Flickr.Repository
                 sigItems.Add("method", methodName);
             }
             // add the api key
-            sigItems.Add("api_key", flickrApiKey);
+            sigItems.Add("api_key", apiKey);
 
             if (args.Length > 0)
             {
@@ -267,11 +292,13 @@ namespace Linq.Flickr.Repository
         {
             return GetNSIDInternal(method, field, value);
         }
+ 
 
-        protected string flickrApiKey = string.Empty;
-        protected string sharedSecret = string.Empty;
+        private string apiKey = string.Empty;
+        private string sharedSecret = string.Empty;
+
 
         private IFlickrElement xmlElement;
-        private IFlickrSettingsProvider flickrSettingsProvider;
+        private IFlickrSettingsProvider flickrProvider;
     }
 }

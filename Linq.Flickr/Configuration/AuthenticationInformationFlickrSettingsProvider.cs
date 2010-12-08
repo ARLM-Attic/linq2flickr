@@ -8,9 +8,9 @@ namespace Linq.Flickr.Configuration
 {
     public class AuthenticationInformationFlickrSettingsProvider : IFlickrSettingsProvider
     {
-        private readonly AuthenticationInformation authenticationInformation;
+        private readonly AuthInfo authenticationInformation;
 
-        public AuthenticationInformationFlickrSettingsProvider(AuthenticationInformation authenticationInformation)
+        internal AuthenticationInformationFlickrSettingsProvider(AuthInfo authenticationInformation)
         {
             this.authenticationInformation = authenticationInformation;
         }

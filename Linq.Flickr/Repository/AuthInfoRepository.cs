@@ -11,7 +11,7 @@ namespace Linq.Flickr.Repository
             this.elementProxy = new FlickrElementProxy();
         }
 
-        public AuthInfoRepository(AuthenticationInformation authenticationInformation)
+        public AuthInfoRepository(AuthInfo authenticationInformation) : this()
         {
             this.authenticationInformation = authenticationInformation;
         }
@@ -41,7 +41,7 @@ namespace Linq.Flickr.Repository
             return new PhotoRepository(this.elementProxy, authenticationInformation);
         }
 
-        private readonly AuthenticationInformation authenticationInformation;
+        private readonly AuthInfo authenticationInformation;
         private IFlickrElement elementProxy;
     }
 }

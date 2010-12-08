@@ -2,7 +2,7 @@
 
 namespace Linq.Flickr.Authentication
 {
-    public class AuthenticationInformation
+    public class AuthInfo
     {
         public AuthToken AuthToken { get; set; }
 

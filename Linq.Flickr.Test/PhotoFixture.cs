@@ -8,12 +8,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
+using Linq.Flickr.Authentication;
 
 namespace Linq.Flickr.Test
 {
     [TestFixture]
     public class PhotoFixture
     {
+        [Test]
+        public void ShouldBeAbleToReadSettingsFromConfig()
+        {
+            var proxyMock = new Mock<IFlickrElement>();
+            
+            var provider = new PhotoRepository(proxyMock.Object).Provider;
+
+            Assert.That(provider.GetCurrentFlickrSettings() != null);
+        }
+
         [Test]
         public void ShouldAssertRequestUrl()
         {

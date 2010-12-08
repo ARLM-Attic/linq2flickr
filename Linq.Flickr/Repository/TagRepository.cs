@@ -12,7 +12,7 @@ namespace Linq.Flickr.Repository
             this.elementProxy = elementProxy;
         }
 
-        public TagRepository(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation, IAuthRepository authRepository)
+        public TagRepository(IFlickrElement elementProxy, AuthInfo authenticationInformation, IAuthRepository authRepository)
             : base(elementProxy, authenticationInformation, typeof(ITagRepository))
         {
             this.elementProxy = elementProxy;

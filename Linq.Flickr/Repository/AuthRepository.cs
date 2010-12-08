@@ -7,19 +7,20 @@ using Linq.Flickr.Authentication.Providers;
 
 namespace Linq.Flickr.Repository
 {
+    /// <summary>
+    /// Authentication respository.
+    /// </summary>
     public class AuthRepository : CommonRepository, IAuthRepository
     {
         public AuthRepository(IFlickrElement elementProxy) : base(elementProxy, typeof(IAuthRepository))
         {
             this.elementProxy = elementProxy;
-            flickrSettingsProvider = new ConfigurationFileFlickrSettingsProvider();
         }
 
-        public AuthRepository(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+        public AuthRepository(IFlickrElement elementProxy, AuthInfo authenticationInformation)
             : base(elementProxy, authenticationInformation)
         {
             this.elementProxy = elementProxy;
-            flickrSettingsProvider = new AuthenticationInformationFlickrSettingsProvider(authenticationInformation);
             this.authenticationInformation = authenticationInformation;
         }
 
@@ -112,9 +113,8 @@ namespace Linq.Flickr.Repository
 
         private AuthenticaitonProvider GetTheDefaultProviderFromCurrentFlickrSettings()
         {
-            AuthProviderElement providerElement = flickrSettingsProvider.GetCurrentFlickrSettings().DefaultProvider;
-
-            return (AuthenticaitonProvider)Activator.CreateInstance(Type.GetType(providerElement.Type), null);
+            var providerElement = Provider.GetCurrentFlickrSettings().DefaultProvider;
+            return (AuthenticaitonProvider)Activator.CreateInstance(Type.GetType(providerElement.Type), new object[] {  elementProxy } );
         }
 
         private bool AuthenticationInformationWasProvidedManually()
@@ -122,8 +122,7 @@ namespace Linq.Flickr.Repository
             return authenticationInformation != null;
         }
 
-        private IFlickrSettingsProvider flickrSettingsProvider;
-        private AuthenticationInformation authenticationInformation;
+        private AuthInfo authenticationInformation;
         private IFlickrElement elementProxy;
     }
 }

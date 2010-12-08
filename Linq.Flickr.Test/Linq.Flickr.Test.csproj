@@ -104,7 +104,9 @@
     <EmbeddedResource Include="Responses\AddComment.xml" />
     <EmbeddedResource Include="Responses\Owner.xml" />
     <EmbeddedResource Include="Responses\GetFrob.xml" />
-    <EmbeddedResource Include="Responses\flickr.photos.search.xml" />
+    <EmbeddedResource Include="Responses\flickr.photos.search.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

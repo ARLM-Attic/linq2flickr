@@ -5,7 +5,7 @@ namespace Linq.Flickr
 {
     public class AuthQueryFactory : IQueryFactory
     {
-        public AuthQueryFactory(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation)
+        public AuthQueryFactory(IFlickrElement elementProxy, AuthInfo authenticationInformation)
         {
             this.elementProxy = elementProxy;
             this.authenticationInformation = authenticationInformation;
@@ -26,7 +26,7 @@ namespace Linq.Flickr
             return new PhotoCollection(elementProxy, authenticationInformation);
         }
 
-        private readonly AuthenticationInformation authenticationInformation;
+        private readonly AuthInfo authenticationInformation;
         private IFlickrElement elementProxy;
     }
 }

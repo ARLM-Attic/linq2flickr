@@ -7,28 +7,32 @@ using Linq.Flickr.Proxies;
 namespace Linq.Flickr
 {
     /// <summary>
-    /// Entry point for LINQ to Flickr query.
+    /// Entry point for querying flickr photos.
     /// </summary>
-    [Serializable]
     public class FlickrContext 
     {
-        private readonly AuthenticationInformation authenticationInformation;
-        private readonly IQueryFactory queryFactory;
-        private IFlickrElement elementProxy;
-
-        public FlickrContext()
+        /// <summary>
+        /// Initalizes a new instance of the <see cref="FlickrContext"/> class.
+        /// </summary>
+        public FlickrContext(IFlickrElement elementProxy)
         {
-            authenticationInformation = null;
-            elementProxy = new FlickrElementProxy(new WebRequestProxy());
-            
-            // creates the query entry point.
-            queryFactory = new DefaultQueryFactory(elementProxy);
+            this.elementProxy = elementProxy;
+            this.queryFactory = new DefaultQueryFactory(elementProxy);
         }
 
-        public FlickrContext(AuthenticationInformation authenticationInformation)
+        /// <summary>
+        /// Initalizes a new instance of the <see cref="FlickrContext"/> class.
+        /// </summary>
+        public FlickrContext(AuthInfo authInfo) : this(new FlickrElementProxy(new WebRequestProxy()))
         {
-            this.authenticationInformation = authenticationInformation;
-            queryFactory = new AuthQueryFactory(elementProxy, authenticationInformation);
+            this.queryFactory = new AuthQueryFactory(elementProxy, authInfo);
+        }
+
+        /// <summary>
+        /// Initalizes a new instance of the <see cref="FlickrContext"/> class.
+        /// </summary>
+        public FlickrContext(): this(new FlickrElementProxy(new WebRequestProxy()))
+        {
         }
 
         public PhotoCollection Photos
@@ -136,5 +140,9 @@ namespace Linq.Flickr
         private PhotoCollection photos;
         private TagCollection tags;
         private PeopleCollection peoples;
+
+        private readonly AuthInfo authenticationInformation;
+        private readonly IQueryFactory queryFactory;
+        private readonly IFlickrElement elementProxy;
     }
 }

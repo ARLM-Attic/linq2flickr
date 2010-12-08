@@ -11,17 +11,17 @@ using Linq.Flickr.Repository.Abstraction;
 namespace Linq.Flickr.Repository
 {
     /// <summary>
-    /// Covers flickr.photo namespace for processing photo items.
+    /// Defines methods to perform various photo related operations on flickr.
     /// </summary>
     public class PhotoRepository : CommonRepository, IPhotoRepository
     {
         public PhotoRepository(IFlickrElement elementProxy) : base(elementProxy, typeof(IPhotoRepository))
         {
-            authRepo = new AuthRepository(elementProxy);
             this.elementProxy = elementProxy;
+            authRepo = new AuthRepository(elementProxy);
         }
 
-        public PhotoRepository(IFlickrElement elementProxy, AuthenticationInformation authenticationInformation) 
+        public PhotoRepository(IFlickrElement elementProxy, AuthInfo authenticationInformation) 
             : base (elementProxy, authenticationInformation, typeof(IPhotoRepository))
         {
             this.elementProxy = elementProxy;
@@ -41,17 +41,17 @@ namespace Linq.Flickr.Repository
                 XmlElement element = elementProxy.GetResponseElement(requestUrl);
 
                 People people = (from p in element.Descendants("user")
-                                 select new People
-                                 {
-                                     Id = p.Attribute("id").Value ?? string.Empty,
-                                     IsPro = Convert.ToInt32(p.Attribute("ispro").Value) == 0 ? false : true,
-                                     BandWidth = (from b in element.Descendants("bandwidth")
-                                        select new BandWidth
-                                        {
-                                            RemainingKb =  Convert.ToInt32(b.Attribute("remainingkb").Value),
-                                            UsedKb = Convert.ToInt32(b.Attribute("usedkb").Value)
-                                        }).Single<BandWidth>()
-                                 }).Single<People>();
+                select new People
+                {
+                    Id = p.Attribute("id").Value ?? string.Empty,
+                    IsPro = Convert.ToInt32(p.Attribute("ispro").Value) == 0 ? false : true,
+                    BandWidth = (from b in element.Descendants("bandwidth")
+                    select new BandWidth
+                    {
+                        RemainingKb =  Convert.ToInt32(b.Attribute("remainingkb").Value),
+                        UsedKb = Convert.ToInt32(b.Attribute("usedkb").Value)
+                    }).Single<BandWidth>()
+                }).Single<People>();
 
                 return people;
             }
@@ -174,7 +174,7 @@ namespace Linq.Flickr.Repository
             IDictionary<string, string> dicionary = new Dictionary<string, string>();
 
             dicionary.Add(Helper.BASE_URL + "?method", method);
-            dicionary.Add("api_key", flickrApiKey);
+            dicionary.Add("api_key", Provider.GetCurrentFlickrSettings().ApiKey);
 
             ProcessArguments(args, dicionary);
             ProcessArguments( new object [] {"api_sig", sig, "page", index.ToString(), "per_page", pageLen.ToString(), "auth_token", token }, dicionary);
@@ -356,7 +356,7 @@ namespace Linq.Flickr.Repository
            
             StringBuilder builder = new StringBuilder();
 
-            EncodeAndAddItem(boundary, ref builder, new object[] { "api_key", flickrApiKey, "auth_token", token, "api_sig", sig});
+            EncodeAndAddItem(boundary, ref builder, new object[] { "api_key", Provider.GetCurrentFlickrSettings().ApiKey, "auth_token", token, "api_sig", sig});
             EncodeAndAddItem(boundary, ref builder, args);
             EncodeAndAddItem(boundary, ref builder, new object[] { "photo", fileName});
 
